@@ -1453,7 +1453,7 @@ YY_RULE_SETUP
 case 31:
 YY_RULE_SETUP
 #line 443 "lex.l"
-{//è¯†åˆ«å­—ç¬¦
+{//Ê¶±ğ×Ö·û
 	BEGIN(CH);
 	charRes = "";
 	yycolumn++;
@@ -1462,14 +1462,14 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 449 "lex.l"
-{//è¯†åˆ«å•è¡Œæ³¨é‡Š
+{//Ê¶±ğµ¥ĞĞ×¢ÊÍ
 	BEGIN SINGLE1;
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 453 "lex.l"
-{//è¯†åˆ«å•è¡Œæ³¨é‡Š
+{//Ê¶±ğµ¥ĞĞ×¢ÊÍ
 	BEGIN SINGLE2;
 	yycolumn++;
 }
@@ -1477,7 +1477,7 @@ YY_RULE_SETUP
 case 34:
 YY_RULE_SETUP
 #line 458 "lex.l"
-{//è¯†åˆ«å¤šè¡Œæ³¨é‡Š
+{//Ê¶±ğ¶àĞĞ×¢ÊÍ
 	BEGIN MULTIPLE;
 	yycolumn += 2;
 }
@@ -1485,14 +1485,14 @@ YY_RULE_SETUP
 case 35:
 YY_RULE_SETUP
 #line 463 "lex.l"
-{//å¤„ç†éæ³•å­—ç¬¦
+{//´¦Àí·Ç·¨×Ö·û
 	addLexErrorInfo("Invalid character", yylineno, yycolumn);
 	yycolumn++;
 }
 	YY_BREAK
 case YY_STATE_EOF(CH):
 #line 468 "lex.l"
-{//é‡åˆ°æ–‡ä»¶å°¾éƒ¨
+{//Óöµ½ÎÄ¼şÎ²²¿
 	int len = charRes.length();
 	if(len <= 1)
 		addLexErrorInfo("Unexpected end of file", yylineno, yycolumn);
@@ -1585,7 +1585,7 @@ case 38:
 YY_RULE_SETUP
 #line 550 "lex.l"
 {
-	if(yyleng > 50)//æˆªæ–­å¤„ç†ï¼Œé˜²æ­¢å‡ºç°è¿‡é•¿çš„æ ‡è¯†ç¬¦
+	if(yyleng > 50)//½Ø¶Ï´¦Àí£¬·ÀÖ¹³öÏÖ¹ı³¤µÄ±êÊ¶·û
 	{
 		yytext[50] = 0;
 	}
@@ -1593,7 +1593,7 @@ YY_RULE_SETUP
 	yylval->token = yytext;
 	yylval->id = _ID;
 	yylval->lineNumber = yylineno;
-	//TODO æ­¤å¤„éœ€è¦è¡¥å……ä¸€ä¸ªæ’å…¥ç¬¦å·è¡¨çš„å‡½æ•°
+	//TODO ´Ë´¦ĞèÒª²¹³äÒ»¸ö²åÈë·ûºÅ±íµÄº¯Êı
 	yycolumn += yyleng;
 #ifdef LEXDEBUG
 	fprintf(yyout,"id:%s\n",yylval->token.c_str());
@@ -2722,14 +2722,16 @@ int yywrap(){
 
 void addLexErrorInfo(string info, int lineno, int column){
 
-	string errorInfo = "[" + info + "] ç¬¬" + to_string(lineno) + "è¡Œ,ç¬¬" + to_string(column) + "åˆ—\n"; 
+	string errorInfo = "[" + info + "] µÚ" + to_string(lineno) + "ĞĞ,µÚ" + to_string(column) + "ÁĞ\n"; 
 	lexErrorInfo.push_back(errorInfo);
 
 }
 
 int main(){
-	yyin = fopen("C://Users/HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test5_out.txt","r");
-	yyout = fopen("D://Resources//out5.txt","w");
+	yyin = fopen("C://Users/HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test3_out.txt","r");
+	yyout = fopen("D://Resources//out3.txt","w");
 	yylex();
+    for (auto c : lexErrorInfo)
+        cout << c << endl;
 	return 0;
 }

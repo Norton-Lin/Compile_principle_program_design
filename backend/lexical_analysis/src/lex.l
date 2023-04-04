@@ -470,7 +470,7 @@ separator (\(|\)|\[|\]|:|;|,|\.)
 	if(len <= 1)
 		addLexErrorInfo("Unexpected end of file", yylineno, yycolumn);
 	else
-		addLexErrorInfo("Right quote missing", yylineno, yycolumn+1);
+		addLexErrorInfo("Right quote missing", yylineno, yycolumn+len);
 	return 0;
 }
 
@@ -583,7 +583,7 @@ separator (\(|\)|\[|\]|:|;|,|\.)
 }
 
 <SINGLE2><<EOF>> {
-	addLexErrorInfo("Unexpected end of file", yylineno, yycolumn+1);
+	addLexErrorInfo("Unexpected end of file", yylineno, yycolumn);
 	return 0;
 }
 
@@ -635,5 +635,7 @@ int main(){
 	yyin = fopen("D://homework//test.txt","r");
 	yyout = fopen("D://homework//out.txt","w");
 	yylex();
+	for (auto c : lexErrorInfo)
+	    cout << c << endl;
 	return 0;
 }
