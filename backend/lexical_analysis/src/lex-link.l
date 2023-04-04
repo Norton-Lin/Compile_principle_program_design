@@ -1,6 +1,7 @@
 %{
 #include "main.h"
-#define LEXDEBUG 1
+#include "y.tab.c"
+//#define LEXDEBUG 1
 vector<string> lexErrorInfo;
 void addLexErrorInfo(string info, int lineno, int column);
 
@@ -628,13 +629,4 @@ void addLexErrorInfo(string info, int lineno, int column){
 	string errorInfo = "[" + info + "] 第" + to_string(lineno) + "行,第" + to_string(column) + "列\n"; 
 	lexErrorInfo.push_back(errorInfo);
 
-}
-
-int main(){
-	yyin = fopen("D://homework//test.txt","r");
-	yyout = fopen("D://homework//out.txt","w");
-	yylex();
-	for(auto c : lexErrorInfo)
-		cout << c << endl;
-	return 0;
 }
