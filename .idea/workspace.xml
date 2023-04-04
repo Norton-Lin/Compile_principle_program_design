@@ -17,25 +17,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06c8ffd0-4587-4758-9d90-d6fbf006060b" name="变更" comment="">
-      <change afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test0" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test0_out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1_out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test2_out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test3_out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test4_out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test5" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test5_out.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/src/Disposal.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/src/lex.yy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/backend/lexical_analysis/src/lex.yy.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/src/main.h" beforeDir="false" afterPath="$PROJECT_DIR$/backend/lexical_analysis/src/main.h" afterDir="false" />
-    </list>
+    <list default="true" id="06c8ffd0-4587-4758-9d90-d6fbf006060b" name="变更" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -105,7 +87,7 @@
       <updated>1680533941930</updated>
       <workItem from="1680533946046" duration="67000" />
       <workItem from="1680534091596" duration="550000" />
-      <workItem from="1680592275356" duration="1219000" />
+      <workItem from="1680592275356" duration="1668000" />
     </task>
     <servers />
   </component>
