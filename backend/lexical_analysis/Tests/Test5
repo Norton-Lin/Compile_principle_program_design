@@ -1,0 +1,10 @@
+Program StringAndAnnotation;
+Var
+String MyChar;
+{Definition}
+Begin
+MyString:='n
+{This is a fault
+(*你好我是注释*)
+//我也是注释
+{识别单引号与注释匹配}

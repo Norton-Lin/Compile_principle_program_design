@@ -1,0 +1,14 @@
+program hello;
+uses crt;
+var
+{变量定义}
+mychar:char;
+begin
+{变量赋值}
+mychar:='C';
+{调用Writeln在屏幕上输出}
+writeln(mychar);
+end;
+
+{正确
+程序}

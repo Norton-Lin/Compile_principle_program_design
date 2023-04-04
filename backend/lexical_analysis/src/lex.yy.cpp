@@ -2726,8 +2726,8 @@ void addLexErrorInfo(string info, int lineno, int column){
 }
 
 int main(){
-	yyin = fopen("D://homework//test.txt","r");
-	yyout = fopen("D://homework//out.txt","w");
+	yyin = fopen("C://Users//HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test4_out.txt","r");
+	yyout = fopen("D://Resources//out4.txt","w");
 	yylex();
 	return 0;
 }

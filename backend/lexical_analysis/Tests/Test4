@@ -1,0 +1,8 @@
+Program operators;
+Var
+String:MyChar, FaultString;
+Begin
+MyChar:='行'
+FaultString：=‘Hello World’；
+End;
+{非法符号}

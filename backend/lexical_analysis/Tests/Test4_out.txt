@@ -1,0 +1,8 @@
+program operators;
+var
+string:mychar, faultstring;
+begin
+mychar:='行'
+faultstring：=‘hello world’；
+end;
+{非法符号}
