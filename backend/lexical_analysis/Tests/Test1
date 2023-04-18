@@ -1,4 +1,4 @@
-Program Hello;
+Program Hello(input, output);
 Uses Crt;
 Var
 {变量定义}
@@ -9,6 +9,3 @@ MyChar:='C';
 {调用Writeln在屏幕上输出}
 Writeln(MyChar);
 End;
-
-{正确
-程序}

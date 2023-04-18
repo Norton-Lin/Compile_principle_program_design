@@ -1,0 +1,11 @@
+program circle(input, output);
+  const
+    pi = 3.14159;
+  var
+    r, l, s : real;
+  begin
+    read(r);
+    l := 2*pi*r;
+    s := pi*r*r;
+    write(r, l, s);
+  end.

@@ -18,9 +18,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="06c8ffd0-4587-4758-9d90-d6fbf006060b" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test6" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test6_out.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/src/lex.l" beforeDir="false" afterPath="$PROJECT_DIR$/backend/lexical_analysis/src/lex.l" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1" beforeDir="false" afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1_out.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1_out.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/src/lex.yy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/backend/lexical_analysis/src/lex.yy.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
@@ -96,6 +98,11 @@
       <workItem from="1680594659671" duration="619000" />
       <workItem from="1680596011471" duration="117000" />
       <workItem from="1680596188494" duration="72000" />
+      <workItem from="1680615799039" duration="80000" />
+      <workItem from="1681044259227" duration="297000" />
+      <workItem from="1681447738227" duration="23000" />
+      <workItem from="1681711189259" duration="600000" />
+      <workItem from="1681711901702" duration="2330000" />
     </task>
     <servers />
   </component>

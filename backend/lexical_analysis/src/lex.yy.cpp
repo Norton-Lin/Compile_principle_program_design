@@ -2728,8 +2728,17 @@ void addLexErrorInfo(string info, int lineno, int column){
 }
 
 int main(){
-	yyin = fopen("C://Users/HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test3_out.txt","r");
-	yyout = fopen("D://Resources//out3.txt","w");
+    string filename;
+    cout << "Please enter the file you want to compile.\n";
+    cin >> filename;
+    Pre pre(filename);
+    while (!pre.Read_Line()) {
+        cout << "Please enter the file you want to compile again.\n";
+        cin >> filename;
+    }
+    pre.Dispose();
+	yyin = fopen("C://Users/HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test1_out.txt","r");
+	yyout = fopen("D://Resources//out5.txt","w");
 	yylex();
     for (auto c : lexErrorInfo)
         cout << c << endl;
