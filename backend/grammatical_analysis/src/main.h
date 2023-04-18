@@ -26,6 +26,7 @@ class BitNode {
 public:
     string data;
     string type;
+    BitNode* father;
     vector<BitNode *> children;
 
     BitNode(){}

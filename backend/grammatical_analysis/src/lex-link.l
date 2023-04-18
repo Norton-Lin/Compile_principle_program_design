@@ -34,7 +34,7 @@ vartype (integer|real|boolean|char)
 addop (\+|-|or)
 mulop (\*|\/|and|mod|div)
 assignop (:=)
-separator (\(|\)|\[|\]|:|;|,|\.)
+separator (\(|\)|\[|\]|:|,|\.|;)
 
 %%
 
@@ -154,7 +154,7 @@ separator (\(|\)|\[|\]|:|;|,|\.)
 	fprintf(yyout,"separator:%s\n",yylval.TYPE->token.c_str());
 #endif
 #ifndef LEXDEBUG
-	return _SEPARATOR;
+	return yytext[0];
 #endif
 }
 
