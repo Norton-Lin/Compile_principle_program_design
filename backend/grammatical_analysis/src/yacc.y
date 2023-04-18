@@ -11,6 +11,8 @@ extern "C"{
 
 void BitNode::insertChild(BitNode* child) {
     children.push_back(child);
+	child->father=this;
+	cout<<"\t\t"<<this->type<<"\t"<<child->type<<"\t"<<child->data<<"\t"<<endl;
 }
 
 BitNode* root;
@@ -22,12 +24,8 @@ BitNode* root;
 %type<BITNODE> parameter_list parameter var_parameter value_parameter subprogram_body compound_statement statement_list statement variable_list variable id_varpart procedure_call else_part term factor simple_expression expression_list expression
 %%
 
-programstruct: program_head program_body _SEPARATOR {
-	if($3->token.compare(".") != 0){
-		yyerror_2("Lack of '.'", $3->lineNumber, @3.last_column + 1);
-	}
-
-	BitNode *Node3 = new BitNode($3->token, "SEPARATOR");
+programstruct: program_head program_body '.' {
+	BitNode *Node3 = new BitNode(".", "SEPARATOR");
 
 	root = new BitNode("","programstruct");
 	root->insertChild($1);
@@ -39,14 +37,11 @@ programstruct: program_head program_body _SEPARATOR {
         $$ = root;
 };
 
-program_head:  _PROGRAM _ID _SEPARATOR{
-        if($3->token.compare(";") != 0)
-       		yyerror_2("Lack of ';'", $3->lineNumber, @3.last_column + 1);
-
+program_head:  _PROGRAM _ID ';'{
 	BitNode *newNode, *Node1, *Node2, *Node3;
        	Node1 = new BitNode($1->token, "PROGRAM");
        	Node2 = new BitNode($2->token, "ID");
-       	Node3 = new BitNode($3->token, "SEPARATOR");
+       	Node3 = new BitNode(";", "SEPARATOR");
        	newNode = new BitNode("", "program_head");
 
        	newNode->insertChild(Node1);
@@ -56,17 +51,14 @@ program_head:  _PROGRAM _ID _SEPARATOR{
        	cout<<"program_head -> program id ; [OK]"<<endl;
        	$$ = newNode;
 }
-	| _PROGRAM _ID _SEPARATOR idlist _SEPARATOR _SEPARATOR{
-	if($3->token.compare("(") != 0 || $5->token.compare(")") !=0 || $6->token.compare(";") != 0 )
-        	yyerror("");
-
+	| _PROGRAM _ID '(' idlist ')' ';'{
         BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node6;
         newNode = new BitNode("", "program_head");
         Node1 = new BitNode($1->token, "PROGRAM");
         Node2 = new BitNode($2->token, "ID");
-        Node3 = new BitNode($3->token, "SEPARATOR");
-        Node5 = new BitNode($5->token, "SEPARATOR");
-        Node6 = new BitNode($6->token, "SEPARATOR");
+        Node3 = new BitNode("(", "SEPARATOR");
+        Node5 = new BitNode(")", "SEPARATOR");
+        Node6 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -91,13 +83,10 @@ program_body: const_declarations var_declarations subprogram_declarations compou
 	$$ = newNode;
 };
 
-idlist: idlist _SEPARATOR _ID {
-	if($2->token.compare(",") != 0)
-		yyerror("");
-
+idlist: idlist ',' _ID {
 	BitNode *newNode, *Node2, *Node3;
 	newNode = new BitNode("", "idlist");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(",", "SEPARATOR");
 	Node3 = new BitNode($3->token, "ID");
 
 	newNode->insertChild($1);
@@ -116,14 +105,11 @@ idlist: idlist _SEPARATOR _ID {
 	$$ = newNode;
 };
 
-const_declarations: _CONST const_declaration _SEPARATOR {
-	if($3->token.compare(";") != 0)
-		yyerror("");
-
+const_declarations: _CONST const_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
 	newNode = new BitNode("", "const_declarations");
 	Node1 = new BitNode($1->token, "CONST");
-	Node3 = new BitNode($3->token, "SEPARATOR");
+	Node3 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -139,13 +125,13 @@ const_declarations: _CONST const_declaration _SEPARATOR {
 	$$ = newNode;
 };
 
-const_declaration: const_declaration _SEPARATOR _ID _RELOP const_value {
-	if($2->token.compare(";") != 0 || $4->token.compare("=") != 0)
+const_declaration: const_declaration ';' _ID _RELOP const_value {
+	if($3->token.compare("=") != 0)
         	yyerror("");
 
 	BitNode *newNode, *Node2, *Node3, *Node4;
 	newNode = new BitNode("", "const_declaration");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(";", "SEPARATOR");
 	Node3 = new BitNode($3->token, "ID");
 	Node4 = new BitNode($4->token, "RELOP");
 
@@ -202,16 +188,21 @@ const_value: _ADDOP _NUM {
 }
  	|  _CHAR  {
 	// TODO: 与词法分析部分沟通，确定文法产生式的符号如何处理
+	BitNode *newNode, *Node1;
+	newNode = new BitNode("", "const_value");
+	Node1 = new BitNode($1->token, "CHAR");
+
+	newNode->insertChild(Node1);
+
+	cout<<"const_value -> char [OK]"<<endl;
+	$$ = newNode;
 };
 
-var_declarations: _VAR var_declaration _SEPARATOR {
-	if($3->token.compare(";") != 0)
-		yyerror("");
-
+var_declarations: _VAR var_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
 	newNode = new BitNode("", "var_declarations");
 	Node1 = new BitNode($1->token, "VAR");
-	Node3 = new BitNode($3->token, "SEPARATOR");
+	Node3 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -227,14 +218,11 @@ var_declarations: _VAR var_declaration _SEPARATOR {
 	$$ = newNode;
 };
 
-var_declaration: var_declaration _SEPARATOR idlist _SEPARATOR type {
-	if($2->token.compare(";") != 0 || $4->token.compare(":") != 0)
-		yyerror("");
-
+var_declaration: var_declaration ';' idlist ':' type {
 	BitNode *newNode, *Node2, *Node4;
 	newNode = new BitNode("", "var_declaration");
-	Node2 = new BitNode($2->token, "SEPARATOR");
-	Node4 = new BitNode($4->token, "SEPARATOR");
+	Node2 = new BitNode(";", "SEPARATOR");
+	Node4 = new BitNode(":", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -245,13 +233,10 @@ var_declaration: var_declaration _SEPARATOR idlist _SEPARATOR type {
 	cout<<"var_declaration -> var_declaration ; idlist : type [OK]"<<endl;
 	$$ = newNode;
 }
- 	| idlist _SEPARATOR type {
- 	if($2->token.compare(":") != 0)
- 		yyerror("");
-
+ 	| idlist ':' type {
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "var_declaration");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(":", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -270,15 +255,12 @@ type: basic_type {
 	cout<<"type -> basic_type [OK]"<<endl;
 	$$ = newNode;
 }
- 	| _ARRAY _SEPARATOR period _SEPARATOR _OF basic_type {
- 	if($2->token.compare("[") != 0 || $4->token.compare("]") != 0)
-        	yyerror("");
-
+ 	| _ARRAY '[' period ']' _OF basic_type {
 	BitNode *newNode, *Node1, *Node2, *Node4, *Node5;
 	newNode = new BitNode("", "type");
 	Node1 = new BitNode($1->token, "ARRAY");
-	Node2 = new BitNode($2->token, "SEPARATOR");
-	Node4 = new BitNode($4->token, "SEPARATOR");
+	Node2 = new BitNode("[", "SEPARATOR");
+	Node4 = new BitNode("]", "SEPARATOR");
 	Node5 = new BitNode($5->token, "OF");
 
 	newNode->insertChild(Node1);
@@ -303,13 +285,10 @@ basic_type: _VARTYPE {
 	$$ = newNode;
 };
 
-period: period _SEPARATOR _DIGITS _RANGE _DIGITS{
-	if($2->token.compare(",") != 0)
-		yyerror("");
-
+period: period ',' _DIGITS _RANGE _DIGITS{
 	BitNode *newNode, *Node2, *Node3, *Node4, *Node5;
 	newNode = new BitNode("", "period");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(",", "SEPARATOR");
 	Node3 = new BitNode($3->token, "DIGITS");
 	Node4 = new BitNode($4->token, "RANGE");
 	Node5 = new BitNode($5->token, "DIGITS");
@@ -338,13 +317,10 @@ period: period _SEPARATOR _DIGITS _RANGE _DIGITS{
 	$$ = newNode;
 };
 
-subprogram_declarations: subprogram_declarations subprogram _SEPARATOR {
-	if($3->token.compare(";") != 0)
-        	yyerror("");
-
+subprogram_declarations: subprogram_declarations subprogram ';' {
 	BitNode *newNode, *Node3;
 	newNode = new BitNode("", "subprogram_declarations");
-	Node3 = new BitNode("", "SEPARATOR");
+	Node3 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild($2);
@@ -360,13 +336,10 @@ subprogram_declarations: subprogram_declarations subprogram _SEPARATOR {
 	$$ = newNode;
 };
 
-subprogram: subprogram_head _SEPARATOR subprogram_body {
-	if($2->token.compare(";") != 0)
-		yyerror("");
-
+subprogram: subprogram_head ';' subprogram_body {
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "subprogram");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -389,15 +362,12 @@ subprogram_head: _PROCEDURE _ID formal_parameter {
 	cout<<"subprogram_head -> procedure id formal_parameter [OK]"<<endl;
 	$$ = newNode;
 }
- 	| _FUNCTION _ID formal_parameter _SEPARATOR basic_type {
- 	if($4->token.compare(":") != 0)
-        	yyerror("");
-
+ 	| _FUNCTION _ID formal_parameter ':' basic_type {
 	BitNode *newNode,*Node1, *Node2, *Node4;
 	newNode = new BitNode("", "subprogram_head");
 	Node1 = new BitNode($1->token, "FUNCTION");
 	Node2 = new BitNode($2->token, "ID");
-	Node4 = new BitNode($4->token, "SEPARATOR");
+	Node4 = new BitNode(":", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -409,14 +379,11 @@ subprogram_head: _PROCEDURE _ID formal_parameter {
 	$$ = newNode;
 };
 
-formal_parameter: _SEPARATOR parameter_list _SEPARATOR {
-	if($1->token.compare("(") != 0 || $3->token.compare(")") != 0)
-		yyerror("");
-
+formal_parameter: '(' parameter_list ')' {
 	BitNode *newNode, *Node1, *Node3;
 	newNode = new BitNode("", "formal_parameter");
-	Node1 = new BitNode($1->token, "SEPARATOR");
-	Node3 = new BitNode($3->token, "SEPARATOR");
+	Node1 = new BitNode("(", "SEPARATOR");
+	Node3 = new BitNode(")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -432,13 +399,10 @@ formal_parameter: _SEPARATOR parameter_list _SEPARATOR {
 	$$ = newNode;
 };
 
-parameter_list: parameter_list _SEPARATOR parameter {
-	if($2->token.compare(";") != 0)
-		yyerror("");
-
+parameter_list: parameter_list ';' parameter {
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "parameter_list");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -488,13 +452,13 @@ var_parameter: _VAR value_parameter{
 	$$ = newNode;
 };
 
-value_parameter: idlist _SEPARATOR basic_type {
-	if($2->token.compare(":") != 0)
-		yyerror("");
+value_parameter: idlist ':' basic_type {
+	// if($2->token.compare(":") != 0)
+	//	yyerror("");
 
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "value_parameter");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(":", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -530,13 +494,10 @@ compound_statement: _BEGIN statement_list _END {
 	$$ = newNode;
 };
 
-statement_list: statement_list _SEPARATOR statement {
-	if($2->token.compare(";") != 0)
-		yyerror("");
-
+statement_list: statement_list ';' statement {
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "statement_list");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -617,15 +578,12 @@ statement: variable _ASSIGNOP expression {
 	cout<<"statement -> for id assignop expression to expression do statement [OK]"<<endl;
 	$$ = newNode;
 }
-	| _READ _SEPARATOR variable_list _SEPARATOR {
-	if($2->token.compare("(") != 0 || $4->token.compare(")") != 0)
-		yyerror("");
-
+	| _READ '(' variable_list ')' {
 	BitNode *newNode, *Node1, *Node2, *Node4;
 	newNode = new BitNode("", "statement");
 	Node1 = new BitNode($1->token, "READ");
-	Node2 = new BitNode($2->token, "SEPARATOR");
-	Node4 = new BitNode($4->token, "SEPARATOR");
+	Node2 = new BitNode("(", "SEPARATOR");
+	Node4 = new BitNode(")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -635,15 +593,12 @@ statement: variable _ASSIGNOP expression {
 	cout<<"statement -> read ( variable_list ) [OK]"<<endl;
 	$$ = newNode;
 }
-	| _WRITE _SEPARATOR expression_list _SEPARATOR {
-	if($2->token.compare("(") != 0 || $4->token.compare(")") != 0)
-        	yyerror("");
-
+	| _WRITE '(' expression_list ')' {
         BitNode *newNode, *Node1, *Node2, *Node4;
         newNode = new BitNode("", "statement");
         Node1 = new BitNode($1->token, "WRITE");
-        Node2 = new BitNode($2->token, "SEPARATOR");
-        Node4 = new BitNode($4->token, "SEPARATOR");
+        Node2 = new BitNode("(", "SEPARATOR");
+        Node4 = new BitNode(")", "SEPARATOR");
 
         newNode->insertChild(Node1);
         newNode->insertChild(Node2);
@@ -660,13 +615,10 @@ statement: variable _ASSIGNOP expression {
 	$$ = newNode;
 };
 
-variable_list: variable_list _SEPARATOR variable{
-	if($2->token.compare(",") != 0)
-		yyerror("");
-
+variable_list: variable_list ',' variable{
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "variable_list");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(",", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -697,14 +649,11 @@ variable: _ID id_varpart {
 	$$ = newNode;
 };
 
-id_varpart: _SEPARATOR expression_list _SEPARATOR {
-	if($1->token.compare("[") !=0 || $3->token.compare("]") != 0)
-		yyerror("");
-
+id_varpart: '[' expression_list ']' {
 	BitNode *newNode, *Node1, *Node3;
 	newNode = new BitNode("", "id_varpart");
-	Node1 = new BitNode($1->token, "SEPARATOR");
-	Node3 = new BitNode($3->token, "SEPARATOR");
+	Node1 = new BitNode("[", "SEPARATOR");
+	Node3 = new BitNode("]", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -730,15 +679,12 @@ procedure_call: _ID {
 	cout<<"procedure_call -> id [OK]"<<endl;
 	$$ = newNode;
 }
-	| _ID _SEPARATOR expression_list _SEPARATOR {
-	if($2->token.compare("(") != 0 || $4->token.compare(")") != 0)
-		yyerror("");
-
+	| _ID '(' expression_list ')' {
 	BitNode *newNode, *Node1, *Node2, *Node4;
 	newNode = new BitNode("", "procedure_call");
 	Node1 = new BitNode($1->token, "ID");
-	Node2 = new BitNode($2->token, "SEPARATOR");
-	Node4 = new BitNode($4->token, "SEPARATOR");
+	Node2 = new BitNode("(", "SEPARATOR");
+	Node4 = new BitNode(")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -751,7 +697,8 @@ procedure_call: _ID {
 
 else_part: _ELSE statement {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode($1->token, "ELSE");
+	newNode=new BitNode("", "else_part");
+	Node1 = new BitNode($1->token, "ELSE");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -766,13 +713,11 @@ else_part: _ELSE statement {
 	$$ = newNode;
 };
 
-expression_list: expression_list _SEPARATOR expression {
-	if($2->token.compare(",") != 0)
-		yyerror("");
+expression_list: expression_list ',' expression {
 
 	BitNode *newNode, *Node2;
 	newNode = new BitNode("", "expression_list");
-	Node2 = new BitNode($2->token, "SEPARATOR");
+	Node2 = new BitNode(",", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -867,6 +812,16 @@ factor: _NUM {
         cout<<" factor -> num [OK]"<<endl;
         $$ = newNode;
 }
+| _DIGITS {
+        BitNode *newNode, *Node1;
+        newNode = new BitNode("", "factor");
+        Node1 = new BitNode($1->token, "DIGITS");
+
+        newNode->insertChild(Node1);
+
+        cout<<" factor -> num [OK]"<<endl;
+        $$ = newNode;
+}
         | variable {
         BitNode *newNode;
         newNode = new BitNode("", "factor");
@@ -876,15 +831,13 @@ factor: _NUM {
         cout<<" factor -> variable [OK]"<<endl;
         $$ = newNode;
 }
-	| _ID _SEPARATOR expression_list _SEPARATOR {
-	if($2->token.compare("(") !=0 || $4->token.compare(")") != 0)
-		yyerror("");
+	| _ID '(' expression_list ')' {
 
 	BitNode *newNode, *Node1, *Node2, *Node4;
 	newNode =  new BitNode("", "factor");
 	Node1 = new BitNode($1->token, "ID");
-	Node2 = new BitNode($2->token, "SEPARATOR");
-	Node4 = new BitNode($4->token, "SEPARATOR");
+	Node2 = new BitNode("(", "SEPARATOR");
+	Node4 = new BitNode(")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -895,14 +848,14 @@ factor: _NUM {
 	$$ = newNode;
 }
 
- 	| _SEPARATOR expression _SEPARATOR {
-	if($1->token.compare("(") != 0 || $3->token.compare(")") != 0)
-		yyerror("");
+ 	| '(' expression ')' {
+	// if($1->token.compare("(") != 0 || $3->token.compare(")") != 0)
+	//	yyerror("");
 
 	BitNode *newNode, *Node1, *Node3;
 	newNode = new BitNode("", "factor");
-	Node1 = new BitNode($1->token, "SEPARATOR");
-	Node3 = new BitNode($3->token, "SEPARATOR");
+	Node1 = new BitNode("(", "SEPARATOR");
+	Node3 = new BitNode(")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -944,10 +897,10 @@ void yyerror_2(const char *s, int line_val, int col_val)
 
 void yyerror(const char *s)
 {
-	extern int yylineno;
-//	extern char *yytext;
+	extern int yylineno,yycolumn;
+	extern char *yytext;
 	extern YYSTYPE yylval;
-	cout << "Line:" << yylineno << "\t" << s << endl;
+	cout << "Line:" << yylineno << "\t" << s <<"\tcolumn:"<<yycolumn<<"\t"<<yytext<<endl;
 }
 
 int main(int argc,char *argv[])
