@@ -24,6 +24,7 @@ public:
 
 class BitNode {
 public:
+    int col,line;
     string data;
     string type;
     BitNode* father;
@@ -31,7 +32,7 @@ public:
 
     BitNode(){}
 
-    BitNode(string data_val, string type_val) : data(data_val), type(type_val) {}
+    BitNode(int col_value,int line_value,string data_val, string type_val) : col(col_value),line(line_value),data(data_val), type(type_val) {}
 
     void insertChild(BitNode *child);
 };

@@ -8,6 +8,7 @@ extern "C"{
 	void yyerror_2(const char *s, int line_val, int col_val);
 	extern int yylex(void);
 }
+extern int yylineno,yycolumn;
 
 void BitNode::insertChild(BitNode* child) {
     children.push_back(child);
@@ -25,9 +26,9 @@ BitNode* root;
 %%
 
 programstruct: program_head program_body '.' {
-	BitNode *Node3 = new BitNode(".", "SEPARATOR");
+	BitNode *Node3 = new BitNode(yycolumn,yylineno,".", "SEPARATOR");
 
-	root = new BitNode("","programstruct");
+	root = new BitNode(yycolumn,yylineno,"","programstruct");
 	root->insertChild($1);
         root->insertChild($2);
         root->insertChild(Node3);
@@ -39,10 +40,10 @@ programstruct: program_head program_body '.' {
 
 program_head:  _PROGRAM _ID ';'{
 	BitNode *newNode, *Node1, *Node2, *Node3;
-       	Node1 = new BitNode($1->token, "PROGRAM");
-       	Node2 = new BitNode($2->token, "ID");
-       	Node3 = new BitNode(";", "SEPARATOR");
-       	newNode = new BitNode("", "program_head");
+       	Node1 = new BitNode(yycolumn,yylineno,$1->token, "PROGRAM");
+       	Node2 = new BitNode(yycolumn,yylineno,$2->token, "ID");
+       	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+       	newNode = new BitNode(yycolumn,yylineno,"", "program_head");
 
        	newNode->insertChild(Node1);
        	newNode->insertChild(Node2);
@@ -53,12 +54,12 @@ program_head:  _PROGRAM _ID ';'{
 }
 	| _PROGRAM _ID '(' idlist ')' ';'{
         BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node6;
-        newNode = new BitNode("", "program_head");
-        Node1 = new BitNode($1->token, "PROGRAM");
-        Node2 = new BitNode($2->token, "ID");
-        Node3 = new BitNode("(", "SEPARATOR");
-        Node5 = new BitNode(")", "SEPARATOR");
-        Node6 = new BitNode(";", "SEPARATOR");
+        newNode = new BitNode(yycolumn,yylineno,"", "program_head");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "PROGRAM");
+        Node2 = new BitNode(yycolumn,yylineno,$2->token, "ID");
+        Node3 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+        Node5 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+        Node6 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -72,7 +73,7 @@ program_head:  _PROGRAM _ID ';'{
 };
 
 program_body: const_declarations var_declarations subprogram_declarations compound_statement {
-	BitNode *newNode = new BitNode("", "program_body");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "program_body");
 
 	newNode->insertChild($1);
 	newNode->insertChild($2);
@@ -85,9 +86,9 @@ program_body: const_declarations var_declarations subprogram_declarations compou
 
 idlist: idlist ',' _ID {
 	BitNode *newNode, *Node2, *Node3;
-	newNode = new BitNode("", "idlist");
-	Node2 = new BitNode(",", "SEPARATOR");
-	Node3 = new BitNode($3->token, "ID");
+	newNode = new BitNode(yycolumn,yylineno,"", "idlist");
+	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "ID");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -98,8 +99,8 @@ idlist: idlist ',' _ID {
 }
 	| _ID {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "idlist");
-	Node1 = new BitNode($1->token, "ID");
+	newNode = new BitNode(yycolumn,yylineno,"", "idlist");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
 
 	cout<<"idlist -> id [OK]"<<endl;
 	$$ = newNode;
@@ -107,9 +108,9 @@ idlist: idlist ',' _ID {
 
 const_declarations: _CONST const_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "const_declarations");
-	Node1 = new BitNode($1->token, "CONST");
-	Node3 = new BitNode(";", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "const_declarations");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "CONST");
+	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -119,7 +120,7 @@ const_declarations: _CONST const_declaration ';' {
 	$$ = newNode;
 }
 	| {
-	BitNode *newNode = new BitNode("", "const_declarations");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "const_declarations");
 
 	cout<<"const_declarations -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -130,10 +131,10 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
         	yyerror("");
 
 	BitNode *newNode, *Node2, *Node3, *Node4;
-	newNode = new BitNode("", "const_declaration");
-	Node2 = new BitNode(";", "SEPARATOR");
-	Node3 = new BitNode($3->token, "ID");
-	Node4 = new BitNode($4->token, "RELOP");
+	newNode = new BitNode(yycolumn,yylineno,"", "const_declaration");
+	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "ID");
+	Node4 = new BitNode(yycolumn,yylineno,$4->token, "RELOP");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -149,9 +150,9 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
         	yyerror("");
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode("", "const_declaration");
-	Node1 = new BitNode($1->token, "ID");
-	Node2 = new BitNode($2->token, "RELOP");
+	newNode = new BitNode(yycolumn,yylineno,"", "const_declaration");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "RELOP");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -166,9 +167,9 @@ const_value: _ADDOP _NUM {
 		yyerror("");
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode("", "const_value");
-	Node1 = new BitNode($1->token, "ADDOP");
-	Node2 = new BitNode($2->token, "NUM");
+	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ADDOP");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "NUM");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -178,8 +179,8 @@ const_value: _ADDOP _NUM {
 }
 	| _NUM {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "const_value");
-	Node1 = new BitNode($1->token, "NUM");
+	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "NUM");
 
 	newNode->insertChild(Node1);
 
@@ -189,8 +190,8 @@ const_value: _ADDOP _NUM {
  	|  _CHAR  {
 	// TODO: 与词法分析部分沟通，确定文法产生式的符号如何处理
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "const_value");
-	Node1 = new BitNode($1->token, "CHAR");
+	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "CHAR");
 
 	newNode->insertChild(Node1);
 
@@ -200,9 +201,9 @@ const_value: _ADDOP _NUM {
 
 var_declarations: _VAR var_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "var_declarations");
-	Node1 = new BitNode($1->token, "VAR");
-	Node3 = new BitNode(";", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "var_declarations");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "VAR");
+	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -212,7 +213,7 @@ var_declarations: _VAR var_declaration ';' {
 	$$ = newNode;
 }
 	| {
-	BitNode *newNode = new BitNode("", "var_declarations");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "var_declarations");
 
 	cout<<"var_declarations -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -220,9 +221,9 @@ var_declarations: _VAR var_declaration ';' {
 
 var_declaration: var_declaration ';' idlist ':' type {
 	BitNode *newNode, *Node2, *Node4;
-	newNode = new BitNode("", "var_declaration");
-	Node2 = new BitNode(";", "SEPARATOR");
-	Node4 = new BitNode(":", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "var_declaration");
+	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	Node4 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -235,8 +236,8 @@ var_declaration: var_declaration ';' idlist ':' type {
 }
  	| idlist ':' type {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "var_declaration");
-	Node2 = new BitNode(":", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "var_declaration");
+	Node2 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -248,7 +249,7 @@ var_declaration: var_declaration ';' idlist ':' type {
 
 type: basic_type {
 	BitNode *newNode;
-	newNode = new BitNode("", "type");
+	newNode = new BitNode(yycolumn,yylineno,"", "type");
 
 	newNode->insertChild($1);
 
@@ -257,11 +258,11 @@ type: basic_type {
 }
  	| _ARRAY '[' period ']' _OF basic_type {
 	BitNode *newNode, *Node1, *Node2, *Node4, *Node5;
-	newNode = new BitNode("", "type");
-	Node1 = new BitNode($1->token, "ARRAY");
-	Node2 = new BitNode("[", "SEPARATOR");
-	Node4 = new BitNode("]", "SEPARATOR");
-	Node5 = new BitNode($5->token, "OF");
+	newNode = new BitNode(yycolumn,yylineno,"", "type");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ARRAY");
+	Node2 = new BitNode(yycolumn,yylineno,"[", "SEPARATOR");
+	Node4 = new BitNode(yycolumn,yylineno,"]", "SEPARATOR");
+	Node5 = new BitNode(yycolumn,yylineno,$5->token, "OF");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -276,8 +277,8 @@ type: basic_type {
 
 basic_type: _VARTYPE {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "basic_type");
-	Node1 = new BitNode($1->token, "VARTYPE");
+	newNode = new BitNode(yycolumn,yylineno,"", "basic_type");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "VARTYPE");
 
 	newNode->insertChild(Node1);
 
@@ -287,11 +288,11 @@ basic_type: _VARTYPE {
 
 period: period ',' _DIGITS _RANGE _DIGITS{
 	BitNode *newNode, *Node2, *Node3, *Node4, *Node5;
-	newNode = new BitNode("", "period");
-	Node2 = new BitNode(",", "SEPARATOR");
-	Node3 = new BitNode($3->token, "DIGITS");
-	Node4 = new BitNode($4->token, "RANGE");
-	Node5 = new BitNode($5->token, "DIGITS");
+	newNode = new BitNode(yycolumn,yylineno,"", "period");
+	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "DIGITS");
+	Node4 = new BitNode(yycolumn,yylineno,$4->token, "RANGE");
+	Node5 = new BitNode(yycolumn,yylineno,$5->token, "DIGITS");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -304,10 +305,10 @@ period: period ',' _DIGITS _RANGE _DIGITS{
 }
 	| _DIGITS _RANGE _DIGITS {
 	BitNode *newNode, *Node1, *Node2, *Node3;
-	newNode = new BitNode("", "period");
-	Node1 = new BitNode($1->token, "DIGITS");
-	Node2 = new BitNode($2->token, "RANGE");
-	Node3 = new BitNode($3->token, "DIGITS");
+	newNode = new BitNode(yycolumn,yylineno,"", "period");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "DIGITS");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "RANGE");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "DIGITS");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -319,8 +320,8 @@ period: period ',' _DIGITS _RANGE _DIGITS{
 
 subprogram_declarations: subprogram_declarations subprogram ';' {
 	BitNode *newNode, *Node3;
-	newNode = new BitNode("", "subprogram_declarations");
-	Node3 = new BitNode(";", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_declarations");
+	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild($2);
@@ -330,7 +331,7 @@ subprogram_declarations: subprogram_declarations subprogram ';' {
 	$$ = newNode;
 }
  	| {
-	BitNode *newNode = new BitNode("", "subprogram_declarations");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "subprogram_declarations");
 
 	cout<<"subprogram_declarations -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -338,8 +339,8 @@ subprogram_declarations: subprogram_declarations subprogram ';' {
 
 subprogram: subprogram_head ';' subprogram_body {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "subprogram");
-	Node2 = new BitNode(";", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "subprogram");
+	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -351,9 +352,9 @@ subprogram: subprogram_head ';' subprogram_body {
 
 subprogram_head: _PROCEDURE _ID formal_parameter {
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode("", "subprogram_head");
-	Node1 = new BitNode($1->token, "PROCEDURE");
-	Node2 = new BitNode($2->token, "ID");
+	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_head");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "PROCEDURE");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "ID");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -364,10 +365,10 @@ subprogram_head: _PROCEDURE _ID formal_parameter {
 }
  	| _FUNCTION _ID formal_parameter ':' basic_type {
 	BitNode *newNode,*Node1, *Node2, *Node4;
-	newNode = new BitNode("", "subprogram_head");
-	Node1 = new BitNode($1->token, "FUNCTION");
-	Node2 = new BitNode($2->token, "ID");
-	Node4 = new BitNode(":", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_head");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "FUNCTION");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "ID");
+	Node4 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -381,9 +382,9 @@ subprogram_head: _PROCEDURE _ID formal_parameter {
 
 formal_parameter: '(' parameter_list ')' {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "formal_parameter");
-	Node1 = new BitNode("(", "SEPARATOR");
-	Node3 = new BitNode(")", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "formal_parameter");
+	Node1 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+	Node3 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -393,7 +394,7 @@ formal_parameter: '(' parameter_list ')' {
 	$$ = newNode;
 }
 	|{
-	BitNode *newNode = new BitNode("", "formal_parameter");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "formal_parameter");
 
 	cout<<"formal_parameter -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -401,8 +402,8 @@ formal_parameter: '(' parameter_list ')' {
 
 parameter_list: parameter_list ';' parameter {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "parameter_list");
-	Node2 = new BitNode(";", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "parameter_list");
+	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -413,7 +414,7 @@ parameter_list: parameter_list ';' parameter {
 }
 	| parameter {
 	BitNode * newNode;
-	newNode = new BitNode("", "parameter_list");
+	newNode = new BitNode(yycolumn,yylineno,"", "parameter_list");
 
 	newNode->insertChild($1);
 
@@ -423,7 +424,7 @@ parameter_list: parameter_list ';' parameter {
 
 parameter: var_parameter {
 	BitNode *newNode;
-	newNode = new BitNode("", "parameter");
+	newNode = new BitNode(yycolumn,yylineno,"", "parameter");
 
 	newNode->insertChild($1);
 
@@ -432,7 +433,7 @@ parameter: var_parameter {
 }
 	| value_parameter {
 	BitNode *newNode;
-        newNode = new BitNode("", "parameter");
+        newNode = new BitNode(yycolumn,yylineno,"", "parameter");
 
         newNode->insertChild($1);
 
@@ -442,8 +443,8 @@ parameter: var_parameter {
 
 var_parameter: _VAR value_parameter{
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "var_parameter");
-	Node1 = new BitNode($1->token, "VAR");
+	newNode = new BitNode(yycolumn,yylineno,"", "var_parameter");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "VAR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -457,8 +458,8 @@ value_parameter: idlist ':' basic_type {
 	//	yyerror("");
 
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "value_parameter");
-	Node2 = new BitNode(":", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "value_parameter");
+	Node2 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -470,7 +471,7 @@ value_parameter: idlist ':' basic_type {
 
 subprogram_body: const_declarations var_declarations compound_statement {
 	BitNode *newNode;
-	newNode = new BitNode("", "subprogram_body");
+	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_body");
 
 	newNode->insertChild($1);
 	newNode->insertChild($2);
@@ -482,9 +483,9 @@ subprogram_body: const_declarations var_declarations compound_statement {
 
 compound_statement: _BEGIN statement_list _END {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "compound_statement");
-	Node1 = new BitNode($1->token, "BEGIN");
-	Node3 = new BitNode($3->token, "END");
+	newNode = new BitNode(yycolumn,yylineno,"", "compound_statement");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "BEGIN");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "END");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -496,8 +497,8 @@ compound_statement: _BEGIN statement_list _END {
 
 statement_list: statement_list ';' statement {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "statement_list");
-	Node2 = new BitNode(";", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement_list");
+	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -508,7 +509,7 @@ statement_list: statement_list ';' statement {
 }
 	| statement {
 	BitNode *newNode;
-	newNode = new BitNode("", "statement_list");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement_list");
 	newNode->insertChild($1);
 
 	cout<<"statement_list -> statement [OK]"<<endl;
@@ -517,8 +518,8 @@ statement_list: statement_list ';' statement {
 
 statement: variable _ASSIGNOP expression {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "statement");
-	Node2 = new BitNode($2->token, "ASSIGNOP");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "ASSIGNOP");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -529,7 +530,7 @@ statement: variable _ASSIGNOP expression {
 }
 	| procedure_call {
 	BitNode *newNode;
-	newNode = new BitNode("", "statement");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement");
 	newNode->insertChild($1);
 
 	cout<<"statement -> procedure_call [OK]"<<endl;
@@ -537,7 +538,7 @@ statement: variable _ASSIGNOP expression {
 }
 	| compound_statement {
 	BitNode *newNode;
-        newNode = new BitNode("", "statement");
+        newNode = new BitNode(yycolumn,yylineno,"", "statement");
         newNode->insertChild($1);
 
         cout<<"statement -> compound_statement [OK]"<<endl;
@@ -545,9 +546,9 @@ statement: variable _ASSIGNOP expression {
 }
 	| _IF expression _THEN statement else_part {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "statement");
-	Node1 = new BitNode($1->token, "IF");
-	Node3 = new BitNode($3->token, "THEN");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "IF");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "THEN");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -560,12 +561,12 @@ statement: variable _ASSIGNOP expression {
 }
 	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
 	BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node7;
-	newNode = new BitNode("", "statement");
-	Node1 = new BitNode($1->token, "FOR");
-	Node2 = new BitNode($2->token, "ID");
-	Node3 = new BitNode($3->token, "ASSIGNOP");
-	Node5 = new BitNode($5->token, "TO");
-	Node7 = new BitNode($7->token, "DO");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "FOR");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "ID");
+	Node3 = new BitNode(yycolumn,yylineno,$3->token, "ASSIGNOP");
+	Node5 = new BitNode(yycolumn,yylineno,$5->token, "TO");
+	Node7 = new BitNode(yycolumn,yylineno,$7->token, "DO");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -580,10 +581,10 @@ statement: variable _ASSIGNOP expression {
 }
 	| _READ '(' variable_list ')' {
 	BitNode *newNode, *Node1, *Node2, *Node4;
-	newNode = new BitNode("", "statement");
-	Node1 = new BitNode($1->token, "READ");
-	Node2 = new BitNode("(", "SEPARATOR");
-	Node4 = new BitNode(")", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "statement");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "READ");
+	Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+	Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -595,10 +596,10 @@ statement: variable _ASSIGNOP expression {
 }
 	| _WRITE '(' expression_list ')' {
         BitNode *newNode, *Node1, *Node2, *Node4;
-        newNode = new BitNode("", "statement");
-        Node1 = new BitNode($1->token, "WRITE");
-        Node2 = new BitNode("(", "SEPARATOR");
-        Node4 = new BitNode(")", "SEPARATOR");
+        newNode = new BitNode(yycolumn,yylineno,"", "statement");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "WRITE");
+        Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+        Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
 
         newNode->insertChild(Node1);
         newNode->insertChild(Node2);
@@ -609,7 +610,7 @@ statement: variable _ASSIGNOP expression {
         $$ = newNode;
 }
 	| {
-	BitNode *newNode = new BitNode("", "statement");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "statement");
 
 	cout<<"statement -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -617,8 +618,8 @@ statement: variable _ASSIGNOP expression {
 
 variable_list: variable_list ',' variable{
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "variable_list");
-	Node2 = new BitNode(",", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "variable_list");
+	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -629,7 +630,7 @@ variable_list: variable_list ',' variable{
 }
  	| variable {
 	BitNode *newNode;
-	newNode = new BitNode("", "variable_list");
+	newNode = new BitNode(yycolumn,yylineno,"", "variable_list");
 
 	newNode->insertChild($1);
 
@@ -639,8 +640,8 @@ variable_list: variable_list ',' variable{
 
 variable: _ID id_varpart {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "variable");
-	Node1 = new BitNode($1->token, "ID");
+	newNode = new BitNode(yycolumn,yylineno,"", "variable");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -651,9 +652,9 @@ variable: _ID id_varpart {
 
 id_varpart: '[' expression_list ']' {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "id_varpart");
-	Node1 = new BitNode("[", "SEPARATOR");
-	Node3 = new BitNode("]", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "id_varpart");
+	Node1 = new BitNode(yycolumn,yylineno,"[", "SEPARATOR");
+	Node3 = new BitNode(yycolumn,yylineno,"]", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -663,7 +664,7 @@ id_varpart: '[' expression_list ']' {
 	$$ = newNode;
 }
 	| {
-	BitNode *newNode = new BitNode("", "id_varpart");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "id_varpart");
 
 	cout<<"id_varpart -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -671,8 +672,8 @@ id_varpart: '[' expression_list ']' {
 
 procedure_call: _ID {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "procedure_call");
-	Node1 = new BitNode($1->token, "ID");
+	newNode = new BitNode(yycolumn,yylineno,"", "procedure_call");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
 
 	newNode->insertChild(Node1);
 
@@ -681,10 +682,10 @@ procedure_call: _ID {
 }
 	| _ID '(' expression_list ')' {
 	BitNode *newNode, *Node1, *Node2, *Node4;
-	newNode = new BitNode("", "procedure_call");
-	Node1 = new BitNode($1->token, "ID");
-	Node2 = new BitNode("(", "SEPARATOR");
-	Node4 = new BitNode(")", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "procedure_call");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
+	Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+	Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -697,8 +698,8 @@ procedure_call: _ID {
 
 else_part: _ELSE statement {
 	BitNode *newNode, *Node1;
-	newNode=new BitNode("", "else_part");
-	Node1 = new BitNode($1->token, "ELSE");
+	newNode=new BitNode(yycolumn,yylineno,"", "else_part");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ELSE");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -707,7 +708,7 @@ else_part: _ELSE statement {
 	$$ = newNode;
 }
 	| {
-	BitNode *newNode = new BitNode("", "else_part");
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "else_part");
 
 	cout<<"else_part -> empty [OK]"<<endl;
 	$$ = newNode;
@@ -716,8 +717,8 @@ else_part: _ELSE statement {
 expression_list: expression_list ',' expression {
 
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "expression_list");
-	Node2 = new BitNode(",", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "expression_list");
+	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -728,7 +729,7 @@ expression_list: expression_list ',' expression {
 }
 	| expression {
 	BitNode *newNode;
-	newNode = new BitNode("", "expression_list");
+	newNode = new BitNode(yycolumn,yylineno,"", "expression_list");
 
 	newNode->insertChild($1);
 
@@ -738,8 +739,8 @@ expression_list: expression_list ',' expression {
 
 expression: simple_expression _RELOP simple_expression {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "expression");
-	Node2 = new BitNode($2->token, "RELOP");
+	newNode = new BitNode(yycolumn,yylineno,"", "expression");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "RELOP");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -750,7 +751,7 @@ expression: simple_expression _RELOP simple_expression {
 }
  	| simple_expression {
 	BitNode *newNode;
-	newNode = new BitNode("", "expression");
+	newNode = new BitNode(yycolumn,yylineno,"", "expression");
 
 	newNode->insertChild($1);
 
@@ -760,8 +761,8 @@ expression: simple_expression _RELOP simple_expression {
 
 simple_expression: simple_expression _ADDOP term {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "simple_expression");
-	Node2 = new BitNode($2->token, "ADDOP");
+	newNode = new BitNode(yycolumn,yylineno,"", "simple_expression");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "ADDOP");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -772,7 +773,7 @@ simple_expression: simple_expression _ADDOP term {
 }
 	| term {
 	BitNode *newNode;
-	newNode = new BitNode("", "simple_expression");
+	newNode = new BitNode(yycolumn,yylineno,"", "simple_expression");
 
 	newNode->insertChild($1);
 
@@ -782,8 +783,8 @@ simple_expression: simple_expression _ADDOP term {
 
 term: term _MULOP factor {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode("", "term");
-	Node2 = new BitNode($2->token, "MULOP");
+	newNode = new BitNode(yycolumn,yylineno,"", "term");
+	Node2 = new BitNode(yycolumn,yylineno,$2->token, "MULOP");
 
 	newNode->insertChild($1);
 	newNode->insertChild(Node2);
@@ -794,7 +795,7 @@ term: term _MULOP factor {
 }
 	| factor {
 	BitNode *newNode;
-	newNode = new BitNode("", "term");
+	newNode = new BitNode(yycolumn,yylineno,"", "term");
 
 	newNode->insertChild($1);
 
@@ -804,8 +805,8 @@ term: term _MULOP factor {
 
 factor: _NUM {
         BitNode *newNode, *Node1;
-        newNode = new BitNode("", "factor");
-        Node1 = new BitNode($1->token, "NUM");
+        newNode = new BitNode(yycolumn,yylineno,"", "factor");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "NUM");
 
         newNode->insertChild(Node1);
 
@@ -814,8 +815,8 @@ factor: _NUM {
 }
 | _DIGITS {
         BitNode *newNode, *Node1;
-        newNode = new BitNode("", "factor");
-        Node1 = new BitNode($1->token, "DIGITS");
+        newNode = new BitNode(yycolumn,yylineno,"", "factor");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "DIGITS");
 
         newNode->insertChild(Node1);
 
@@ -824,7 +825,7 @@ factor: _NUM {
 }
         | variable {
         BitNode *newNode;
-        newNode = new BitNode("", "factor");
+        newNode = new BitNode(yycolumn,yylineno,"", "factor");
 
         newNode->insertChild($1);
 
@@ -834,10 +835,10 @@ factor: _NUM {
 	| _ID '(' expression_list ')' {
 
 	BitNode *newNode, *Node1, *Node2, *Node4;
-	newNode =  new BitNode("", "factor");
-	Node1 = new BitNode($1->token, "ID");
-	Node2 = new BitNode("(", "SEPARATOR");
-	Node4 = new BitNode(")", "SEPARATOR");
+	newNode =  new BitNode(yycolumn,yylineno,"", "factor");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
+	Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+	Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -853,9 +854,9 @@ factor: _NUM {
 	//	yyerror("");
 
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode("", "factor");
-	Node1 = new BitNode("(", "SEPARATOR");
-	Node3 = new BitNode(")", "SEPARATOR");
+	newNode = new BitNode(yycolumn,yylineno,"", "factor");
+	Node1 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
+	Node3 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -866,8 +867,8 @@ factor: _NUM {
 }
  	| _NOT factor {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode("", "factor");
-	Node1 = new BitNode($1->token, "NOT");
+	newNode = new BitNode(yycolumn,yylineno,"", "factor");
+	Node1 = new BitNode(yycolumn,yylineno,$1->token, "NOT");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild($2);
@@ -877,8 +878,8 @@ factor: _NUM {
 }
  	| _UMINUS factor {
 	BitNode *newNode, *Node1;
-        newNode = new BitNode("", "factor");
-        Node1 = new BitNode($1->token, "UMINUS");
+        newNode = new BitNode(yycolumn,yylineno,"", "factor");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "UMINUS");
 
         newNode->insertChild(Node1);
         newNode->insertChild($2);
@@ -897,7 +898,6 @@ void yyerror_2(const char *s, int line_val, int col_val)
 
 void yyerror(const char *s)
 {
-	extern int yylineno,yycolumn;
 	extern char *yytext;
 	extern YYSTYPE yylval;
 	cout << "Line:" << yylineno << "\t" << s <<"\tcolumn:"<<yycolumn<<"\t"<<yytext<<endl;
