@@ -17,10 +17,12 @@ void BitNode::insertChild(BitNode* child) {
 }
 
 BitNode* root;
+vector<Error*> errorInfo;
+int if_error=0;
 
 %}
 
-%token<TYPE> _PROGRAM _CONST _VAR _PROCEDURE _FUNCTION _BEGIN _END _ARRAY _OF _IF _THEN _FOR _TO _DO _READ _WRITE _NOT _ELSE _RANGE _UMINUS _ID _RELOP _DIGITS _NUM _VARTYPE _ADDOP _MULOP _ASSIGNOP _SEPARATOR _CHAR _BOOLEAN
+%token<TYPE> _PROGRAM _CONST _VAR _PROCEDURE _FUNCTION _BEGIN _END _ARRAY _OF _IF _THEN _FOR _TO _DO _READ _WRITE _WHILE _NOT _ELSE _RANGE _UMINUS _ID _RELOP _DIGITS _NUM _VARTYPE _ADDOP _MULOP _ASSIGNOP _SEPARATOR _CHAR _BOOLEAN
 %type<BITNODE> programstruct program_head program_body idlist const_declarations const_declaration const_value var_declarations var_declaration basic_type type period subprogram_declarations subprogram subprogram_head formal_parameter 
 %type<BITNODE> parameter_list parameter var_parameter value_parameter subprogram_body compound_statement statement_list statement variable_list variable id_varpart procedure_call else_part term factor simple_expression expression_list expression
 %%
@@ -36,6 +38,22 @@ programstruct: program_head program_body '.' {
 	cout << "programstruct -> program_head program_body . [OK]" << endl;
 	cout << "Parse OK!" << endl;
         $$ = root;
+}
+| error program_body '.' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | program_head error '.' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | program_head program_body error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 program_head:  _PROGRAM _ID ';'{
@@ -51,7 +69,22 @@ program_head:  _PROGRAM _ID ';'{
 
        	cout<<"program_head -> program id ; [OK]"<<endl;
        	$$ = newNode;
-}
+}| error _ID ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM error ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM _ID error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _PROGRAM _ID '(' idlist ')' ';'{
         BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node6;
         newNode = new BitNode(yycolumn,yylineno,"", "program_head");
@@ -70,7 +103,41 @@ program_head:  _PROGRAM _ID ';'{
 
         cout<<"program_head -> program id ( idlist ) ; [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error _ID '(' idlist ')' ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM error '(' idlist ')' ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM _ID error idlist ')' ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM _ID '(' error ')' ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM _ID '(' idlist error ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROGRAM _ID '(' idlist ')' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 program_body: const_declarations var_declarations subprogram_declarations compound_statement {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "program_body");
@@ -82,7 +149,29 @@ program_body: const_declarations var_declarations subprogram_declarations compou
 
 	cout<<"program_body -> const_declarations var_declarationssubprogram_declarations compound_statement [OK]"<<endl;
 	$$ = newNode;
-};
+}
+ | error var_declarations subprogram_declarations compound_statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declarations error subprogram_declarations compound_statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declarations var_declarations error compound_statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declarations var_declarations subprogram_declarations error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 idlist: idlist ',' _ID {
 	BitNode *newNode, *Node2, *Node3;
@@ -97,14 +186,35 @@ idlist: idlist ',' _ID {
 	cout<<"idlist -> idlist , id [OK]"<<endl;
 	$$ = newNode;
 }
+| error ',' _ID { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | idlist error _ID { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | idlist ',' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _ID {
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn,yylineno,"", "idlist");
 	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ID");
+	newNode->insertChild(Node1);
 
 	cout<<"idlist -> id [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 const_declarations: _CONST const_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
@@ -119,6 +229,22 @@ const_declarations: _CONST const_declaration ';' {
 	cout<<"const_declarations -> const const_declaration ; [OK]"<<endl;
 	$$ = newNode;
 }
+| error const_declaration ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _CONST error ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _CONST const_declaration error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "const_declarations");
 
@@ -145,6 +271,34 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
 	cout<<"const_declaration -> const_declaration ; id = const_value [OK]"<<endl;
 	$$ = newNode;
 }
+| error ';' _ID _RELOP const_value { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declaration error _ID _RELOP const_value { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declaration ';' error _RELOP const_value { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declaration ';' _ID error const_value { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | const_declaration ';' _ID _RELOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
  	| _ID _RELOP const_value {
  	if($2->token.compare("=")!=0)
         	yyerror("");
@@ -160,7 +314,23 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
 
 	cout<<"const_declaration -> id = const_value [OK]"<<endl;
 	$$ = newNode;
-};
+}
+ | error _RELOP const_value { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID error const_value { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID _RELOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 const_value: _ADDOP _NUM {
 	if($1->token.compare("+") != 0 && $1->token.compare("-") != 0)
@@ -177,6 +347,16 @@ const_value: _ADDOP _NUM {
 	cout<<"const_value -> +/- num [OK]"<<endl;
 	$$ = newNode;
 }
+| error _NUM { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ADDOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _NUM {
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
@@ -197,7 +377,11 @@ const_value: _ADDOP _NUM {
 
 	cout<<"const_value -> char [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 var_declarations: _VAR var_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
@@ -212,6 +396,22 @@ var_declarations: _VAR var_declaration ';' {
 	cout<<"var_declarations -> var var_declaration ; [OK]"<<endl;
 	$$ = newNode;
 }
+| error var_declaration ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _VAR error ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _VAR var_declaration error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "var_declarations");
 
@@ -234,6 +434,35 @@ var_declaration: var_declaration ';' idlist ':' type {
 	cout<<"var_declaration -> var_declaration ; idlist : type [OK]"<<endl;
 	$$ = newNode;
 }
+
+ | error ';' idlist ':' type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | var_declaration error idlist ':' type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | var_declaration ';' error ':' type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | var_declaration ';' idlist error type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | var_declaration ';' idlist ':' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
  	| idlist ':' type {
 	BitNode *newNode, *Node2;
 	newNode = new BitNode(yycolumn,yylineno,"", "var_declaration");
@@ -245,7 +474,23 @@ var_declaration: var_declaration ';' idlist ':' type {
 
 	cout<<"var_declaration -> idlist : type [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error ':' type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | idlist error type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | idlist ':' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 type: basic_type {
 	BitNode *newNode;
@@ -256,6 +501,10 @@ type: basic_type {
 	cout<<"type -> basic_type [OK]"<<endl;
 	$$ = newNode;
 }
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
  	| _ARRAY '[' period ']' _OF basic_type {
 	BitNode *newNode, *Node1, *Node2, *Node4, *Node5;
 	newNode = new BitNode(yycolumn,yylineno,"", "type");
@@ -273,7 +522,42 @@ type: basic_type {
 
 	cout<<"type -> array [ period ] of basic_type [OK]"<<endl;
 	$$ = newNode;
-};
+}
+
+ | error '[' period ']' _OF basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ARRAY error period ']' _OF basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ARRAY '[' error ']' _OF basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ARRAY '[' period error _OF basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ARRAY '[' period ']' error basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ARRAY '[' period ']' _OF error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 basic_type: _VARTYPE {
 	BitNode *newNode, *Node1;
@@ -284,7 +568,11 @@ basic_type: _VARTYPE {
 
 	cout<<"type -> basic_type [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 period: period ',' _DIGITS _RANGE _DIGITS{
 	BitNode *newNode, *Node2, *Node3, *Node4, *Node5;
@@ -316,6 +604,47 @@ period: period ',' _DIGITS _RANGE _DIGITS{
 
 	cout<<"period -> digits .. digits [OK]"<<endl;
 	$$ = newNode;
+} | error ',' _DIGITS _RANGE _DIGITS { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+ | period error _DIGITS _RANGE _DIGITS { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | period ',' error _RANGE _DIGITS { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | period ',' _DIGITS error _DIGITS { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | period ',' _DIGITS _RANGE error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} | error _RANGE _DIGITS { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _DIGITS error _DIGITS { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _DIGITS _RANGE error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 subprogram_declarations: subprogram_declarations subprogram ';' {
@@ -335,6 +664,21 @@ subprogram_declarations: subprogram_declarations subprogram ';' {
 
 	cout<<"subprogram_declarations -> empty [OK]"<<endl;
 	$$ = newNode;
+}| error subprogram ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | subprogram_declarations error ';' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | subprogram_declarations subprogram error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 subprogram: subprogram_head ';' subprogram_body {
@@ -362,6 +706,21 @@ subprogram_head: _PROCEDURE _ID formal_parameter {
 
 	cout<<"subprogram_head -> procedure id formal_parameter [OK]"<<endl;
 	$$ = newNode;
+} | error _ID formal_parameter { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROCEDURE error formal_parameter { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _PROCEDURE _ID error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 }
  	| _FUNCTION _ID formal_parameter ':' basic_type {
 	BitNode *newNode,*Node1, *Node2, *Node4;
@@ -378,7 +737,35 @@ subprogram_head: _PROCEDURE _ID formal_parameter {
 
 	cout<<"subprogram_head -> function id formal_parameter : basic_type [OK]"<<endl;
 	$$ = newNode;
-};
+}| error _ID formal_parameter ':' basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _FUNCTION error formal_parameter ':' basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _FUNCTION _ID error ':' basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _FUNCTION _ID formal_parameter error basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _FUNCTION _ID formal_parameter ':' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+;
 
 formal_parameter: '(' parameter_list ')' {
 	BitNode *newNode, *Node1, *Node3;
@@ -392,7 +779,22 @@ formal_parameter: '(' parameter_list ')' {
 
 	cout<<" formal_parameter -> ( parameter_list ) [OK]"<<endl;
 	$$ = newNode;
-}
+} | error parameter_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | '(' error ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | '(' parameter_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	|{
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "formal_parameter");
 
@@ -411,7 +813,22 @@ parameter_list: parameter_list ';' parameter {
 
 	cout<<"parameter_list -> parameter_list _SEPARATOR parameter [OK]"<<endl;
 	$$ = newNode;
-}
+} | error ';' parameter { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | parameter_list error parameter { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | parameter_list ';' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| parameter {
 	BitNode * newNode;
 	newNode = new BitNode(yycolumn,yylineno,"", "parameter_list");
@@ -420,6 +837,9 @@ parameter_list: parameter_list ';' parameter {
 
 	cout<<"parameter_list -> parameter [OK]"<<endl;
 	$$ = newNode;
+} | error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 parameter: var_parameter {
@@ -439,7 +859,10 @@ parameter: var_parameter {
 
         cout<<"parameter -> value_parameter [OK]"<<endl;
         $$ = newNode;
-};
+} | error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 var_parameter: _VAR value_parameter{
 	BitNode *newNode, *Node1;
@@ -451,6 +874,15 @@ var_parameter: _VAR value_parameter{
 
 	cout<<"var_parameter -> var value_parameter [OK]"<<endl;
 	$$ = newNode;
+} | error value_parameter { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _VAR error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 value_parameter: idlist ':' basic_type {
@@ -467,6 +899,21 @@ value_parameter: idlist ':' basic_type {
 
 	cout<<"value_parameter -> idlist : simple_type [OK]"<<endl;
 	$$ = newNode;
+}|  error ':' basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  idlist error basic_type { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  idlist ':' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 subprogram_body: const_declarations var_declarations compound_statement {
@@ -479,6 +926,21 @@ subprogram_body: const_declarations var_declarations compound_statement {
 
 	cout<<"subprogram_body -> const_declarations var_declarations compound_statement [OK]"<<endl;
 	$$ = newNode;
+}|  error var_declarations compound_statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  const_declarations error compound_statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  const_declarations var_declarations error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 compound_statement: _BEGIN statement_list _END {
@@ -493,6 +955,22 @@ compound_statement: _BEGIN statement_list _END {
 
 	cout<<"compound_statement -> begin statement_list end [OK]"<<endl;
 	$$ = newNode;
+} 
+ |  error statement_list _END { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _BEGIN error _END { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _BEGIN statement_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
 };
 
 statement_list: statement_list ';' statement {
@@ -506,7 +984,22 @@ statement_list: statement_list ';' statement {
 
 	cout<<"statement_list -> statement_list ; statement [OK]"<<endl;
 	$$ = newNode;
-}
+}|  error ';' statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  statement_list error statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  statement_list ';' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| statement {
 	BitNode *newNode;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement_list");
@@ -514,7 +1007,10 @@ statement_list: statement_list ';' statement {
 
 	cout<<"statement_list -> statement [OK]"<<endl;
 	$$ = newNode;
-};
+} |  error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 statement: variable _ASSIGNOP expression {
 	BitNode *newNode, *Node2;
@@ -527,7 +1023,22 @@ statement: variable _ASSIGNOP expression {
 
 	cout<<"statement -> variable _ASSIGNOP expression [OK]"<<endl;
 	$$ = newNode;
-}
+}|  error _ASSIGNOP expression { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  variable error expression { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  variable _ASSIGNOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| procedure_call {
 	BitNode *newNode;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement");
@@ -543,7 +1054,10 @@ statement: variable _ASSIGNOP expression {
 
         cout<<"statement -> compound_statement [OK]"<<endl;
         $$ = newNode;
-}
+}   | error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _IF expression _THEN statement else_part {
 	BitNode *newNode, *Node1, *Node3;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement");
@@ -558,8 +1072,34 @@ statement: variable _ASSIGNOP expression {
 
 	cout<<"statement -> if expression then statement else_part [OK]"<<endl;
 	$$ = newNode;
-}
-	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
+}|  error expression _THEN statement else_part { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _IF error _THEN statement else_part { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _IF expression error statement else_part { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _IF expression _THEN error else_part { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _IF expression _THEN statement error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
 	BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node7;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement");
 	Node1 = new BitNode(yycolumn,yylineno,$1->token, "FOR");
@@ -578,7 +1118,52 @@ statement: variable _ASSIGNOP expression {
 
 	cout<<"statement -> for id assignop expression to expression do statement [OK]"<<endl;
 	$$ = newNode;
-}
+} |  error _ID _ASSIGNOP expression _TO expression _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR error _ASSIGNOP expression _TO expression _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR _ID error expression _TO expression _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR _ID _ASSIGNOP error _TO expression _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR _ID _ASSIGNOP expression error expression _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR _ID _ASSIGNOP expression _TO error _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR _ID _ASSIGNOP expression _TO expression error statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _FOR _ID _ASSIGNOP expression _TO expression _DO error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _READ '(' variable_list ')' {
 	BitNode *newNode, *Node1, *Node2, *Node4;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement");
@@ -592,6 +1177,51 @@ statement: variable _ASSIGNOP expression {
 	newNode->insertChild(Node4);
 
 	cout<<"statement -> read ( variable_list ) [OK]"<<endl;
+	$$ = newNode;
+}
+ |  error '(' variable_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _READ error variable_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _READ '(' error ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _READ '(' variable_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+ |  error '(' expression_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _WRITE error expression_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _WRITE '(' error ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _WRITE '(' expression_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode;
 }
 	| _WRITE '(' expression_list ')' {
@@ -614,7 +1244,42 @@ statement: variable _ASSIGNOP expression {
 
 	cout<<"statement -> empty [OK]"<<endl;
 	$$ = newNode;
-};
+}
+ | _WHILE expression _DO statement{
+	BitNode *newNode, *Node1, *Node3;
+        newNode = new BitNode(yycolumn,yylineno,"", "statement");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "WHILE");
+        Node3 = new BitNode(yycolumn,yylineno,$3->token, "DO");
+
+        newNode->insertChild(Node1);
+        newNode->insertChild($2);
+        newNode->insertChild(Node3);
+        newNode->insertChild($4);
+
+        cout<<"statement -> _WHILE expression _DO statement [OK]"<<endl;
+        $$ = newNode;
+} |  error expression _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _WHILE error _DO statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _WHILE expression error statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ |  _WHILE expression _DO error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 variable_list: variable_list ',' variable{
 	BitNode *newNode, *Node2;
@@ -628,6 +1293,22 @@ variable_list: variable_list ',' variable{
 	cout<<"variable_list -> variable_list _SEPARATOR variable [OK]"<<endl;
 	$$ = newNode;
 }
+| error ',' variable { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | variable_list error variable { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | variable_list ',' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
  	| variable {
 	BitNode *newNode;
 	newNode = new BitNode(yycolumn,yylineno,"", "variable_list");
@@ -636,7 +1317,11 @@ variable_list: variable_list ',' variable{
 
 	cout<<"statement -> variable [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 variable: _ID id_varpart {
 	BitNode *newNode, *Node1;
@@ -648,7 +1333,18 @@ variable: _ID id_varpart {
 
 	cout<<"variable -> id id_varpart [OK]"<<endl;
 	$$ = newNode;
-};
+}
+
+ | error id_varpart { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 id_varpart: '[' expression_list ']' {
 	BitNode *newNode, *Node1, *Node3;
@@ -663,6 +1359,22 @@ id_varpart: '[' expression_list ']' {
 	cout<<"id_varpart -> [ expression_list ] [OK]"<<endl;
 	$$ = newNode;
 }
+| error expression_list ']' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | '[' error ']' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | '[' expression_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "id_varpart");
 
@@ -680,6 +1392,35 @@ procedure_call: _ID {
 	cout<<"procedure_call -> id [OK]"<<endl;
 	$$ = newNode;
 }
+
+ | error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | error '(' expression_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID error expression_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID '(' error ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID '(' expression_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _ID '(' expression_list ')' {
 	BitNode *newNode, *Node1, *Node2, *Node4;
 	newNode = new BitNode(yycolumn,yylineno,"", "procedure_call");
@@ -707,6 +1448,18 @@ else_part: _ELSE statement {
 	cout<<"else_part -> else statement [OK]"<<endl;
 	$$ = newNode;
 }
+
+
+ | error statement { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ELSE error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "else_part");
 
@@ -727,6 +1480,23 @@ expression_list: expression_list ',' expression {
 	cout<<"expression_list -> expression_list , expression [OK]"<<endl;
 	$$ = newNode;
 }
+
+ | error ',' expression { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | expression_list error expression { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | expression_list ',' error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| expression {
 	BitNode *newNode;
 	newNode = new BitNode(yycolumn,yylineno,"", "expression_list");
@@ -735,7 +1505,11 @@ expression_list: expression_list ',' expression {
 
 	cout<<"expression_list -> expression [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 expression: simple_expression _RELOP simple_expression {
 	BitNode *newNode, *Node2;
@@ -757,7 +1531,30 @@ expression: simple_expression _RELOP simple_expression {
 
 	cout<<"expression -> simple_expression [OK]"<<endl;
 	$$ = newNode;
-};
+}
+
+ | error _RELOP simple_expression { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | simple_expression error simple_expression { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | simple_expression _RELOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 simple_expression: simple_expression _ADDOP term {
 	BitNode *newNode, *Node2;
@@ -779,7 +1576,30 @@ simple_expression: simple_expression _ADDOP term {
 
 	cout<<"simple_expression -> term [OK]"<<endl;
 	$$ = newNode;
-};
+}
+
+ | error _ADDOP term { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | simple_expression error term { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | simple_expression _ADDOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} ;
 
 term: term _MULOP factor {
 	BitNode *newNode, *Node2;
@@ -793,6 +1613,22 @@ term: term _MULOP factor {
 	cout<<"term -> term mulop factor [OK]"<<endl;
 	$$ = newNode;
 }
+ | error _MULOP factor { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | term error factor { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | term _MULOP error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| factor {
 	BitNode *newNode;
 	newNode = new BitNode(yycolumn,yylineno,"", "term");
@@ -801,7 +1637,12 @@ term: term _MULOP factor {
 
 	cout<<"term -> factor [OK]"<<endl;
 	$$ = newNode;
-};
+}
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+;
 
 factor: _NUM {
         BitNode *newNode, *Node1;
@@ -832,6 +1673,32 @@ factor: _NUM {
         cout<<" factor -> variable [OK]"<<endl;
         $$ = newNode;
 }
+| error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+ | error '(' expression_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID error expression_list ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID '(' error ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _ID '(' expression_list error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
 	| _ID '(' expression_list ')' {
 
 	BitNode *newNode, *Node1, *Node2, *Node4;
@@ -876,10 +1743,39 @@ factor: _NUM {
 	cout<<"factor -> not factor [OK]"<<endl;
 	$$ = newNode;
 }
- 	| _UMINUS factor {
+
+  | error expression ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | '(' error ')' { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | '(' expression error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | error factor { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+
+
+ | _NOT error { 
+	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	$$ = newNode; 
+} 
+ 	| _ADDOP factor {
 	BitNode *newNode, *Node1;
         newNode = new BitNode(yycolumn,yylineno,"", "factor");
-        Node1 = new BitNode(yycolumn,yylineno,$1->token, "UMINUS");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "ADDOP");
 
         newNode->insertChild(Node1);
         newNode->insertChild($2);
@@ -889,18 +1785,16 @@ factor: _NUM {
 };
 
 %%
-// TODO: 确定列号传参
-// TODO: 设置一个Error类，同一管理错误输出
-void yyerror_2(const char *s, int line_val, int col_val)
-{
-	cout << "Line:" << line_val << "\tCol:" << col_val << "\t"<< s << endl;
-}
 
 void yyerror(const char *s)
 {
 	extern char *yytext;
 	extern YYSTYPE yylval;
-	cout << "Line:" << yylineno << "\t" << s <<"\tcolumn:"<<yycolumn<<"\t"<<yytext<<endl;
+	string error_type(s);
+	Error* cur=new Error(error_type,yycolumn,yylineno);
+	errorInfo.push_back(cur);
+    if_error=1;
+	cout<<error_type<<"\tat line:"<<yycolumn<<"\tat:"<<yylineno<<endl;
 }
 
 int main(int argc,char *argv[])
@@ -918,6 +1812,3 @@ int main(int argc,char *argv[])
     fclose(fin);
     return 0;
 }
-
-
-

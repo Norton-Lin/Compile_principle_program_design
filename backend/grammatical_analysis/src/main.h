@@ -21,7 +21,16 @@ public:
     Type(string content, int type, int line) : token(content), id(type), lineNumber(line) {}
 
 };
+class Error{
+    
+public:
+    string error_type;
+    int col;
+    int lineno;
 
+    Error() {};
+    Error(string error_type_value, int col_value, int lineno_value) : error_type(error_type_value), col(col_value), lineno(lineno_value) {}
+};
 class BitNode {
 public:
     int col,line;
