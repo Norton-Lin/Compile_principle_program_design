@@ -381,7 +381,25 @@ const_value: _ADDOP _NUM {
 | error { 
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} ;
+} | _DIGITS { // 增加处理 integer
+	BitNode *newNode, *Node1;
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "DIGITS");
+
+	newNode->insertChild(Node1);
+
+	cout<<"const_value -> digits [OK]"<<endl;
+        $$ = newNode;
+}| _BOOLEAN{ // 增加处理 boolean
+	BitNode *newNode, *Node1;
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "BOOLEAN");
+
+	newNode->insertChild(Node1);
+
+	cout<<"const_value -> boolean [OK]"<<endl;
+        $$ = newNode;
+};
 
 var_declarations: _VAR var_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;

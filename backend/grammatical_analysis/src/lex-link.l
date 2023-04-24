@@ -26,12 +26,12 @@ line \n
 letter [a-z]
 digit [0-9]
 blank [ \r\t]
-identifier {letter}({letter}|digit)*
+identifier {letter}({letter}|{digit})*
 relop (>=|>|<|<=|<>|=)
 digits {digit}+
 num {digit}+\.{digit}+
 vartype (integer|real|boolean|char)
-addop (\+|-|or)
+addop (\+|or)
 mulop (\*|\/|and|mod|div)
 assignop (:=)
 separator (\(|\)|\[|\]|:|,|\.|;)
@@ -115,6 +115,19 @@ separator (\(|\)|\[|\]|:|,|\.|;)
 	return _ADDOP;
 #endif
 }
+"-" {
+	yylval.TYPE = new Type;
+	yylval.TYPE->token = yytext;
+	yylval.TYPE->id = _UMINUS;
+	yylval.TYPE->lineNumber = yylineno;
+	yycolumn += yyleng;
+#ifdef LEXDEBUG
+	fprintf(yyout,"UMINUS:%s\n",yylval.TYPE->token.c_str());
+#endif
+#ifndef LEXDEBUG
+	return _UMINUS;
+#endif
+}
 
 {mulop} {
 	yylval.TYPE = new Type;
@@ -185,6 +198,20 @@ separator (\(|\)|\[|\]|:|,|\.|;)
 	return _CONST;
 #endif
 }
+"while" {
+	yylval.TYPE = new Type;
+	yylval.TYPE->token = yytext;
+	yylval.TYPE->id = _WHILE;
+	yylval.TYPE->lineNumber = yylineno;
+	yycolumn += yyleng;
+#ifdef LEXDEBUG
+	fprintf(yyout,"keyword:%s\n",yylval.TYPE->token.c_str());
+#endif
+#ifndef LEXDEBUG
+	return _WHILE;
+#endif
+}
+
 
 "var" {
 	yylval.TYPE = new Type;
