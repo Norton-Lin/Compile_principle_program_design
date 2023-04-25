@@ -333,30 +333,44 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
 } ;
 
 const_value: _ADDOP _NUM {
-	if($1->token.compare("+") != 0 && $1->token.compare("-") != 0)
+	if($1->token.compare("+") != 0) // 修改终结符判断逻辑，因为对终结符 ADDOP的内容为 + or
 		yyerror("");
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
-	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ADDOP");
-	Node2 = new BitNode(yycolumn,yylineno,$2->token, "NUM");
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "ADDOP");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "NUM");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
 
-	cout<<"const_value -> +/- num [OK]"<<endl;
+	cout<<"const_value -> + num [OK]"<<endl;
 	$$ = newNode;
 }
-| error _NUM { 
+
+	| _UMINUS _NUM { // 增加 UMINUS 的关联生成式
+	BitNode *newNode, *Node1, *Node2;
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "UMINUS");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "NUM");
+
+	newNode->insertChild(Node1);
+	newNode->insertChild(Node2);
+
+	cout<<"const_value -> - num [OK]"<<endl;
+	$$ = newNode;
+}
+
+	| error _NUM {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} 
+}
 
-
- | _ADDOP error { 
+	| _ADDOP error {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} 
+}
+
 	| _NUM {
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
@@ -367,8 +381,8 @@ const_value: _ADDOP _NUM {
 	cout<<"const_value -> num [OK]"<<endl;
 	$$ = newNode;
 }
- 	|  _CHAR  {
-	// TODO: 与词法分析部分沟通，确定文法产生式的符号如何处理
+
+ 	|  _CHAR  { // 处理单个字符
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
 	Node1 = new BitNode(yycolumn,yylineno,$1->token, "CHAR");
@@ -378,10 +392,13 @@ const_value: _ADDOP _NUM {
 	cout<<"const_value -> char [OK]"<<endl;
 	$$ = newNode;
 }
-| error { 
+
+	| error {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} | _DIGITS { // 增加处理 integer
+}
+
+	| _DIGITS { // 增加处理 digits 的生成式
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
 	Node1 = new BitNode(yycolumn, yylineno, $1->token, "DIGITS");
@@ -390,7 +407,36 @@ const_value: _ADDOP _NUM {
 
 	cout<<"const_value -> digits [OK]"<<endl;
         $$ = newNode;
-}| _BOOLEAN{ // 增加处理 boolean
+}
+
+	| _ADDOP _DIGITS { // 增加处理 digits 关联的生成式
+	if($1->token.compare("+") != 0) // ADDOP包括两种运算：+ or
+		yyerror("");
+
+	BitNode *newNode, *Node1, *Node2;
+	newNode = new BitNode(yycolumn, yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "ADDOP");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "DIGITS");
+
+	newNode->insertChild(Node1);
+	newNode->insertChild(Node2);
+
+	cout<<"const_value -> + digits [OK]"<<endl;
+	$$ = newNode;
+}
+	| _UMINUS _DIGITS { // 增加处理 digits 关联的生成式
+	BitNode *newNode, *Node1, *Node2;
+	newNode = new BitNode(yycolumn, yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "UMINUS");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "DIGITS");
+
+	newNode->insertChild(Node1);
+	newNode->insertChild(Node2);
+
+	cout<<"const_value -> - digits [OK]"<<endl;
+	$$ = newNode;
+}
+	| _BOOLEAN{ // 增加处理 boolean 的生成式
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
 	Node1 = new BitNode(yycolumn, yylineno, $1->token, "BOOLEAN");
@@ -1585,7 +1631,7 @@ simple_expression: simple_expression _ADDOP term {
 
 	cout<<"simple_expression -> simple_expression addop term [OK]"<<endl;
 	$$ = newNode;
-}| simple_expression _UMINUS term{ // 增加 uminus 运算对应的生成式
+}| simple_expression _UMINUS term{ // 增加 uminus 关联生成式
 	BitNode *newNode, *Node2;
 	newNode = new BitNode(yycolumn, yylineno, "", "simple_expression");
 	Node2 = new BitNode(yycolumn, yylineno, $2->token, "UMINUS");
