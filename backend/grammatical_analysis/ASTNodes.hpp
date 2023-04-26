@@ -6,7 +6,11 @@
 
 class SematicAnalysis;
 class const_declaration_AST;
-
+class expression_AST;
+class expression_list_AST;
+class variable_AST;
+CodeGenContext context;
+virtual void code_generate() {}
 extern SymbolTable symbol_table;
 extern SematicAnalysis analysis;
 using namespace std;
@@ -43,14 +47,27 @@ public:
 	ast_type type;
 	ASTNode* father;
 	vector<ASTNode*> children;
-
+    int line;
+    int col;
+    virtual Value* code_generation(CodeGenContext& context);
 public:
 	ASTNode() {};
 
+    void get_line_col(BitNode* bn)
+    {
+        this->line = bn->line;
+        this->col = bn->col;
+    }
+    void get_line_col(ASTNode* ch)
+    {
+        this->line = ch->line;
+        this->col = ch->col;
+    }
 	virtual void sematic_action() {};
 	virtual void sematic_checking() {};
-	virtual Value* code_generation(CodeGenContext& context) {};
+	virtual llvm::Value *code_generation() {};
 };
+
 
 //终结符
 class PROGRAM_AST :public ASTNode
@@ -114,6 +131,7 @@ public:
 	{
 		type = BEGIN;
         this->value = bn->data;
+        get_line_col(bn);
 	}
 };
 
@@ -155,6 +173,7 @@ class IF_AST :public ASTNode
 public:
 	IF_AST(BitNode* bn)
 	{
+        get_line_col(bn);
 		type = IF;
 	}
 };
@@ -174,6 +193,7 @@ public:
 	FOR_AST(BitNode* bn)
 	{
 		type = FOR;
+        get_line_col(bn);
 	}
 };
 
@@ -203,6 +223,7 @@ public:
 	READ_AST(BitNode* bn)
 	{
 		type = READ;
+        get_line_col(bn);
 	}
 };
 
@@ -212,6 +233,7 @@ public:
 	WRITE_AST(BitNode* bn)
 	{
 		type = WRITE;
+        get_line_col(bn);
 	}
 };
 
@@ -247,28 +269,34 @@ public:
 class UMINUS_AST :public ASTNode
 {
 public:
+    string s_value;
 	UMINUS_AST(BitNode* bn)
 	{
 		type = UMINUS;//-
+        this->s_value = bn->data;//todo:检查类型是否一致
 	}
 };
 
 class RELOP_AST :public ASTNode
 {
 public:
+    string s_value;
 	RELOP_AST(BitNode* bn)
 	{
 		type = RELOP;//关系运算符
-	}
+        this->s_value = bn->data;//todo:检查是否相符s
+    }
 };
 
 class DIGITS_AST :public ASTNode
 {
 public:
+    string s_type;
     int s_int;
 	DIGITS_AST(BitNode* bn)
 	{
 		type = DIGITS;
+        this->s_type = "integer";
         this->s_int = stoi(bn->data);
 	}
 };
@@ -285,22 +313,6 @@ public:
         this->s_type="real";
         this->s_real = stod(bn->data);
 
-//        bool isfloat = false;
-//        for (int i = 0; i < bn->data.size(); ++i) {
-//            if(bn->data[i]=='.') {
-//                isfloat = true;
-//                break;
-//            }
-//        }
-//
-//        if (isfloat){
-//            this->s_real = stod(bn->data);
-//            this->s_type="real";
-//        }
-//        else{
-//            this->s_int = stoi(bn->data);
-//            this->s_type = "int";
-//        }
 	}
 };
 
@@ -310,7 +322,7 @@ public:
     string s_value;
 	VARTYPE_AST(BitNode* bn)
 	{
-		type = VARTYPE;//int real boolean char
+		type = VARTYPE;//integer real boolean char
         this->s_value = bn->data;
 	}
 };
@@ -318,18 +330,22 @@ public:
 class ADDOP_AST :public ASTNode
 {
 public:
+    string s_value;
 	ADDOP_AST(BitNode* bn)
 	{
 		type = ADDOP;
+        this->s_value = bn->data;//todo:检查类型是否一致
 	}
 };
 
 class MULOP_AST :public ASTNode
 {
 public:
+    string s_value;
 	MULOP_AST(BitNode* bn)
 	{
 		type = MULOP;
+        this->s_value = bn->data;//todo：检查语法分析给出的字符串是否与语义分析定义相同，不相同则在此修改
 	}
 };
 
@@ -367,14 +383,8 @@ public:
 	CHAR_AST(BitNode* bn)
 	{
         type = CHAR;
-
-        if(bn->data=="char")
-            s_type="value";
-        else{
-            s_type="type";
-            this->s_char = bn->data[0];
-        }
-
+        s_type="char";
+        this->s_char = bn->data[0];
 	}
 
 };
@@ -382,9 +392,16 @@ public:
 class BOOLEAN_AST :public ASTNode
 {
 public:
+    bool s_bool;
+    string s_type;
 	BOOLEAN_AST(BitNode* bn)
 	{
 		type = BOOLEAN;
+        this->s_type = "boolean";
+        if(bn->data=="true")
+            this->s_bool = true;
+        else
+            this->s_bool = false;
 	}
 };
 
@@ -397,6 +414,7 @@ public:
 	{
 		type = ID;
 		this->identifier = bn->data;
+        get_line_col(bn);
 	}
 };
 
@@ -448,10 +466,11 @@ public:
 class program_body_AST :public ASTNode
 {
 public:
+    virtual Value* code_generation();
 	program_body_AST(BitNode* bn) {
         type = program_body;
     }
-    virtual Value* code_generation(CodeGenContext& context);
+
     void sematic_action() override
     {
         if(this->children.size()==4)
@@ -463,6 +482,7 @@ public:
         else
             sematic_error();
 
+        get_line_col(this->children[3]);
         sematic_checking();
         code_generation();
     }
@@ -536,6 +556,7 @@ public:
 class programstruct_AST :public ASTNode
 {
 public:
+    virtual Value* code_generation();
 	programstruct_AST(BitNode* bn)
 	{
 		type = programstruct;
@@ -563,6 +584,7 @@ class const_declaration_AST :public ASTNode
 {
 public:
     vector<pair<string,const_value_AST*>> s_pair_list;
+    virtual Value* code_generation();
     const_declaration_AST(BitNode* bn)
     {
         type = const_declaration;
@@ -631,15 +653,17 @@ public:
     }
 };
 
+
+
 class const_value_AST :public ASTNode
 {
 public:
     string s_type;
-    int s_integer;
+    int s_int;
     char s_char;
-    bool s_boolean;
     double s_real;
-    virtual Value* code_generation(CodeGenContext& context);
+    bool s_bool;
+    virtual Value* code_generation();
     const_value_AST(BitNode* bn)
     {
         type = const_value;
@@ -649,25 +673,44 @@ public:
     {
         if(this->children[0]->type==ADDOP)//生成式1
         {
-            NUM_AST* ch1 = (NUM_AST*)this->children[1];
 
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->sematic_action();
             }
 
-            this->s_type = ch1->s_type;
-            this->s_real = ch1->s_real;
+            if (this->children[1]->type==NUM)
+            {
+                NUM_AST* ch1 = (NUM_AST*)this->children[1];
+                this->s_type = ch1->s_type;
+                this->s_real = ch1->s_real;
+            }
+            else if(this->children[1]->type==DIGITS)
+            {
+                DIGITS_AST* ch1 = (DIGITS_AST*) this->children[1];
+                this->s_type = ch1->s_type;
+                this->s_int = ch1->s_int;
+            } else
+                sematic_error();
 
         } else if(this->children[0]->type==UMINUS)//生成式2
         {
-            NUM_AST* ch1 = (NUM_AST*)this->children[1];
-
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->sematic_action();
             }
 
-            this->s_type = ch1->s_type;
-            this->s_real = -(ch1->s_real);
+            if (this->children[1]->type==NUM)
+            {
+                NUM_AST* ch1 = (NUM_AST*)this->children[1];
+                this->s_type = ch1->s_type;
+                this->s_real = -(ch1->s_real);
+            }
+            else if(this->children[1]->type==DIGITS)
+            {
+                DIGITS_AST* ch1 = (DIGITS_AST*) this->children[1];
+                this->s_type = ch1->s_type;
+                this->s_int = -(ch1->s_int);
+            } else
+                sematic_error();
 
         } else if(this->children[0]->type==NUM)
         {
@@ -683,15 +726,27 @@ public:
         else if(this->children[0]->type==CHAR)//生成式4
         {
             CHAR_AST* ch0 = (CHAR_AST*)this->children[0];
+            ch0->sematic_action();
             this->s_type = ch0->s_type;
             this->s_char = ch0->s_char;
-        } else
+        } else if(this->children[0]->type==DIGITS)
+        {
+            DIGITS_AST* ch0 = (DIGITS_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_int = ch0->s_int;
+        }else if(this->children[0]->type==BOOLEAN)
+        {
+            BOOLEAN_AST* ch0 = (BOOLEAN_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_bool = ch0->s_bool;
+        }
             sematic_error();
 
         sematic_checking();
         code_generation();
     }
-
 };
 
 class basic_type_AST :public ASTNode
@@ -767,7 +822,7 @@ public:
     string s_type;//基本类型
     bool l_isarray;
     vector<pair<int,int>> s_index_list;
-    virtual Value* code_generation(CodeGenContext& context);
+    virtual Value *code_generation(CodeGenContext &context);
     type_AST(BitNode* bn)
     {
         type = type;
@@ -807,6 +862,7 @@ public:
         sematic_checking();
         code_generation();
     }
+   
 };
 
 class var_declaration_AST :public ASTNode
@@ -884,6 +940,7 @@ public:
         code_generation();
     }
 };
+
 
 class value_parameter_AST :public ASTNode
 {
@@ -1105,12 +1162,22 @@ public:
 class subprogram_body_AST :public ASTNode
 {
 public:
-    virtual Value* code_generation(CodeGenContext& context);
     subprogram_body_AST(BitNode* bn)
     {
         type = subprogram_body;
     }
 
+    void sematic_action() override
+    {
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
+        }
+        get_line_col(this->children[2]);
+        sematic_checking();
+        code_generation();
+    }
+
+    virtual Value *code_generation(CodeGenContext &context);
 };
 
 class subprogram_AST :public ASTNode
@@ -1176,9 +1243,735 @@ public:
 
 };
 
+
+//这个类较为复杂，共有可能有4种情况
+//无论哪种情况，代码生成应该返回一个llvm::Value*,因为此后这个类会被作为表达式使用
+class factor_AST :public ASTNode
+{
+public:
+    //在任意情况下有意义的值
+    int s_state;//1-4表示某一种情况
+    string s_type;//表示4种基本类型，integer real boolean char
+    llvm::Value* s_value;
+
+    //1.是一个字面值常量，根据s_type区别类型
+    double s_real;//仅在字面量时有意义
+    int s_int;//仅在字面量时有意义
+    char s_char;//仅在字面量时有意义
+    bool s_bool;//仅在字面量时有意义
+
+    //2.是一个变量或常量变量
+    bool s_isconst;//是否是const变量
+    string s_identifier;//变量或数组的符号表标识符
+    SymbolTableItem* s_var_item;//符号表表项
+    bool s_isarray;//是否是数组
+    vector<string> s_index_type_list;
+    vector<llvm::Value*> s_index_list;//是数组时才有意义，数组index列表
+    //标识符类型或数组元素类型是s_type
+
+    //3.函数调用语句
+    string s_func_identifier;//函数名标识符
+    SymbolTableItem* s_func_item;//符号表表项
+    vector<string> s_parameter_type_list;
+    vector<llvm::Value*> s_parameter_list;//是函数调用时才有意义，函数参数列表
+    //返回值类型是s_type
+
+    //4.单目运算
+    string s_op;//单目运算符类型，共三种分别是非，取反，加括号 !,-,()//实际上可能加括号与你没什么关系，我这边会处理优先级但还是记上
+    string s_operand0_type;
+    llvm::Value* s_operand0;
+
+
+    factor_AST(BitNode* bn)
+    {
+        type = factor;
+    }
+
+    void sematic_action() override;
+    virtual Value *code_generation();
+    //    void sematic_action() override
+    //    {
+    //        if(this->children[0]->type==NUM)
+    //        {
+    //            this->s_state = 1;
+    //            NUM_AST* ch0 = (NUM_AST*) this->children[0];
+    //            ch0->sematic_action();
+    //            this->s_type = ch0->s_type;
+    //            this->s_real = ch0->s_real;
+    //        }
+    //        else if(this->children[0]->type==DIGITS)
+    //        {
+    //            this->s_state = 1;
+    //            DIGITS_AST* ch0 = (DIGITS_AST*) this->children[0];
+    //            ch0->sematic_action();
+    //            this->s_type = ch0->s_type;
+    //            this->s_int = ch0->s_int;
+    //        }
+    //        else if(this->children[0]->type==BOOLEAN)
+    //        {
+    //            this->s_state = 1;
+    //            BOOLEAN_AST* ch0 = (BOOLEAN_AST*) this->children[0];
+    //            ch0->sematic_action();
+    //            this->s_type = ch0->s_type;
+    //            this->s_bool = ch0->s_bool;
+    //        }
+    //        else if(this->children[0]->type==variable)
+    //        {
+    //            this->s_state = 2;
+    //            variable_AST* ch0 = (variable_AST*) this->children[0];
+    //            ch0->sematic_action();
+    //            this->s_type = ch0->s_type;
+    //            this->s_isconst = ch0->s_isconst;
+    //            this->s_isarray = ch0->s_isarray;
+    //            this->s_identifier = ch0->s_identifier;
+    //            this->s_var_item = ch0->item;
+    //            this->s_index_type_list = ch0->s_type_list;
+    //            this->s_index_list = ch0->s_value_list;
+    //        }
+    //        else if(this->children[0]->type==ID)
+    //        {
+    //            this->s_state = 3;
+    //            ID_AST* ch0 = (ID_AST*)this->children[0];
+    //            expression_list_AST* ch2 = (expression_list_AST*) this->children[2];
+    //            for (int i = 0; i < this->children.size(); ++i) {
+    //                this->children[i]->sematic_action();
+    //            }
+    //            this->s_func_identifier = ch0->identifier;
+    //            this->s_func_item = symbol_table.get(this->s_func_identifier);
+    //            this->s_type = this->s_func_item->value.function_type->ret_type;
+    //            this->s_parameter_type_list = ch2->s_type_list;
+    //            this->s_parameter_list = ch2->s_value_list;
+    //        }
+    //        else if(this->children[0]->type==SEPARATOR)
+    //        {
+    //            this->s_state = 4;
+    //            expression_AST* ch1 = (expression_AST*) this->children[1];
+    //            for (int i = 0; i < this->children.size(); ++i) {
+    //                this->children[i]->sematic_action();
+    //            }
+    //            this->s_op = "()";
+    //            this->s_operand0_type = ch1->s_type;
+    //            this->s_operand0 = ch1->s_value;
+    //            this->s_type = ch1->s_type;
+    //        }
+    //        else if(this->children[0]->type==NOT)
+    //        {
+    //            this->s_state = 4;
+    //            factor_AST* ch1 = (factor_AST*) this->children[1];
+    //            for (int i = 0; i < this->children.size(); ++i) {
+    //                this->children[i]->sematic_action();
+    //            }
+    //            this->s_op = "!";
+    //            this->s_operand0_type = ch1->s_type;
+    //            this->s_operand0 = ch1->s_value;
+    //            this->s_type = ch1->s_type;
+    //        }
+    //        else if(this->children[0]->type==UMINUS)
+    //        {
+    //            this->s_state = 4;
+    //            factor_AST* ch1 = (factor_AST*) this->children[1];
+    //            for (int i = 0; i < this->children.size(); ++i) {
+    //                this->children[i]->sematic_action();
+    //            }
+    //            this->s_op = "-";
+    //            this->s_operand0_type = ch1->s_type;
+    //            this->s_operand0 = ch1->s_value;
+    //            this->s_type = ch1->s_type;
+    //        } else
+    //            sematic_error();
+    //
+    //        sematic_checking();//todo:设置s_type
+    //        this->s_value = code_generation();
+    //    }
+};
+
+
+class term_AST :public ASTNode
+{
+public:
+    int s_state;//共有两种状态，状态1是属性的传递，不做运算，状态2做运算
+    string s_type;
+    llvm::Value* s_value;
+
+    //1.二元运算
+    string s_op;//乘，除，整除，取模，与操作（如果s_type是boolean做逻辑与，如果是integer做按位与）*,/,div,mod,and
+    llvm::Value* operand0;
+    string operand0_type;
+    llvm::Value* operand1;
+    string operand1_type;
+    virtual Value *code_generation();
+    //2.属性传递
+
+    term_AST(BitNode* bn)
+    {
+        type = term;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==3)
+        {
+            term_AST* ch0 = (term_AST*) this->children[0];
+            MULOP_AST* ch1 = (MULOP_AST*) this->children[1];
+            factor_AST* ch2 = (factor_AST*) this->children[2];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->operand0 = ch0->s_value;
+            this->operand0_type = ch0->s_type;
+            this->operand1 = ch2->s_value;
+            this->operand1_type = ch2->s_type;
+            this->s_op = ch1->s_value;
+        }
+        else if(this->children.size()==1)
+        {
+            this->s_state = 2;
+            factor_AST* ch0 = (factor_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_value = ch0->s_value;
+        }else
+            sematic_error();
+
+        sematic_checking();//todo:设置s_type
+        this->s_value = code_generation();
+    }
+    
+};
+
+class simple_expression_AST :public ASTNode
+{
+public:
+    int s_state;//共有两种状态，状态1是属性的传递，不做运算，状态2做运算
+    string s_type;
+    llvm::Value* s_value;
+
+    //1.二元运算
+    string s_op;//加，减，或操作（如果s_type是boolean做逻辑或，如果是integer做按位或）+,-,or
+    llvm::Value* operand0;
+    string operand0_type;
+    llvm::Value* operand1;
+    string operand1_type;
+
+    //2.属性传递
+    virtual Value *code_generation();
+    simple_expression_AST(BitNode* bn)
+    {
+        type = simple_expression;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==3)
+        {
+            simple_expression_AST* ch0 = (simple_expression_AST*) this->children[0];
+            term_AST* ch2 = (term_AST*) this->children[2];
+
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            if (this->children[1]->type==ADDOP)
+            {
+                ADDOP_AST* ch1 = (ADDOP_AST*) this->children[1];
+                this->s_op = ch1->s_value;
+            }else// if(this->children[1]->type==UMINUS)
+            {
+                UMINUS_AST* ch1 = (UMINUS_AST*) this->children[1];
+                this->s_op = ch1->s_value;
+            }
+            this->operand0 = ch0->s_value;
+            this->operand0_type = ch0->s_type;
+            this->operand1 = ch2->s_value;
+            this->operand1_type = ch2->s_type;
+
+        }
+        else if(this->children.size()==1)
+        {
+            this->s_state = 2;
+            term_AST* ch0 = (term_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_value = ch0->s_value;
+        }else
+            sematic_error();
+
+        sematic_checking();//todo:设置s_type
+        this->s_value = code_generation();
+    }
+
+};
+
+class expression_AST :public ASTNode
+{
+public:
+    int s_state;//共有两种状态，状态1是属性的传递，不做运算，状态2做运算
+    string s_type;
+    llvm::Value* s_value;
+
+    //1.二元运算
+    string s_op;//等于，不等于，小于，小于等于，大于，大于等于 =,<>,<,<=,>,>=
+    llvm::Value* operand0;
+    string operand0_type;
+    llvm::Value* operand1;
+    string operand1_type;
+
+    //2.属性传递
+    expression_AST(BitNode* bn)
+    {
+        type = expression;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==3)
+        {
+            simple_expression_AST* ch0 = (simple_expression_AST*) this->children[0];
+            RELOP_AST* ch1 = (RELOP_AST*) this->children[1];
+            simple_expression_AST* ch2 = (simple_expression_AST*) this->children[2];
+
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->operand0 = ch0->s_value;
+            this->operand0_type = ch0->s_type;
+            this->operand1 = ch2->s_value;
+            this->operand1_type = ch2->s_type;
+            this->s_op = ch1->s_value;
+        }
+        else if(this->children.size()==1)
+        {
+            this->s_state = 2;
+            simple_expression_AST* ch0 = (simple_expression_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_value = ch0->s_value;
+        }else
+            sematic_error();
+
+        sematic_checking();//todo:设置s_type
+        this->s_value = code_generation();
+    }
+
+    virtual Value *code_generation();
+};
+
+class expression_list_AST :public ASTNode
+{
+public:
+    vector<string> s_type_list;
+    vector<llvm::Value*> s_value_list;
+    expression_list_AST(BitNode* bn)
+    {
+        type = expression_list;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==3)
+        {
+            expression_list_AST* ch0 = (expression_list_AST*) this->children[0];
+            expression_AST* ch2 = (expression_AST*) this->children[2];
+
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+
+            this->s_type_list = ch0->s_type_list;
+            this->s_type_list.push_back(ch2->s_type);
+            this->s_value_list = ch0->s_value_list;
+            this->s_value_list.push_back(ch2->s_value);
+        }else if(this->children.size()==1) {
+            expression_AST* ch0 = (expression_AST*) this->children[0];
+
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+
+            this->s_type_list.push_back(ch0->s_type);
+            this->s_value_list.push_back(ch0->s_value);
+        }else
+            sematic_error();
+
+        sematic_checking();
+        code_generation();
+    }
+};
+
+class id_varpart_AST :public ASTNode
+{
+public:
+    bool s_isarray;
+    vector<string> s_type_list;//数组index列表参数类型，只可能是int，语义对其类型检查
+    vector<llvm::Value*> s_value_list;//数组index列表参数的值
+    id_varpart_AST(BitNode* bn)
+    {
+        type = id_varpart;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==3)
+        {
+            expression_list_AST* ch1 = (expression_list_AST*) this->children[1];
+
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+
+            this->s_isarray = true;
+            this->s_type_list = ch1->s_type_list;
+            this->s_value_list = ch1->s_value_list;
+
+        }else if(this->children.size()==0)
+        {
+            this->s_isarray = false;
+        } else
+            sematic_error();
+
+        sematic_checking();
+        code_generation();
+    }
+};
+
+class variable_AST :public ASTNode
+{
+public:
+    string s_identifier;
+    string s_type;//表示4种基本类型，integer real boolean char
+    bool s_isconst;//是否常量
+    SymbolTableItem* item;
+    bool s_isarray;//是否是数组
+    vector<string> s_type_list;//数组index列表参数类型，只可能是int，语义对其类型检查
+    vector<llvm::Value*> s_value_list;//数组index列表参数的值
+    virtual Value *code_generation(CodeGenContext &context);
+    variable_AST(BitNode* bn)
+    {
+        type = variable;
+    }
+
+    void sematic_action() override
+    {
+        //只有一种生成式
+        ID_AST* ch0 = (ID_AST*) this->children[0];
+        id_varpart_AST* ch1 = (id_varpart_AST*) this->children[1];
+
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
+        }
+
+        this->s_identifier = ch0->identifier;
+        this->s_isarray = ch1->s_isarray;
+        this->s_type_list = ch1->s_type_list;
+        this->s_value_list = ch1->s_value_list;
+
+        //从符号表获得类型
+        this->item = symbol_table.get(this->s_identifier);
+        symbol_type t;
+        if(this->s_isarray = true)
+        {
+            if (this->item->type!=array_type)
+                sematic_error();//todo
+            else
+            {
+                t = item->value.array_val->type;
+            }
+        }else
+        {
+            t = this->item->type;
+        }
+
+        switch (t) {
+            case var_int:
+                this->s_type = "integer";
+                this->s_isconst = false;
+                break;
+            case var_bool:
+                this->s_type = "boolean";
+                this->s_isconst = false;
+                break;
+            case var_char:
+                this->s_type = "char";
+                this->s_isconst = false;
+                break;
+            case var_real:
+                this->s_type = "real";
+                this->s_isconst = false;
+                break;
+            case const_int:
+                this->s_type = "integer";
+                this->s_isconst = true;
+                break;
+            case const_bool:
+                this->s_type = "boolean";
+                this->s_isconst = true;
+                break;
+            case const_char:
+                this->s_type = "char";
+                this->s_isconst = true;
+                break;
+            case const_real:
+                this->s_type = "real";
+                this->s_isconst = true;
+            default:sematic_error();
+        }
+
+        get_line_col(ch0);
+        sematic_checking();
+        code_generation();
+    }
+
+   
+};
+
+class variable_list_AST :public ASTNode
+{
+public:
+    vector<variable_AST*> s_variable_list;
+
+    variable_list_AST(BitNode* bn)
+    {
+        type = variable_list;
+    }
+
+    void sematic_action() override
+    {
+        if (this->children.size()==3)
+        {
+            variable_list_AST* ch0 = (variable_list_AST*) this->children[0];
+            variable_AST* ch2 = (variable_AST*) this->children[2];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_variable_list = ch0->s_variable_list;
+            this->s_variable_list.push_back(ch2);
+        }else if(this->children.size()==1)
+        {
+            variable_AST* ch0 = (variable_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_variable_list.push_back(ch0);
+        } else
+            sematic_error();
+        sematic_checking();
+        code_generation();
+    }
+
+};
+
+class procedure_call_AST :public ASTNode
+{
+public:
+    string s_identifier;//过程名
+    SymbolTableItem* s_item;//过程的符号表表项
+    vector<string> s_type_list;
+    vector<llvm::Value*> s_value_list;
+    virtual Value *code_generation(CodeGenContext &context);
+    Value* write(CodeGenContext &context,int types[]);
+    Value* read(CodeGenContext &context,int types[]);
+    procedure_call_AST(BitNode* bn)
+    {
+        type = procedure_call;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==1)
+        {
+            ID_AST* ch0 = (ID_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_identifier = ch0->identifier;
+            this->s_item = symbol_table.get(this->s_identifier);
+
+            get_line_col(ch0);
+        }
+        else if(this->children.size()==4)
+        {
+            ID_AST* ch0 = (ID_AST*) this->children[0];
+            expression_list_AST* ch2 = (expression_list_AST*) this->children[2];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_identifier = ch0->identifier;
+            this->s_item = symbol_table.get(this->s_identifier);
+            this->s_type_list = ch2->s_type_list;
+            this->s_value_list = ch2->s_value_list;
+            get_line_col(ch0);
+        }
+    }
+};
+
+
+
+class statement_AST :public ASTNode
+{
+public:
+    //语句有多种类型
+    int s_state;
+
+    //1.赋值语句
+    variable_AST* s_variable;
+    string s_expression_type;
+    llvm::Value* s_expression_value;
+
+    //2.过程调用
+    string s_identifier;//过程名
+    SymbolTableItem* s_item;//过程的符号表表项
+    vector<string> s_type_list;
+    vector<llvm::Value*> s_value_list;
+
+    //3.复合语句
+    vector<statement_AST*> s_statement_list;
+
+    //4.if-else
+    //expression共用赋值语句的
+    statement_AST* s_if_statement;
+    bool s_has_else;//判断有无else部分
+    statement_AST* s_else_statement;
+
+    //5.for
+    statement_AST* s_for_statement;
+
+    string s_for_identifier;
+    string s_for_type;//表示4种基本类型，integer real boolean char
+    SymbolTableItem* s_for_item;
+
+    string s_for_expression_type1;
+    llvm::Value* s_for_expression_value1;
+    string s_for_expression_type2;
+    llvm::Value* s_for_expression_value2;
+
+    //6.read
+    vector<variable_AST*> s_variable_list;
+
+    //7.write
+    //expression_list共用procedure_call的
+
+    //8.空语句
+    //空语句时，行号和列号不确定
+    Function *function;//语句所属函数
+    BasicBlock *block1;
+    BasicBlock *block2;
+    BasicBlock *block3;
+    IRBuilderBase::InsertPoint IP;
+    virtual Value *code_generation();
+    Value* if_code_generation_1();
+    Value* if_code_generation_2();
+    Value* if_code_generation_3();
+    Value* for_code_generation_1();
+    Value* for_code_generation_2();
+    Value* assign_code_generation();
+    Value* while_code_generation_1();
+    Value* while_code_generation_2();
+    Value* write();
+    Value* read();
+    statement_AST(BitNode* bn)
+    {
+        type = statement;
+    }
+
+    void sematic_action() override;
+//    {
+//        if(this->children[0]->type==variable)
+//        {
+//            variable_AST* ch0 = (variable_AST*)this->children[0];
+//            expression_AST* ch2 = (expression_AST*) this->children[2];
+//            for (int i = 0; i < this->children.size(); ++i) {
+//                this->children[i]->sematic_action();
+//            }
+//            this->s_variable = ch0;
+//            this->s_expression_type = ch2->s_type;
+//            this->s_expression_value = ch2->s_value;
+//            get_line_col(ch0);
+//        }
+//        else if(this->children[0]->type==procedure_call)
+//        {
+//            procedure_call_AST* ch0 = (procedure_call_AST*) this->children[0];
+//            ch0->sematic_action();
+//            this->s_identifier = ch0->s_identifier;
+//            this->s_item = ch0->s_item;
+//            this->s_type_list = ch0->s_type_list;
+//            this->s_value_list = ch0->s_value_list;
+//            get_line_col(ch0);
+//        }
+//        else if(this->children[0]->type==compound_statement)
+//        {
+//
+//        }
+//    }
+
+};
+
+class statement_list_AST :public ASTNode
+{
+public:
+    vector<statement_AST*> s_statement_list;
+    statement_list_AST(BitNode* bn)
+    {
+        type = statement_list;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==3)
+        {
+            statement_list_AST* ch0 = (statement_list_AST*) this->children[0];
+            statement_AST* ch2 = (statement_AST*) this->children[2];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_statement_list = ch0->s_statement_list;
+            this->s_statement_list.push_back(ch2);
+        }
+        else if(this->children.size()==1)
+        {
+            statement_AST* ch0 = (statement_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_statement_list.push_back(ch0);
+        } else
+            sematic_error();
+
+        sematic_checking();
+        code_generation();
+    }
+
+};
+
+class else_part_AST :public ASTNode
+{
+public:
+    bool s_has_else;
+    statement_AST* s_statement;
+    else_part_AST(BitNode* bn)
+    {
+        type = else_part;
+    }
+
+    void sematic_action() override
+    {
+        if(this->children.size()==2)
+        {
+            statement_AST* ch1 = (statement_AST*) this->children[1];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_has_else = true;
+            this->s_statement = ch1;
+            get_line_col(this->children[0]);
+        }
+        else if(this->children.size()==0)
+        {
+            this->s_has_else = false;
+        }
+
+        sematic_checking();
+        code_generation();
+    }
+
+};
+
 class compound_statement_AST :public ASTNode
 {
 public:
+    vector<statement_AST*> s_statement_list;
     compound_statement_AST(BitNode* bn)
     {
         type = compound_statement;
@@ -1188,193 +1981,219 @@ public:
     {
         if(this->children.size()==3)
         {
+            statement_list_AST* ch1 = (statement_list_AST*) this->children[1];
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->sematic_action();
             }
+            this->s_statement_list = ch1->s_statement_list;
         }
         else
             sematic_error();
 
+        get_line_col(this->children[0]);
         sematic_checking();
         code_generation();
     }
 };
 
-class statement_list_AST :public ASTNode
+void statement_AST::sematic_action()
 {
-public:
-    statement_list_AST(BitNode* bn)
+    if(this->children[0]->type==variable)
     {
-        type = statement_list;
-    }
-
-};
-
-class statement_AST :public ASTNode
-{
-public:
-    statement_AST(BitNode* bn)
-    {
-        type = statement;
-    }
-
-    void sematic_action() override
-    {
-        if(this->children.size()==0)
-        {
-            ;//do nothing
+        this->s_state = 1;
+        variable_AST* ch0 = (variable_AST*)this->children[0];
+        expression_AST* ch2 = (expression_AST*) this->children[2];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
         }
+        this->s_variable = ch0;
+        this->s_expression_type = ch2->s_type;
+        this->s_expression_value = ch2->s_value;
+        get_line_col(ch0);
     }
-
-};
-
-class variable_list_AST :public ASTNode
-{
-public:
-    variable_list_AST(BitNode* bn)
+    else if(this->children[0]->type==procedure_call)
     {
-        type = variable_list;
+        this->s_state = 2;
+        procedure_call_AST* ch0 = (procedure_call_AST*) this->children[0];
+        ch0->sematic_action();
+        this->s_identifier = ch0->s_identifier;
+        this->s_item = ch0->s_item;
+        this->s_type_list = ch0->s_type_list;
+        this->s_value_list = ch0->s_value_list;
+        get_line_col(ch0);
     }
-
-};
-
-class variable_AST :public ASTNode
-{
-public:
-    virtual Value* code_generation(CodeGenContext& context);
-    bool is_array;
-    variable_AST(BitNode* bn)
+    else if(this->children[0]->type==compound_statement)
     {
-        type = variable;
+        this->s_state = 3;
+        compound_statement_AST* ch0 = (compound_statement_AST*) this->children[0];
+        ch0->sematic_action();
+        this->s_statement_list = ch0->s_statement_list;
+        get_line_col(ch0);
     }
-
-};
-
-class id_varpart_AST :public ASTNode
-{
-public:
-    id_varpart_AST(BitNode* bn)
+    else if(this->children[0]->type==IF)
     {
-        type = id_varpart;
+        this->s_state = 4;
+        expression_AST* ch1 = (expression_AST*) this->children[1];
+        statement_AST* ch3 = (statement_AST*) this->children[3];
+        else_part_AST* ch4 = (else_part_AST*) this->children[4];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
+        }
+        this->s_expression_type = ch1->s_type;
+        this->s_expression_value = ch1->s_value;
+        this->s_if_statement = ch3;
+        this->s_has_else = ch4->s_has_else;
+        this->s_else_statement = ch4->s_statement;
+        get_line_col(this->children[0]);
     }
-};
-
-class procedure_call_AST :public ASTNode
-{
-public:
-    virtual Value* code_generation(CodeGenContext& context);
-    vector<expression_AST*> s_list;//参数列表
-    Value* write(CodeGenContext& context,int args[]);
-    Value* read(CodeGenContext& context,int args[]);
-    procedure_call_AST(BitNode* bn)
+    else if(this->children[0]->type==FOR)
     {
-        type = procedure_call;
+        this->s_state = 5;
+        ID_AST* ch1 = (ID_AST*) this->children[1];
+        expression_AST* ch3 = (expression_AST*) this->children[3];
+        expression_AST* ch5 = (expression_AST*) this->children[5];
+        statement_AST* ch7 = (statement_AST*) this->children[7];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
+        }
+        this->s_for_identifier = ch1->identifier;
+        this->s_for_item = symbol_table.get(s_for_identifier);
+        this->s_for_type = "integer";
+
+        this->s_for_expression_type1 = ch3->s_type;
+        this->s_for_expression_value1 = ch3->s_value;
+        this->s_for_expression_type2 = ch5->s_type;
+        this->s_for_expression_value2 = ch5->s_value;
+        this->s_for_statement = ch7;
+        get_line_col(this->children[0]);
     }
-
-};
-
-class else_part_AST :public ASTNode
-{
-public:
-    else_part_AST(BitNode* bn)
+    else if(this->children[0]->type == READ)
     {
-        type = else_part;
+        this->s_state = 6;
+        variable_list_AST* ch2 = (variable_list_AST*)this->children[2];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
+        }
+        this->s_variable_list = ch2->s_variable_list;
+        get_line_col(this->children[0]);
     }
-
-};
-
-class term_AST :public ASTNode
-{
-public:
-    term_AST(BitNode* bn)
+    else if(this->children[0]->type == WRITE)
     {
-        type = term;
+        this->s_state = 7;
+        expression_list_AST* ch2 = (expression_list_AST*) this->children[2];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->sematic_action();
+        }
+        this->s_type_list = ch2->s_type_list;
+        this->s_value_list = ch2->s_value_list;
+        get_line_col(this->children[0]);
     }
-
-};
-
-class factor_AST :public ASTNode
-{
-public:
-    bool l_is_left_value;
-    bool s_is_array;//如果是左值才有意义
-    bool s_is_var;//如果是左值才有意义
-
-    string s_type;//real,int,bool,char
-    double s_real;
-    int s_int;
-    char s_char;
-    bool s_bool;
-
-    factor_AST(BitNode* bn)
+    else if(this->children.size()==0)
     {
-        type = factor;
+        this->s_state = 8;
     }
+    else
+        sematic_error();
 
-    void sematic_action() override
-    {
+    sematic_checking();
+    code_generation();
+}
+
+
+void factor_AST::sematic_action() {
+
         if(this->children[0]->type==NUM)
         {
+            this->s_state = 1;
             NUM_AST* ch0 = (NUM_AST*) this->children[0];
-            this->l_is_left_value = false;
-
             ch0->sematic_action();
-
             this->s_type = ch0->s_type;
             this->s_real = ch0->s_real;
-        }else if(this->children[0]->type==variable)
+        }
+        else if(this->children[0]->type==DIGITS)
         {
-            //todo:variable未编写
-        }else if(this->children[0]->type==ID)
+            this->s_state = 1;
+            DIGITS_AST* ch0 = (DIGITS_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_int = ch0->s_int;
+        }
+        else if(this->children[0]->type==BOOLEAN)
         {
-            //todo:函数调用未编写
-        }else if(this->children[0]->type==SEPARATOR)
+            this->s_state = 1;
+            BOOLEAN_AST* ch0 = (BOOLEAN_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_bool = ch0->s_bool;
+        }
+        else if(this->children[0]->type==variable)
         {
-            //todo
-        }else if(this->children[0]->type==NOT)
+            this->s_state = 2;
+            variable_AST* ch0 = (variable_AST*) this->children[0];
+            ch0->sematic_action();
+            this->s_type = ch0->s_type;
+            this->s_isconst = ch0->s_isconst;
+            this->s_isarray = ch0->s_isarray;
+            this->s_identifier = ch0->s_identifier;
+            this->s_var_item = ch0->item;
+            this->s_index_type_list = ch0->s_type_list;
+            this->s_index_list = ch0->s_value_list;
+        }
+        else if(this->children[0]->type==ID)
         {
-            //todo
-        }else if(this->children[0]->type==UMINUS)
+            this->s_state = 3;
+            ID_AST* ch0 = (ID_AST*)this->children[0];
+            expression_list_AST* ch2 = (expression_list_AST*) this->children[2];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_func_identifier = ch0->identifier;
+            this->s_func_item = symbol_table.get(this->s_func_identifier);
+            this->s_type = this->s_func_item->value.function_type->ret_type;
+            this->s_parameter_type_list = ch2->s_type_list;
+            this->s_parameter_list = ch2->s_value_list;
+        }
+        else if(this->children[0]->type==SEPARATOR)
         {
-            //todo
+            this->s_state = 4;
+            expression_AST* ch1 = (expression_AST*) this->children[1];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_op = "()";
+            this->s_operand0_type = ch1->s_type;
+            this->s_operand0 = ch1->s_value;
+            this->s_type = ch1->s_type;
+        }
+        else if(this->children[0]->type==NOT)
+        {
+            this->s_state = 4;
+            factor_AST* ch1 = (factor_AST*) this->children[1];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_op = "!";
+            this->s_operand0_type = ch1->s_type;
+            this->s_operand0 = ch1->s_value;
+            this->s_type = ch1->s_type;
+        }
+        else if(this->children[0]->type==UMINUS)
+        {
+            this->s_state = 4;
+            factor_AST* ch1 = (factor_AST*) this->children[1];
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+            this->s_op = "-";
+            this->s_operand0_type = ch1->s_type;
+            this->s_operand0 = ch1->s_value;
+            this->s_type = ch1->s_type;
         } else
             sematic_error();
 
-        sematic_checking();
-        code_generation();
-    }
-};
-
-class simple_expression_AST :public ASTNode
-{
-public:
-    simple_expression_AST(BitNode* bn)
-    {
-        type = simple_expression;
-    }
-
-};
-
-class expression_list_AST :public ASTNode
-{
-public:
-    expression_list_AST(BitNode* bn)
-    {
-        type = expression_list;
-    }
-
-};
-
-class expression_AST :public ASTNode
-{
-public:
-    Value* value = nullptr;
-    expression_AST(BitNode* bn)
-    {
-        type = expression;
-    }
-
-};
+        sematic_checking();//todo:设置s_type
+        this->s_value = code_generation();
+}
 
 class SematicAnalysis
 {
@@ -1546,10 +2365,10 @@ public:
 	/*
 	* 采用算法5.4先序遍历
 	*/
-	ASTNode* analyze(ASTNode* root)
-	{
-
-	}
+//	ASTNode* analyze(ASTNode* root)
+//	{
+//
+//	}
 
 	ASTNode* ADT2AST(BitNode* bn)
 	{
