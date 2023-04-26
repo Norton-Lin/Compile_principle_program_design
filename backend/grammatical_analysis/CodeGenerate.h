@@ -59,4 +59,5 @@ Value* LogError(const char *str);
 //获取数组元素指针
 Value* get_array_item(CodeGenContext& context,const string& type, Value* array, int index);
 //Value* getArrayIndex(string type,vector<T> idvaprt);
+Value *expressionToBoolean(Value* value);//表达式转换为布尔值
 #endif
