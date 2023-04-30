@@ -3,18 +3,21 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "interface.h"
 
 class SymbolTable;
 class SymbolTableItem;
 
-class ArrayType;
-class FunctionType;
+class MyArrayType;
+class MyFunctionType;
 
 using namespace std;
 
 /*所有方法返回的对象都是引用，可直接修改
   不使用set方法，直接对成员变量修改
 */
+
+//
 
 enum symbol_type {
     unknown = 0,
@@ -31,8 +34,14 @@ union basic_type_type
     char char_val;
 };
 
-//todo:对数组类型进行测试
-class ArrayType
+class MyBasicType
+{
+public:
+    llvm::Value* llvmvalue;
+    basic_type_type value;
+};
+
+class MyArrayType
 {
 public:
     int dimension;
@@ -42,19 +51,27 @@ public:
     vector<int> end;
     vector<int> size;
     vector<basic_type_type> value;
+    llvm::Value* llvmvalue;
+    //MyArrayType() {};
 
-    //ArrayType() {};
-    ArrayType(vector<int> begin, vector<int> end,symbol_type type)
+
+    MyArrayType(vector<int> begin, vector<int> end, symbol_type type)
     {
         this->dimension = begin.size();
         this->type = type;
-        for (int i = 0; i <dimension ; i++)
-        {
-            this->begin[i] = begin[i];
-            this->end[i] = end[i];
-            this->size[i] = end[i] - begin[i] + 1;
+
+        this->begin = begin;
+        this->end = end;
+        for (int i = 0; i < begin.size(); ++i) {
+            int s = end[i] - begin[i]+1;
+            if(s > 0)
+                (this->size).insert(size.begin() + i,s);
+            else
+                (this->size).insert(size.begin() + i,1);
         }
+
         this->max_index = get_index(end);
+        this->value.resize(this->max_index+1);
     }
 
     bool set(vector<int> indexlist, basic_type_type val)
@@ -66,7 +83,7 @@ public:
         {
             return false;
         }
-        value[index] = val;
+        value.insert(value.begin() + index,val);
         return true;
     }
 
@@ -104,34 +121,33 @@ public:
 };
 
 
-class FunctionType
+class MyFunctionType
 {
 public:
-    FunctionType() {};
+    MyFunctionType() {};
+    MyFunctionType(SymbolTable* main_table);
 
-    FunctionType(SymbolTable* main_table){
-        this->main_table = main_table;
-    }
-
+    //不要使用这个指针访问符号表，直接使用extern的symbol_table的get方法可以自动处理作用域
     SymbolTable* main_table;
     SymbolTable* child_table;
 
-    vector<string> var_arg_name_list;//get和set方法检查确定是否从上级符号表
-    vector<string> var_name_list;//子表引用名对应的父表名称
+    vector<string> arg_name_list;//参数列表名，从左到右按顺序
+    vector<string> arg_type_list;//标识参数的类型，从左到右排序
+    vector<bool> arg_isvar_list;//标识参数是否是引用类型
+    //vector<string> var_name_list;//子表引用名对应的父表名称//这一行应该没用
+    llvm::Function* llvmfunction;
 
     bool isfunction;
-    symbol_type ret_type;//只在是函数时才有意义
+    string ret_type;//只在是函数时才有意义
+    llvm::Value* ret_llvmval;
 };
 
 
 
 union symbol_value {
-    int int_val;
-    double real_val;
-    bool bool_val;
-    char char_val;
-    ArrayType* array_val;
-    FunctionType* function_type;
+    MyBasicType* basic_val;
+    MyArrayType* array_val;
+    MyFunctionType* function_val;
 };
 
 class SymbolTableItem
@@ -177,40 +193,44 @@ public:
 private:
     void set_def_value()
     {
-        switch (type)
-        {
-        case const_int:
-        case var_int:this->value.int_val = 0; 
-            break;
-        case const_real:
-        case var_real:this->value.real_val = 0.0;
-            break;
-        case const_bool:
-        case var_bool:this->value.bool_val = false;
-            break;
-        case const_char:
-        case var_char:this->value.char_val = '\0';
-            break;
-        case unknown:
-            break;
-
-//        case array_type:this->value.array_val = new ArrayType();
+        this->value.function_val = NULL;
+        this->value.array_val = NULL;
+        this->value.basic_val = NULL;
+//        switch (type)
+//        {
+//        case const_int:
+//        case var_int:this->value.int_val = 0;
 //            break;
-//        case function:this->value.function_type = new FunctionType();
+//        case const_real:
+//        case var_real:this->value.real_val = 0.0;
 //            break;
-        default:;//todo:调试信息.数组，函数类型在定义时必须赋值
-        }
+//        case const_bool:
+//        case var_bool:this->value.bool_val = false;
+//            break;
+//        case const_char:
+//        case var_char:this->value.char_val = '\0';
+//            break;
+//        case unknown:
+//            break;
+//
+//        case array_type:this->value.array_val = new MyArrayType();
+//            break;
+//        case function:this->value.function_val = new MyFunctionType();
+//            break;
+//        default:;//todo:调试信息.数组，函数类型在定义时必须赋值
+//        }
     }
 
 };
 
-//todo:对符号表进行测试
+//todo:对符号表局部作用域功能进行测试
 class SymbolTable
 {
 public:
     string main_function;
     //subprogram_body时，执行生成综合属性前修改至当前函数名，结束时置为main_function
     string cur_function;
+private:
 private:
     unordered_map<string, SymbolTableItem*> table;
 
@@ -221,7 +241,6 @@ public:
     }
 
     //增删查改方法
-    //todo:子表和父表的顺序查询
 
     //默认的插入方法，插入默认的不包含类型和值的符号表对象
     bool insert(string id)
@@ -243,12 +262,21 @@ public:
         } else
         {
             SymbolTableItem* func_item = this->table[cur_function];
-            table_ptr = func_item->value.function_type->child_table;
+            table_ptr = func_item->value.function_val->child_table;
         }
-        table_ptr->table[item->identifier] = item;
-        return true;
+
+        auto it = table_ptr->table.find(item->identifier);
+        if(it == table_ptr->table.end())
+        {
+            table_ptr->table[item->identifier] = item;
+            return true;
+        }
+        else
+            return false;
+
     }
 
+    //似乎不会被调用
     bool remove(string id)
     {
         SymbolTable* table_ptr;
@@ -258,7 +286,7 @@ public:
         } else
         {
             SymbolTableItem* func_item = this->table[cur_function];
-            table_ptr = func_item->value.function_type->child_table;
+            table_ptr = func_item->value.function_val->child_table;
         }
 
         return table_ptr->table.erase(id);
@@ -267,27 +295,43 @@ public:
 
     SymbolTableItem* get(string id)
     {
-        if(this->cur_function == this->main_function)
+        //重定位符号表
+        if(this->cur_function == this->main_function)//在主表查询
         {
-            return this->table[id];
-        } else
+            //检验是否存在表项
+            auto it = this->table.find(id);
+            if(it == this->table.end())//不存在
+                return NULL;
+            else
+                return this->table[id];
+        } else//在子表查询
         {
+            //重定位符号表
             SymbolTableItem* func_item = this->table[cur_function];
-            FunctionType* func = func_item->value.function_type;
+            MyFunctionType* func = func_item->value.function_val;
             SymbolTable* table_ptr = func->child_table;
-            //如果是子表对父表中的引用
-            for (int i = 0; i <func->var_arg_name_list.size(); ++i) {
-                if (id == func->var_arg_name_list[i])
-                {
-                    return this->table[func->var_name_list[i]];
-                }
+
+            auto it = table_ptr->table.find(id);
+            //子表没有对应的标识符
+            if(it == table_ptr->table.end())
+            {
+                table_ptr = this;//在父表查询
             }
-            //只是子表的局部变量
-            return table_ptr->table[id];
+
+            //检查是否存在
+            auto it1 = table_ptr->table.find(id);
+            if(it1 == table_ptr->table.end())//不存在
+                return NULL;
+            else
+                return table_ptr->table[id];
+
         }
     }
 
-
 };
 
+MyFunctionType:: MyFunctionType(SymbolTable* main_table){
+    this->main_table = main_table;
+    this->child_table = new SymbolTable();
+}
 
