@@ -1160,10 +1160,11 @@ statement: variable _ASSIGNOP expression {
 } 
 
 
- |  _IF expression _THEN statement error { 
+ 	|  _IF expression _THEN statement error { 
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} 	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
+} 
+	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
 	BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node7;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement");
 	Node1 = new BitNode(yycolumn,yylineno,$1->token, "FOR");
@@ -1179,6 +1180,7 @@ statement: variable _ASSIGNOP expression {
 	newNode->insertChild(Node5);
 	newNode->insertChild($6);
 	newNode->insertChild(Node7);
+	newNode->insertChild($8);
 
 	cout<<"statement -> for id assignop expression to expression do statement [OK]"<<endl;
 	$$ = newNode;
