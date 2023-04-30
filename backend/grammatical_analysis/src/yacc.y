@@ -333,30 +333,44 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
 } ;
 
 const_value: _ADDOP _NUM {
-	if($1->token.compare("+") != 0 && $1->token.compare("-") != 0)
+	if($1->token.compare("+") != 0) // 修改终结符判断逻辑，因为对终结符 ADDOP的内容为 + or
 		yyerror("");
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
-	Node1 = new BitNode(yycolumn,yylineno,$1->token, "ADDOP");
-	Node2 = new BitNode(yycolumn,yylineno,$2->token, "NUM");
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "ADDOP");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "NUM");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
 
-	cout<<"const_value -> +/- num [OK]"<<endl;
+	cout<<"const_value -> + num [OK]"<<endl;
 	$$ = newNode;
 }
-| error _NUM { 
+
+	| _UMINUS _NUM { // 增加 UMINUS 的关联生成式
+	BitNode *newNode, *Node1, *Node2;
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "UMINUS");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "NUM");
+
+	newNode->insertChild(Node1);
+	newNode->insertChild(Node2);
+
+	cout<<"const_value -> - num [OK]"<<endl;
+	$$ = newNode;
+}
+
+	| error _NUM {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} 
+}
 
-
- | _ADDOP error { 
+	| _ADDOP error {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} 
+}
+
 	| _NUM {
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
@@ -367,8 +381,8 @@ const_value: _ADDOP _NUM {
 	cout<<"const_value -> num [OK]"<<endl;
 	$$ = newNode;
 }
- 	|  _CHAR  {
-	// TODO: 与词法分析部分沟通，确定文法产生式的符号如何处理
+
+ 	|  _CHAR  { // 处理单个字符
 	BitNode *newNode, *Node1;
 	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
 	Node1 = new BitNode(yycolumn,yylineno,$1->token, "CHAR");
@@ -378,10 +392,60 @@ const_value: _ADDOP _NUM {
 	cout<<"const_value -> char [OK]"<<endl;
 	$$ = newNode;
 }
-| error { 
+
+	| error {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} ;
+}
+
+	| _DIGITS { // 增加处理 digits 的生成式
+	BitNode *newNode, *Node1;
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "DIGITS");
+
+	newNode->insertChild(Node1);
+
+	cout<<"const_value -> digits [OK]"<<endl;
+        $$ = newNode;
+}
+
+	| _ADDOP _DIGITS { // 增加处理 digits 关联的生成式
+	if($1->token.compare("+") != 0) // ADDOP包括两种运算：+ or
+		yyerror("");
+
+	BitNode *newNode, *Node1, *Node2;
+	newNode = new BitNode(yycolumn, yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "ADDOP");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "DIGITS");
+
+	newNode->insertChild(Node1);
+	newNode->insertChild(Node2);
+
+	cout<<"const_value -> + digits [OK]"<<endl;
+	$$ = newNode;
+}
+	| _UMINUS _DIGITS { // 增加处理 digits 关联的生成式
+	BitNode *newNode, *Node1, *Node2;
+	newNode = new BitNode(yycolumn, yylineno,"", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "UMINUS");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "DIGITS");
+
+	newNode->insertChild(Node1);
+	newNode->insertChild(Node2);
+
+	cout<<"const_value -> - digits [OK]"<<endl;
+	$$ = newNode;
+}
+	| _BOOLEAN{ // 增加处理 boolean 的生成式
+	BitNode *newNode, *Node1;
+	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
+	Node1 = new BitNode(yycolumn, yylineno, $1->token, "BOOLEAN");
+
+	newNode->insertChild(Node1);
+
+	cout<<"const_value -> boolean [OK]"<<endl;
+        $$ = newNode;
+};
 
 var_declarations: _VAR var_declaration ';' {
 	BitNode *newNode, *Node1, *Node3;
@@ -1096,10 +1160,11 @@ statement: variable _ASSIGNOP expression {
 } 
 
 
- |  _IF expression _THEN statement error { 
+ 	|  _IF expression _THEN statement error { 
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
-} 	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
+} 
+	| _FOR _ID _ASSIGNOP expression _TO expression _DO statement {
 	BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node7;
 	newNode = new BitNode(yycolumn,yylineno,"", "statement");
 	Node1 = new BitNode(yycolumn,yylineno,$1->token, "FOR");
@@ -1115,6 +1180,7 @@ statement: variable _ASSIGNOP expression {
 	newNode->insertChild(Node5);
 	newNode->insertChild($6);
 	newNode->insertChild(Node7);
+	newNode->insertChild($8);
 
 	cout<<"statement -> for id assignop expression to expression do statement [OK]"<<endl;
 	$$ = newNode;
@@ -1245,7 +1311,7 @@ statement: variable _ASSIGNOP expression {
 	cout<<"statement -> empty [OK]"<<endl;
 	$$ = newNode;
 }
- | _WHILE expression _DO statement{
+ | _WHILE expression _DO statement{ // 增加while循环
 	BitNode *newNode, *Node1, *Node3;
         newNode = new BitNode(yycolumn,yylineno,"", "statement");
         Node1 = new BitNode(yycolumn,yylineno,$1->token, "WHILE");
@@ -1567,6 +1633,17 @@ simple_expression: simple_expression _ADDOP term {
 
 	cout<<"simple_expression -> simple_expression addop term [OK]"<<endl;
 	$$ = newNode;
+}| simple_expression _UMINUS term{ // 增加 uminus 关联生成式
+	BitNode *newNode, *Node2;
+	newNode = new BitNode(yycolumn, yylineno, "", "simple_expression");
+	Node2 = new BitNode(yycolumn, yylineno, $2->token, "UMINUS");
+
+	newNode->insertChild($1);
+	newNode->insertChild(Node2);
+	newNode->insertChild($3);
+
+	cout<<"simple_expression -> simple_expression uminus term [OK]"<<endl;
+	$$ = newNode;
 }
 	| term {
 	BitNode *newNode;
@@ -1654,14 +1731,23 @@ factor: _NUM {
         cout<<" factor -> num [OK]"<<endl;
         $$ = newNode;
 }
-| _DIGITS {
+| _DIGITS { // 增加整型
         BitNode *newNode, *Node1;
-        newNode = new BitNode(yycolumn,yylineno,"", "factor");
-        Node1 = new BitNode(yycolumn,yylineno,$1->token, "DIGITS");
+        newNode = new BitNode(yycolumn, yylineno, "", "factor");
+        Node1 = new BitNode(yycolumn, yylineno, $1->token, "DIGITS");
 
         newNode->insertChild(Node1);
 
         cout<<" factor -> num [OK]"<<endl;
+        $$ = newNode;
+}| _BOOLEAN { // 增加布尔型
+ 	BitNode *newNode, *Node1;
+        newNode = new BitNode(yycolumn, yylineno, "", "factor");
+        Node1 = new BitNode(yycolumn, yylineno, $1->token, "BOOLEAN");
+
+        newNode->insertChild(Node1);
+
+        cout<<" factor -> boolean [OK]"<<endl;
         $$ = newNode;
 }
         | variable {
