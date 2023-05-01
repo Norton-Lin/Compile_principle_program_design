@@ -1767,8 +1767,6 @@ factor: _NUM {
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
 } 
-
-
  | _ID error expression_list ')' { 
 	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
 	$$ = newNode; 
@@ -1862,6 +1860,16 @@ factor: _NUM {
 	BitNode *newNode, *Node1;
         newNode = new BitNode(yycolumn,yylineno,"", "factor");
         Node1 = new BitNode(yycolumn,yylineno,$1->token, "ADDOP");
+
+        newNode->insertChild(Node1);
+        newNode->insertChild($2);
+
+        cout<<"factor -> add factor [OK]"<<endl;
+        $$ = newNode;
+} | _UMINUS factor {
+	BitNode *newNode, *Node1;
+        newNode = new BitNode(yycolumn,yylineno,"", "factor");
+        Node1 = new BitNode(yycolumn,yylineno,$1->token, "_UMINUS");
 
         newNode->insertChild(Node1);
         newNode->insertChild($2);
