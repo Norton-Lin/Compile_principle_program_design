@@ -1,0 +1,18 @@
+program example(input,output);
+//const constid1 = 'c';constid2 = 10;constid3 = -10;constid4 = 20.5;constid5 = -20.5;constid6 = or 30;constid7 = +30.0;constid8 = true;constid9 = false;constrepead = 1;constrepead = 2;
+//var varid1,varid2 : integer;varid3 : real;varid4 : boolean;varid5 : char;vararrid1,vararrid2: array[0..10,1..11,10..20] of integer;vararrid3 :array[1..10] of boolean;vararrayid4 :array[1..10] of char;vararrid5 :array[100..200] of real;vararrid6:array[10..5] of integer;
+procedure procedure1 (para1,para2 : integer);
+begin
+
+end;
+function procedure2 (var para1,para2 : integer;para3,para4 : real):boolean;
+//const constid1 = 'c';constid2 = 10;constid3 = -10;constid4 = 20.5;constid5 = -20.5;constid6 = or 30;constid7 = +30.0;constid8 = true;constid9 = false;constrepead = 1;constrepead = 2;
+const constbool = true;
+var varid1,varid2 : integer;varid3 : real;varid4 : boolean;varid5 : char;vararrid1,vararrid2: array[0..10,1..11,10..20] of integer;vararrid3 :array[1..10] of boolean;vararrayid4 :array[1..10] of char;vararrid5 :array[100..200] of real;vararrid6:array[10..5] of integer;
+begin
+varid1 := -1;//赋值
+end;
+
+begin
+
+end.
