@@ -5,81 +5,82 @@ extern CodeGenContext context;
 /**
  * 初始化库函数
  */
+llvm::Value* get_item(variable_AST* var);
 void CodeGenContext::init_funcStack()
 {
     cout << "CodeGenerate::init_funcStack" << endl;
-    vector<Type *> param;
+    vector<llvm::Type *> param;
     // 写整数
     param.push_back(this->type_ir.type_int);
     llvm::FunctionType *func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
-    Function *func = Function::Create(func_type, Function::ExternalLinkage, "write_int", this->module.get());
+    llvm::Function *func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "write_int", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 写实数
     param.push_back(this->type_ir.type_real);
     func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "write_real", this->module.get());
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "write_real", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 写字符
     param.push_back(this->type_ir.type_char);
     func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "write_char", this->module.get());
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "write_char", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 写布尔
     param.push_back(this->type_ir.type_boolean);
     func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "write_boolean", this->module.get());
+    func = llvm::Function::Create(func_type,llvm::Function::ExternalLinkage, "write_boolean", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 读整数
     param.push_back(this->type_ir.type_void);
     func_type = llvm::FunctionType::get(this->type_ir.type_int, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "read_int", this->module.get());
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_int", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 读实数
     param.push_back(this->type_ir.type_void);
     func_type = llvm::FunctionType::get(this->type_ir.type_real, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "read_real", this->module.get());
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_real", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 读字符
     param.push_back(this->type_ir.type_void);
     func_type = llvm::FunctionType::get(this->type_ir.type_char, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "read_char", this->module.get());
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_char", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
     // 读布尔
     param.push_back(this->type_ir.type_void);
     func_type = llvm::FunctionType::get(this->type_ir.type_boolean, param, false);
-    func = Function::Create(func_type, Function::ExternalLinkage, "read_boolean", this->module.get());
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_boolean", this->module.get());
     this->funcStack.push_back(func);
     param.clear();
-    sys::DynamicLibrary::AddSymbol("write_int", this->funcStack[0]);
-    sys::DynamicLibrary::AddSymbol("write_real", this->funcStack[1]);
-    sys::DynamicLibrary::AddSymbol("write_char", this->funcStack[2]);
-    sys::DynamicLibrary::AddSymbol("write_boolean", this->funcStack[3]);
-    sys::DynamicLibrary::AddSymbol("read_int", this->funcStack[4]);
-    sys::DynamicLibrary::AddSymbol("read_real", this->funcStack[5]);
-    sys::DynamicLibrary::AddSymbol("read_char", this->funcStack[6]);
-    sys::DynamicLibrary::AddSymbol("read_boolean", this->funcStack[7]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_int", this->funcStack[0]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_real", this->funcStack[1]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_char", this->funcStack[2]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_boolean", this->funcStack[3]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_int", this->funcStack[4]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_real", this->funcStack[5]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_char", this->funcStack[6]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_boolean", this->funcStack[7]);
 }
 // AST CodeGenerate
 /**
  * 主程序IR生成 该模块已完成
  */
-Value *programstruct_AST::code_generation()
+llvm::Value *programstruct_AST::code_generation()
 {
     cout << "programstruct_AST::code_generation" << endl;
     // 生成main program
     llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
-    Function *program = Function::Create(type, Function::ExternalLinkage, "main", context.module.get());
+    llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", context.module.get());
     // 基本块生成
-    BasicBlock *block = BasicBlock::Create(context.llvmContext, "entry", program, 0);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program, 0);
     // 主程序块生成
-    context.builder = make_unique<IRBuilder<>>(block);
+    context.builder = make_unique<llvm::IRBuilder<>>(block);
     return nullptr;
 }
 // 常量元素：
@@ -87,29 +88,29 @@ Value *programstruct_AST::code_generation()
  * 常量定义IR生成 该模块已完成
  * @return Value* 常量的llvm Value
  */
-Value *const_value_AST::code_generation()
+llvm::Value *const_value_AST::code_generation()
 {
     cout << "const_value_AST::code_generation" << endl;
-    Value *ret = nullptr;
+    llvm::Value *ret = nullptr;
     if (this->s_type == "integer")
     {
         int value = this->s_int < 0 ? -this->s_int : this->s_int;
-        ret = ConstantInt::get(context.type_ir.type_int, value, true);
+        ret = llvm::ConstantInt::get(context.type_ir.type_int, value, true);
     }
     else if (this->s_type == "real")
     {
         double value = this->s_real < 1e-6 ? -this->s_real : this->s_real;
-        ret = ConstantFP::get(context.type_ir.type_real, value);
+        ret = llvm::ConstantFP::get(context.type_ir.type_real, value);
     }
     else if (this->s_type == "char")
     {
         char value = this->s_char;
-        ret = ConstantInt::get(context.type_ir.type_char, value, true);
+        ret = llvm::ConstantInt::get(context.type_ir.type_char, value, true);
     }
     else if (this->s_type == "boolean")
     {
         bool value = this->s_bool;
-        ret = ConstantInt::get(context.type_ir.type_boolean, value, true);
+        ret = llvm::ConstantInt::get(context.type_ir.type_boolean, value, true);
     }
     else
     {
@@ -124,14 +125,15 @@ Value *const_value_AST::code_generation()
  * bug可能出现在 数组定义
  * @return Value* 局部变量地址
  */
-Value *variable_AST::code_generation()
+/**
+llvm::Value *variable_AST::code_generation()
 {
     cout << "variable_AST::code_generation" << endl;
     this->item = symbolTable.get(this->s_identifier);
     if (this->item == nullptr)
         return LogErrorV("unknown variable name" + this->s_identifier);
-    Value *ret = nullptr;                                   // 局部变量地址
-    Type *type = nullptr; // 局部变量类型
+    llvm::Value *ret = nullptr;                                   // 局部变量地址
+    llvm::Type *type = nullptr; // 局部变量类型
     if (this->s_isarray)
     {
         // 获取数组对应的llvm type
@@ -153,19 +155,19 @@ Value *variable_AST::code_generation()
     if (ret == nullptr)
         return LogError("create alloca failed");
     return ret;
-}
+}*/
 
 /**
  * 类型IR生成
  * 没用
  * @return Value*
  */
-Value *type_AST::code_generation()
+llvm::Value *type_AST::code_generation()
 {
     //似乎没用，var那里生成了
     cout << "type_Ast::code_generation" << endl;
     // 数组类型
-    Type* ret = nullptr;
+    llvm::Type* ret = nullptr;
     if (this->l_isarray)
     {
         cout << "type_Ast::code_generation is_array" << endl;
@@ -179,10 +181,10 @@ Value *type_AST::code_generation()
  * bug可能出现在 传值传引用 符号表存储
  * @return Value* 函数地址指针
  */
-Function* subprogram_head_AST::code_generation()
+llvm::Function* subprogram_head_AST::code_generation()
 {
     cout<<"subprogram_head_AST::code_generation"<<endl;
-    vector<Type*> argTypes;
+    vector<llvm::Type*> argTypes;
     vector<pair<string,bool>> argNames;//形参名字和是否是引用传递
     //从一堆s_list中获取每个形参的类型,我同时可以知道他们是否是引用传递
     for(int i = 0 ;i<this->s_list.size();i++)
@@ -197,13 +199,13 @@ Function* subprogram_head_AST::code_generation()
     //获取函数返回值类型
     //若是过程就是void
     string ret_string = (s_ret_type == "") ? "void":this->s_ret_type;
-    Type* retType = context.type_ir.getLLVMType(ret_string);
+    llvm::Type* retType = context.type_ir.getLLVMType(ret_string);
     //生成函数类型
-    FunctionType* type = FunctionType::get(retType,argTypes,false);
+    llvm::FunctionType* type = llvm::FunctionType::get(retType,argTypes,false);
     //生成函数
-    Function* func = Function::Create(type,Function::ExternalLinkage,this->program_name,context.module.get());
+    llvm::Function* func = llvm::Function::Create(type,llvm::Function::ExternalLinkage,this->program_name,context.module.get());
     //生成基本块
-    BasicBlock* block = BasicBlock::Create(context.llvmContext,"entry",func,0);
+    llvm::BasicBlock* block = llvm::BasicBlock::Create(context.llvmContext,"entry",func,0);
     context.builder->SetInsertPoint(block);
     //形参
     auto argName = argNames.begin();
@@ -212,12 +214,12 @@ Function* subprogram_head_AST::code_generation()
     for(auto& arg:func->args())
     {
         arg.setName(argName->first);
-        Value* loc = nullptr;
+        llvm::Value* loc = nullptr;
         if(argName->second)//是引用传递
         {
             //获取引用值地址
             loc =&arg;//传入值是地址
-            Value* tmp = context.builder->CreateLoad(loc);//载入数据
+            llvm::Value* tmp = context.builder->CreateLoad(loc);//载入数据
             context.builder->CreateStore(tmp,loc,false);//参数存到地址中
         }  
         else
@@ -227,7 +229,7 @@ Function* subprogram_head_AST::code_generation()
             context.builder->CreateStore(&arg,loc,false);//参数存到地址中
         }
         //符号表记录形参
-        item = symbol_table->get(argName->first);//获取符号表项
+        item = symbol_table.get(argName->first);//获取符号表项
         item->value.basic_val->llvmvalue = loc;//记录形参地址
         argName++;
         argType++;
@@ -238,7 +240,7 @@ Function* subprogram_head_AST::code_generation()
  * 函数返回值生成， 该模块未完全完成
  */
 //此处建议，用符号表记录返回值
-Value* subprogram_body_AST::ret_generation(Value* ret)
+llvm::Value* subprogram_body_AST::ret_generation(llvm::Value* ret)
 {
     //语义分析需要加一个标记，标记是否是函数
     if(isfunction)
@@ -253,30 +255,30 @@ Value* subprogram_body_AST::ret_generation(Value* ret)
  * program IR生成
  *该模块已完成,与program_structure_AST::code_generation()重复
  */
-Value *program_body_AST::code_generation()
+llvm::Value *program_body_AST::code_generation()
 {
     cout << "program_body::code_generation" << endl;
     // 生成函数
     llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
-    Function *program = Function::Create(type, Function::ExternalLinkage, "main", context.module.get());
+    llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", context.module.get());
     // 生成基本块
-    BasicBlock *block = BasicBlock::Create(context.llvmContext, "entry", program);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program);
     // 主程序块生成
-    context.builder = make_unique<IRBuilder<>>(block);
+    context.builder = make_unique<llvm::IRBuilder<>>(block);
     return nullptr;
 }
 /**
  * subprogram IR生成
  * 该模块已完成,废弃
  */
-Value *subprogram_body_AST::code_generation()
+llvm::Value *subprogram_body_AST::code_generation()
 {
     cout << "program_body::code_generation" << endl;
     // 生成函数
     llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
-    Function *program = Function::Create(type, Function::ExternalLinkage, "sub", context.module.get());
+    llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "sub", context.module.get());
     // 生成基本块
-    BasicBlock *block = BasicBlock::Create(context.llvmContext, "entry", program);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program);
     // 块插入
     context.builder->SetInsertPoint(block);
     return nullptr;
@@ -285,7 +287,7 @@ Value *subprogram_body_AST::code_generation()
  * 过程调用 IR生成  该模块已完成
  * @return Value* 过程call
  */
-Value *procedure_call_AST::code_generation()
+llvm::Value *procedure_call_AST::code_generation()
 {
     cout << "procedure_call_AST::code_generation" << endl;
     // 符号表里寻找procedeure id
@@ -293,7 +295,7 @@ Value *procedure_call_AST::code_generation()
     this->s_item = symbolTable.get(this->s_identifier);
     if (this->s_item == nullptr)
         return LogErrorV("procedure not found in sympol table");
-    vector<Value *> args; // 获取参数列表
+    vector<llvm::Value *> args; // 获取参数列表
     int count = 0;
     for (auto &item : s_value_list)
     {
@@ -304,7 +306,7 @@ Value *procedure_call_AST::code_generation()
     }
     // 获取一个过程指针 todo
     // Function* pro_ptr = record->func;
-    Function *pro_ptr = nullptr;
+    llvm::Function *pro_ptr = nullptr;
     return context.builder->CreateCall(pro_ptr, args, "Call Procedure");
     /**
      * 也可以这么写,上面那个做了错误处理，但是，语义分析那里就爆了，所以没必要23333
@@ -317,11 +319,11 @@ Value *procedure_call_AST::code_generation()
  * 函数调用 IR生成  该模块已完成
  * @return Value* 函数call
 */
-Value *factor_AST::function_call_generation()
+llvm::Value *factor_AST::function_call_generation()
 {
     cout<<"factor_AST::function_call_generation"<<endl;
     auto ptr = s_func_item->value.function_val;//获取函数符号表指针
-    Function* call = ptr->llvmfunction;//获取函数指针
+    llvm::Function* call = ptr->llvmfunction;//获取函数指针
     return context.builder->CreateCall(call, s_parameter_list, "Call Function");
 }
 // 表达式
@@ -330,23 +332,23 @@ Value *factor_AST::function_call_generation()
  * 因子
  * 该部分包括 常数值、变量值、函数调用、表达式、取非、取负
  */
-Value *factor_AST::code_generation()
+llvm::Value *factor_AST::code_generation()
 {
     cout << "factor_AST::code_generation" << endl;
-    Value *value = nullptr;
+    llvm::Value *value = nullptr;
     // 四种常数
     switch (s_state)
     {
     case 1: // 常数
     {
         if (s_type == "integer")
-            value = ConstantInt::get(context.type_ir.type_int, s_int, true);
+            value = llvm::ConstantInt::get(context.type_ir.type_int, s_int, true);
         else if (s_type == "real")
-            value = ConstantInt::get(context.type_ir.type_real, s_real, true);
+            value = llvm::ConstantInt::get(context.type_ir.type_real, s_real, true);
         else if (s_type == "char")
-            value = ConstantInt::get(context.type_ir.type_char, s_char, true);
+            value = llvm::ConstantInt::get(context.type_ir.type_char, s_char, true);
         else if (s_type == "boolean")
-            value = ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
+            value = llvm::ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
     }
     break;
     case 2:
@@ -368,12 +370,12 @@ Value *factor_AST::code_generation()
             // 浮点形
             if (this->s_operand0_type == "real")
             {
-                Value *temp = ConstantFP::get(context.type_ir.type_real, (double)(0.0));
+                llvm::Value *temp = llvm::ConstantFP::get(context.type_ir.type_real, (double)(0.0));
                 value = context.builder->CreateFNeg(this->s_operand0, "uminus");
             }
             else
             {
-                Value *temp = ConstantInt::get(context.type_ir.type_real, 0, true);
+                llvm::Value *temp = llvm::ConstantInt::get(context.type_ir.type_real, 0, true);
                 value = context.builder->CreateNeg(this->s_operand0, "uminus");
             }
         }
@@ -388,11 +390,11 @@ Value *factor_AST::code_generation()
  * term IR生成
  * 该部分包括 mulop ： *、/、div、mod 和 and
  */
-Value *term_AST::code_generation()
+llvm::Value *term_AST::code_generation()
 {
     cout << "term_AST::code_generation" << endl;
     // 二位运算符
-    Value* value = nullptr;
+    llvm::Value* value = nullptr;
     //类型转换,待浮点全部转浮点 /运算好像不用
     bool judge = true;
     if(operand0_type=="real"||operand1_type=="real"){
@@ -432,10 +434,10 @@ Value *term_AST::code_generation()
  * simple_expression IR生成
  * 该部分包括 addop ：+、-、or
 */
-Value *simple_expression_AST::code_generation()
+llvm::Value *simple_expression_AST::code_generation()
 {
     cout << "simple_expression_AST::code_generation" << endl;
-    Value* value = nullptr;
+    llvm::Value* value = nullptr;
     //类型转换,待浮点全部转浮点 /运算好像不用
     bool judge = true;
     if(operand0_type=="real"||operand1_type=="real"){
@@ -465,10 +467,10 @@ Value *simple_expression_AST::code_generation()
  * expression IR生成
  * 该部分包括 relop ：=、<>、<、<=、>、>=
 */
-Value *expression_AST::code_generation()
+llvm::Value *expression_AST::code_generation()
 {
     cout << "expression_AST::code_generation" << endl;
-    Value* value = nullptr;
+    llvm::Value* value = nullptr;
     //类型转换,带浮点全部转浮点 
     bool judge = true;
     if(operand0_type=="real"||operand1_type=="real"){
@@ -512,7 +514,7 @@ Value *expression_AST::code_generation()
 }
 
 // 语句
-Value *statement_AST::code_generation()
+llvm::Value *statement_AST::code_generation()
 {
     cout << "statement_AST::code_generation" << endl;
     // todo
@@ -522,7 +524,7 @@ Value *statement_AST::code_generation()
  * if 语句
  * 第一阶段
 */
-Value* statement_AST::if_code_generation_1()
+llvm::Value* statement_AST::if_code_generation_1()
 {
     cout << "statement_AST::if_code_generation" << endl;
     if(s_expression_value == nullptr)
@@ -549,7 +551,7 @@ Value* statement_AST::if_code_generation_1()
  * if 语句
  * 第二阶段
 */
-Value* statement_AST::if_code_generation_2()
+llvm::Value* statement_AST::if_code_generation_2()
 {
     context.builder->restoreIP(IP);
     //restoreIP(IP);//恢复插入点
@@ -570,7 +572,7 @@ Value* statement_AST::if_code_generation_2()
  * if语句
  * 第三阶段
 */
-Value *statement_AST::if_code_generation_3()
+llvm::Value *statement_AST::if_code_generation_3()
 {
     context.builder->restoreIP(IP);
     if(s_has_else)
@@ -586,7 +588,7 @@ Value *statement_AST::if_code_generation_3()
  * for语句
  * 第一阶段
 */
-Value *statement_AST::for_code_generation_1()
+llvm::Value *statement_AST::for_code_generation_1()
 {
     cout<<"statement_AST::for_code_generation"<<endl;
     function = context.builder->GetInsertBlock()->getParent();//得到for语句所属函数
@@ -603,7 +605,7 @@ Value *statement_AST::for_code_generation_1()
  * for语句
  * 第二阶段
 */
-Value *statement_AST::for_code_generation_2()
+llvm::Value *statement_AST::for_code_generation_2()
 {
     context.builder->SetInsertPoint(block1);//设置插入点，这个地方有待考量
     s_expression_value = expressionToBoolean(s_expression_value);//条件值
@@ -616,7 +618,7 @@ Value *statement_AST::for_code_generation_2()
  * while语句
  * 第一阶段
 */
-Value* statement_AST::while_code_generation_1()
+llvm::Value* statement_AST::while_code_generation_1()
 {
     cout<<"statement_AST::while_code_generation"<<endl;
     function = context.builder->GetInsertBlock()->getParent();//得到while语句所属函数
@@ -632,7 +634,7 @@ Value* statement_AST::while_code_generation_1()
  * while语句
  * 第二阶段
 */
-Value* statement_AST::while_code_generation_2()
+llvm::Value* statement_AST::while_code_generation_2()
 {
     context.builder->SetInsertPoint(block1);//设置插入点，这个地方有待考量
     s_expression_value = expressionToBoolean(s_expression_value);//条件值
@@ -644,7 +646,7 @@ Value* statement_AST::while_code_generation_2()
 /**
  * assign语句
 */
-Value* statement_AST::assign_code_generation()
+llvm::Value* statement_AST::assign_code_generation()
 {
     cout<<"statement_AST::assign_code_generation"<<endl;
     //获取左值 item
@@ -652,7 +654,7 @@ Value* statement_AST::assign_code_generation()
     if(item == nullptr)
         return LogErrorV("assign_code_generation: item is null");
     //获取左值,左值可以是变量，也可以是数组元素，
-    Value* value = nullptr;//左值变量地址
+    llvm::Value* value = nullptr;//左值变量地址
     if(this->s_expression_type == "return")//函数返回值
     {
         //记录函数返回值
@@ -682,10 +684,10 @@ Value* statement_AST::assign_code_generation()
 /**
  * wirte 语句
  */
-Value *statement_AST::write()
+llvm::Value *statement_AST::write()
 {
     cout << "statement_AST::wirte_procedure" << endl;
-    vector<Value *> args;
+    vector<llvm::Value *> args;
     int count = 0;
     int index = 0;
     for (auto &item : s_value_list)
@@ -711,10 +713,10 @@ Value *statement_AST::write()
 /**
  * read 语句
  */
-Value *statement_AST::read()
+llvm::Value *statement_AST::read()
 {
     cout << "procedure_call_AST::read_procedure" << endl;
-    vector<Value *> args;
+    vector<llvm::Value *> args;
     int index;
     int count = 0;
     for (auto &item : s_variable_list)
@@ -727,9 +729,9 @@ Value *statement_AST::read()
             index = 6;
         else if(s_type_list[count]=="boolean")
             index = 7;
-        Value *ret = context.builder->CreateCall(context.funcStack[index], args, "read");
+        llvm::Value *ret = context.builder->CreateCall(context.funcStack[index], args, "read");
         //todo 变量操作
-        Value *addr = nullptr;
+        llvm::Value *addr = nullptr;
         addr = item->item->value.basic_val->llvmvalue; // 获取变量地址
         context.builder->CreateStore(ret, addr);
         ++count;
@@ -738,12 +740,12 @@ Value *statement_AST::read()
 }
 
 // 引用
-Value* variable_AST::code_generation()
+llvm::Value* variable_AST::code_generation()
 {
     cout<<"variable_AST::code_generation"<<endl;
     //获取左值 item
     SymbolTableItem* item = this->item;
-    Value* addr = nullptr;//左值变量地址
+    llvm::Value* addr = nullptr;//左值变量地址
     if(item->type<9)//普通变量
     {
         addr = item->value.basic_val->llvmvalue;
@@ -762,10 +764,10 @@ Value* variable_AST::code_generation()
 /**
  * 获取左值
 */
-Value* get_item(variable_AST* var)
+llvm::Value* get_item(variable_AST* var)
 {
     cout<<"get_item"<<endl;
-    Value* ptr = nullptr;
+    llvm::Value* ptr = nullptr;
     SymbolTableItem* item = var->item;
     ptr = var->item->value.array_val->llvmvalue;//数组首地址
     string cur = "";//当前维度type
@@ -779,28 +781,36 @@ Value* get_item(variable_AST* var)
 /**
  * 获取数组元素指针
  */
-Value *get_array_item(const string &type, Value *array,int loc, Value* index)
+llvm::Value *get_array_item(const string &type, llvm::Value *array,int loc, llvm::Value* index)
 {
     cout << "get_array_item" << endl;
-    Type *item_type = context.type_ir.getLLVMType(type);
+    llvm::Type *item_type = context.type_ir.getLLVMType(type);
     if (item_type == nullptr)
         return LogErrorV("unknown type");
-    auto base = ConstantInt::get(context.type_ir.type_int, loc);
-    Value *ret = context.builder->CreateGEP(item_type, array, {base, index});
+    auto base = llvm::ConstantInt::get(context.type_ir.type_int, loc);
+    llvm::Value *ret = context.builder->CreateGEP(item_type, array, {base, index});
     if (ret == nullptr)
         return LogErrorV("get array item failed");
     return ret;
 }
 
-Value *expressionToBoolean(Value* value){
-    if(value->getType()->getTypeID() == Type::IntegerTyID)
+llvm::Value *expressionToBoolean(llvm::Value* value){
+    if(value->getType()->getTypeID() == llvm::Type::IntegerTyID)
     {
         value = context.builder->CreateIntCast(value,context.type_ir.type_boolean,true);
         value = context.builder->CreateICmpNE(value,llvm::ConstantInt::get(context.type_ir.type_boolean,0,true));
     }
-    else if(value->getType()->getTypeID() == Type::FloatTyID)
+    else if(value->getType()->getTypeID() == llvm::Type::FloatTyID)
     {
         value = context.builder->CreateFCmpONE(value, llvm::ConstantFP::get(context.llvmContext, llvm::APFloat(0.0)));
     }
     return value;
+}
+llvm::Value* LogErrorV(string str)
+{
+
+}
+llvm::Value* LogError(const char *str)
+{
+
 }

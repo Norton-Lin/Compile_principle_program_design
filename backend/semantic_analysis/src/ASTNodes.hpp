@@ -1,5 +1,6 @@
 #include "interface.h"
 #include "symbol_table.hpp"
+#include "CodeGenerate.h"
 #include <vector>
 
 class SematicAnalysis;
@@ -10,24 +11,27 @@ class variable_AST;
 
 extern SymbolTable symbol_table;
 extern SematicAnalysis analysis;
+extern CodeGenContext context;
 using namespace std;
 
 
 
-//4.26¸üĞÂ£º
+//4.26æ›´æ–°ï¼š
 /*
-
+ * 1.æ–°å¢ç»ˆç»“ç¬¦WHILE
+ * 2.æ–°å¢è¯­æ³•ç»“æ„WHILEè¯­å¥
+ * 3.
  */
 
 enum ast_type
 {
-	// ÖÕ½á·û
+	// ç»ˆç»“ç¬¦
 	PROGRAM, CONST, VAR, PROCEDURE, FUNCTION, BEGIN, END, ARRAY, OF, IF,
 	THEN, FOR, TO, DO, READ, WRITE, NOT, ELSE, RANGE, UMINUS,
 	ID, RELOP, DIGITS, NUM, VARTYPE, ADDOP, MULOP, ASSIGNOP, SEPARATOR, CHAR,
 	BOOLEAN,WHILE,
 
-	// ·ÇÖÕ½á·û
+	// éç»ˆç»“ç¬¦
 	programstruct = 100, program_head, program_body, idlist, const_declarations,
 	const_declaration, const_value, var_declarations, var_declaration, basic_type,
 	type, period, subprogram_declarations, subprogram, subprogram_head,
@@ -88,7 +92,7 @@ public:
     int line;
     int col;
 
-    //µ÷ÊÔÓÃĞÅÏ¢
+    //è°ƒè¯•ç”¨ä¿¡æ¯
     string pascal_info;
     void pascal_info_cat()
     {
@@ -115,15 +119,13 @@ public:
 	virtual llvm::Value *code_generation() {return NULL;};
 };
 
-//ÖÕ½á·û
+//ç»ˆç»“ç¬¦
 class WHILE_AST :public ASTNode
 {
-public:
     WHILE_AST(BitNode* bn)
     {
         type = WHILE;
         pascal_info = bn->data;
-        get_line_col(bn);
     }
 };
 
@@ -367,7 +369,7 @@ public:
 	{
         pascal_info = bn->data;
 		type = UMINUS;//-
-        this->s_value = bn->data;//todo:¼ì²éÀàĞÍÊÇ·ñÒ»ÖÂ
+        this->s_value = bn->data;//todo:æ£€æŸ¥ç±»å‹æ˜¯å¦ä¸€è‡´
 	}
 
 };
@@ -379,8 +381,8 @@ public:
 	RELOP_AST(BitNode* bn)
 	{
         pascal_info = bn->data;
-		type = RELOP;//¹ØÏµÔËËã·û
-        this->s_value = bn->data;//todo:¼ì²éÊÇ·ñÏà·ûs
+		type = RELOP;//å…³ç³»è¿ç®—ç¬¦
+        this->s_value = bn->data;//todo:æ£€æŸ¥æ˜¯å¦ç›¸ç¬¦s
     }
 
 };
@@ -400,7 +402,7 @@ public:
 
 };
 
-//s_type Ö»ÓĞreal£¬PPTÉÏµÄ¶¨ÒåÓĞÆçÒå
+//s_type åªæœ‰realï¼ŒPPTä¸Šçš„å®šä¹‰æœ‰æ­§ä¹‰
 class NUM_AST :public ASTNode
 {
 public:
@@ -437,7 +439,7 @@ public:
 	{
         pascal_info = bn->data;
 		type = ADDOP;
-        this->s_value = bn->data;//todo:¼ì²éÀàĞÍÊÇ·ñÒ»ÖÂ(OK)
+        this->s_value = bn->data;//todo:æ£€æŸ¥ç±»å‹æ˜¯å¦ä¸€è‡´(OK)
         get_line_col(bn);
 	}
 
@@ -451,7 +453,7 @@ public:
 	{
         pascal_info = bn->data;
 		type = MULOP;
-        this->s_value = bn->data;//todo£º¼ì²éÓï·¨·ÖÎö¸ø³öµÄ×Ö·û´®ÊÇ·ñÓëÓïÒå·ÖÎö¶¨ÒåÏàÍ¬£¬²»ÏàÍ¬ÔòÔÚ´ËĞŞ¸Ä
+        this->s_value = bn->data;//todoï¼šæ£€æŸ¥è¯­æ³•åˆ†æç»™å‡ºçš„å­—ç¬¦ä¸²æ˜¯å¦ä¸è¯­ä¹‰åˆ†æå®šä¹‰ç›¸åŒï¼Œä¸ç›¸åŒåˆ™åœ¨æ­¤ä¿®æ”¹
 	}
 
 };
@@ -469,7 +471,6 @@ public:
 
 };
 
-
 class SEPARATOR_AST :public ASTNode
 {
 public:
@@ -486,7 +487,7 @@ public:
 class CHAR_AST :public ASTNode
 {
 public:
-    string s_type;//Ö»ÄÜÊÇvalue
+    string s_type;//åªèƒ½æ˜¯value
     char s_char;
 	CHAR_AST(BitNode* bn)
 	{
@@ -532,7 +533,7 @@ public:
 };
 
 
-//·ÇÖÕ½á·û
+//éç»ˆç»“ç¬¦
 
 class idlist_AST :public ASTNode
 {
@@ -600,18 +601,18 @@ public:
 	{
 		if (this->children.size() == 6)
 		{
-            //ÓĞ×ÛºÏÊôĞÔµÄ½Úµã
+            //æœ‰ç»¼åˆå±æ€§çš„èŠ‚ç‚¹
 			ID_AST* ch1 = (ID_AST*)this->children[1];
 			idlist_AST* ch3 = (idlist_AST*)this->children[3];
 
-            //¸¸½Úµã¼Ì³ĞÊôĞÔ×¼±¸
+            //çˆ¶èŠ‚ç‚¹ç»§æ‰¿å±æ€§å‡†å¤‡
 
-            //»ñµÃ×Ó½Úµã×ÛºÏÊôĞÔ
+            //è·å¾—å­èŠ‚ç‚¹ç»¼åˆå±æ€§
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->semantic_action();
             }
 
-            //ÉèÖÃ¸¸½Úµã×ÛºÏÊôĞÔ
+            //è®¾ç½®çˆ¶èŠ‚ç‚¹ç»¼åˆå±æ€§
 			this->program_name = ch1->identifier;
 			this->parameters = ch3->list;
 		}
@@ -630,15 +631,15 @@ public:
 			cout << "error" << endl;
 		}
 
-        //ÉèÖÃ·ûºÅ±í¸¸±íÃû³Æ
+        //è®¾ç½®ç¬¦å·è¡¨çˆ¶è¡¨åç§°
         symbol_table.main_function = this->program_name;
         symbol_table.cur_function = this->program_name;
-        //ÓïÒå¼ì²éºÍ·ûºÅ±í²åÈë²Ù×÷
-        //²åÈë²ÎÊı
+        //è¯­ä¹‰æ£€æŸ¥å’Œç¬¦å·è¡¨æ’å…¥æ“ä½œ
+        //æ’å…¥å‚æ•°
         for (int i = 0; i < parameters.size(); ++i) {
             if(false == symbol_table.insert(parameters[i]))
             {
-                //½øÈëÑ­»·¼´²»Îª¿Õ
+                //è¿›å…¥å¾ªç¯å³ä¸ä¸ºç©º
                 ID_AST* id = ((idlist_AST*)this->children[3])->s_id_ast_list[i];
                 SemanticError* err = new SemanticError(id->line,id->col,
                                                        "Duplicate definition",
@@ -647,14 +648,14 @@ public:
             }
 
         }
-        //²åÈëº¯ÊıÃû
+        //æ’å…¥å‡½æ•°å
         symbol_value value;
         value.function_val = new MyFunctionType();
         value.function_val->arg_name_list = parameters;
         SymbolTableItem* item = new SymbolTableItem(this->program_name,procedure,value);
         if(false == symbol_table.insert(item))
         {
-            //½øÈëÑ­»·¼´²»Îª¿Õ
+            //è¿›å…¥å¾ªç¯å³ä¸ä¸ºç©º
             ID_AST* id = (ID_AST*)this->children[1];
             SemanticError* err = new SemanticError(id->line,id->col,
                                                    "Duplicate definition",
@@ -670,7 +671,7 @@ public:
 };
 
 /// <summary>
-/// Õâ¸ö×î´óµÄ½Úµã¿ÉÄÜÊ²Ã´¶¼²»×ö
+/// è¿™ä¸ªæœ€å¤§çš„èŠ‚ç‚¹å¯èƒ½ä»€ä¹ˆéƒ½ä¸åš
 /// </summary>
 
 
@@ -727,6 +728,7 @@ public:
     char s_char;
     double s_real;
     bool s_bool;
+    llvm::Value *code_generation() override;
     const_value_AST(BitNode* bn)
     {
         type = const_value;
@@ -735,7 +737,7 @@ public:
 
     void semantic_action() override
     {
-        if(this->children[0]->type==ADDOP)//Éú³ÉÊ½1
+        if(this->children[0]->type==ADDOP)//ç”Ÿæˆå¼1
         {
 
             for (int i = 0; i < this->children.size(); ++i) {
@@ -756,7 +758,7 @@ public:
             } else
                 sematic_error();
 
-        } else if(this->children[0]->type==UMINUS)//Éú³ÉÊ½2
+        } else if(this->children[0]->type==UMINUS)//ç”Ÿæˆå¼2
         {
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->semantic_action();
@@ -787,7 +789,7 @@ public:
             this->s_type = ch0->s_type;
             this->s_real = ch0->s_real;
         }
-        else if(this->children[0]->type==CHAR)//Éú³ÉÊ½4
+        else if(this->children[0]->type==CHAR)//ç”Ÿæˆå¼4
         {
             CHAR_AST* ch0 = (CHAR_AST*)this->children[0];
             ch0->semantic_action();
@@ -853,8 +855,8 @@ public:
             this->s_pair_list = ch1->s_pair_list;
             this->s_id_AST_list = ch1->s_id_AST_list;
 
-            //ÓïÒå¼ì²éºÍ·ûºÅ±í²åÈë²Ù×÷
-            //²åÈë²ÎÊı
+            //è¯­ä¹‰æ£€æŸ¥å’Œç¬¦å·è¡¨æ’å…¥æ“ä½œ
+            //æ’å…¥å‚æ•°
             for (int i = 0; i < s_pair_list.size(); ++i)
             {
                 SymbolTableItem* item = new SymbolTableItem(s_pair_list[i].first);
@@ -881,7 +883,7 @@ public:
 
                 if(false == symbol_table.insert(item))
                 {
-                    //½øÈëÑ­»·¼´²»Îª¿Õ
+                    //è¿›å…¥å¾ªç¯å³ä¸ä¸ºç©º
                     ID_AST* id = s_id_AST_list[i];
                     SemanticError* err = new SemanticError(id->line,id->col,
                                                            "Duplicate definition",
@@ -924,7 +926,7 @@ public:
     {
         VARTYPE_AST* ch0 = (VARTYPE_AST*) this->children[0];
 
-        //ÎŞÂÛÊ¹ÓÃÄÄÒ»¸ö¹éÔ¼Ê½£¬²Ù×÷¶¼Ò»Ñù
+        //æ— è®ºä½¿ç”¨å“ªä¸€ä¸ªå½’çº¦å¼ï¼Œæ“ä½œéƒ½ä¸€æ ·
         for (int i = 0; i < this->children.size(); ++i) {
             this->children[i]->semantic_action();
         }
@@ -982,10 +984,10 @@ public:
 class type_AST :public ASTNode
 {
 public:
-    string s_type;//»ù±¾ÀàĞÍ
+    string s_type;//åŸºæœ¬ç±»å‹
     bool l_isarray;
     vector<pair<int,int>> s_index_list;
-
+    llvm::Value *code_generation() override;
     type_AST(BitNode* bn)
     {
         type = type;
@@ -1078,7 +1080,7 @@ public:
 class var_declarations_AST :public ASTNode
 {
 public:
-    bool l_isglobal;//±íÊ¾ÊÇÖ÷º¯Êı¶¨ÒåµÄÈ«¾Ö±äÁ¿»¹ÊÇ×Óº¯Êı¶¨ÒåµÄ¾Ö²¿±äÁ¿
+    bool l_isglobal;//è¡¨ç¤ºæ˜¯ä¸»å‡½æ•°å®šä¹‰çš„å…¨å±€å˜é‡è¿˜æ˜¯å­å‡½æ•°å®šä¹‰çš„å±€éƒ¨å˜é‡
     vector<pair<idlist_AST*,type_AST*>> s_id_type_list;
     var_declarations_AST(BitNode* bn)
     {
@@ -1098,8 +1100,8 @@ public:
 
             this->s_id_type_list = ch1->s_id_type_list;
 
-            //ÓïÒå¼ì²éºÍ·ûºÅ±í²åÈë²Ù×÷
-            //²åÈë²ÎÊı
+            //è¯­ä¹‰æ£€æŸ¥å’Œç¬¦å·è¡¨æ’å…¥æ“ä½œ
+            //æ’å…¥å‚æ•°
             for (int i = 0; i < s_id_type_list.size(); ++i)
             {
                 for (int j = 0; j < s_id_type_list[i].first->s_id_ast_list.size(); ++j)
@@ -1151,7 +1153,7 @@ public:
 
                     if(false == symbol_table.insert(item))
                     {
-                        //½øÈëÑ­»·¼´²»Îª¿Õ
+                        //è¿›å…¥å¾ªç¯å³ä¸ä¸ºç©º
                         ID_AST* id = s_id_type_list[i].first->s_id_ast_list[j];
                         SemanticError* err = new SemanticError(id->line,id->col,
                                                                "Duplicate definition",
@@ -1174,6 +1176,7 @@ public:
 class program_body_AST :public ASTNode
 {
 public:
+    llvm::Value *code_generation() override;
     program_body_AST(BitNode* bn) {
         type = program_body;
     }
@@ -1207,7 +1210,7 @@ public:
     {
         type = programstruct;
     }
-    //virtual llvm::Value *code_generation() override;//todo:²ğ·Ö³É¶à²½Éú³É
+    //virtual llvm::Value *code_generation() override;//todo:æ‹†åˆ†æˆå¤šæ­¥ç”Ÿæˆ
 
     void semantic_action()
     {
@@ -1225,18 +1228,8 @@ public:
             code_generation();
         }
     }
+    llvm::Value *code_generation() override;
 };
-
-
-
-
-
-
-
-
-
-
-
 
 class value_parameter_AST :public ASTNode
 {
@@ -1252,7 +1245,7 @@ public:
 
     void semantic_action() override
     {
-        //Ö»ÓĞÒ»¸ö¹éÔ¼·½·¨
+        //åªæœ‰ä¸€ä¸ªå½’çº¦æ–¹æ³•
         idlist_AST* ch0 = (idlist_AST*) this->children[0];
         basic_type_AST* ch2 = (basic_type_AST*) this->children[2];
 
@@ -1284,7 +1277,7 @@ public:
 
     void semantic_action() override
     {
-        //Ö»ÓĞÒ»ÖÖ¹éÔ¼
+        //åªæœ‰ä¸€ç§å½’çº¦
         value_parameter_AST* ch1 = (value_parameter_AST*) this->children[1];
 
         for (int i = 0; i < this->children.size(); ++i) {
@@ -1400,6 +1393,7 @@ class formal_parameter_AST :public ASTNode
 {
 public:
     vector<parameter_AST*> s_list;
+    llvm::Value *code_generation() override;
     formal_parameter_AST(BitNode* bn)
     {
         type = formal_parameter;
@@ -1433,10 +1427,11 @@ class subprogram_head_AST :public ASTNode
 {
 public:
     bool s_isfunction;
-    string s_ret_type;//½öÔÚÊÇº¯ÊıÊ±ÓĞ·µ»ØÖµÀàĞÍ
+    string s_ret_type;//ä»…åœ¨æ˜¯å‡½æ•°æ—¶æœ‰è¿”å›å€¼ç±»å‹
     string program_name;
     vector<parameter_AST*> s_list;
-
+    llvm::Function *code_generation();
+    
     subprogram_head_AST(BitNode* bn)
     {
         type = subprogram_head;
@@ -1473,11 +1468,11 @@ public:
         } else
             sematic_error();
 
-        //²åÈëº¯ÊıÃû
+        //æ’å…¥å‡½æ•°å
         symbol_value value;
         MyFunctionType* functionType = new MyFunctionType(&symbol_table);
         value.function_val = functionType;
-        SymbolTableItem* item = new SymbolTableItem(this->program_name,s_isfunction?function:procedure,value);
+        SymbolTableItem* item = new SymbolTableItem(this->program_name,s_isfunction?symbol_type::function:procedure,value);
         functionType->isfunction = this->s_isfunction;
         if (s_isfunction)
         {
@@ -1485,7 +1480,7 @@ public:
         }
         if(false == symbol_table.insert(item))
         {
-            //½øÈëÑ­»·¼´²»Îª¿Õ
+            //è¿›å…¥å¾ªç¯å³ä¸ä¸ºç©º
             ID_AST* id = (ID_AST*)this->children[1];
             SemanticError* err = new SemanticError(id->line,id->col,
                                                    "Duplicate definition",
@@ -1493,11 +1488,11 @@ public:
             semantic_error_list.push_back(err);
         }
 
-        //·ûºÅ±íÖØ¶¨Ïò
-        //ÉèÖÃ·ûºÅ±í×Ó±íÃû³Æ
+        //ç¬¦å·è¡¨é‡å®šå‘
+        //è®¾ç½®ç¬¦å·è¡¨å­è¡¨åç§°
         symbol_table.cur_function = this->program_name;
-        //ÓïÒå¼ì²éºÍ·ûºÅ±í²åÈë²Ù×÷
-        //²åÈë²ÎÊı
+        //è¯­ä¹‰æ£€æŸ¥å’Œç¬¦å·è¡¨æ’å…¥æ“ä½œ
+        //æ’å…¥å‚æ•°
         int count = 0;
         for (int i = 0; i < this->s_list.size(); ++i)
         {
@@ -1516,18 +1511,18 @@ public:
                 else//char
                     idtype = var_char;
 
-                //²ÎÊıÀàĞÍ²»ÄÜÊÇarray
+                //å‚æ•°ç±»å‹ä¸èƒ½æ˜¯array
                 MyBasicType* value = new MyBasicType();
                 item->value.basic_val = value;
                 item->type = idtype;
 
-                //¼ÇÂ¼º¯Êı¶¨ÒåĞÅÏ¢
+                //è®°å½•å‡½æ•°å®šä¹‰ä¿¡æ¯
                 functionType->arg_name_list.push_back(idAst->identifier);
                 functionType->arg_type_list.push_back(this->s_list[i]->s_type);
                 functionType->arg_isvar_list.push_back(this->s_list[i]->s_isvar);
 
 
-                //²åÈë·ûºÅ±í£¬¼ì²éÊÇ·ñÖØÃû
+                //æ’å…¥ç¬¦å·è¡¨ï¼Œæ£€æŸ¥æ˜¯å¦é‡å
                 if(false == symbol_table.insert(item))
                 {
                     ID_AST* id = idAst;
@@ -1550,6 +1545,9 @@ public:
 class subprogram_body_AST :public ASTNode
 {
 public:
+    bool isfunction;
+    llvm::Value *code_generation() override;
+    llvm::Value*ret_generation(llvm::Value* ret);
     subprogram_body_AST(BitNode* bn)
     {
         type = subprogram_body;
@@ -1585,7 +1583,7 @@ public:
 
     void semantic_action() override
     {
-        //½öÒ»ÖÖÉú³ÉÊ½
+        //ä»…ä¸€ç§ç”Ÿæˆå¼
         subprogram_head_AST* ch0 = (subprogram_head_AST*) this->children[0];
         subprogram_body_AST* ch2 = (subprogram_body_AST*) this->children[2];
 
@@ -1593,7 +1591,7 @@ public:
             this->children[i]->semantic_action();
         }
 
-        //×Óº¯ÊıÍË³ö£¬·ûºÅ±íÖØ¶¨Î»µ½Ö÷·ûºÅ±í
+        //å­å‡½æ•°é€€å‡ºï¼Œç¬¦å·è¡¨é‡å®šä½åˆ°ä¸»ç¬¦å·è¡¨
         symbol_table.cur_function = symbol_table.main_function;
 
         this->s_sub_head = ch0;
@@ -1665,47 +1663,47 @@ public:
 
 
 
-//Õâ¸öÀà½ÏÎª¸´ÔÓ£¬¹²ÓĞ¿ÉÄÜÓĞ4ÖÖÇé¿ö
-//ÎŞÂÛÄÄÖÖÇé¿ö£¬´úÂëÉú³ÉÓ¦¸Ã·µ»ØÒ»¸öllvm::Value*,ÒòÎª´ËºóÕâ¸öÀà»á±»×÷Îª±í´ïÊ½Ê¹ÓÃ
+//è¿™ä¸ªç±»è¾ƒä¸ºå¤æ‚ï¼Œå…±æœ‰å¯èƒ½æœ‰4ç§æƒ…å†µ
+//æ— è®ºå“ªç§æƒ…å†µï¼Œä»£ç ç”Ÿæˆåº”è¯¥è¿”å›ä¸€ä¸ªllvm::Value*,å› ä¸ºæ­¤åè¿™ä¸ªç±»ä¼šè¢«ä½œä¸ºè¡¨è¾¾å¼ä½¿ç”¨
 class factor_AST :public ASTNode
 {
 public:
-    //ÔÚÈÎÒâÇé¿öÏÂÓĞÒâÒåµÄÖµ
-    int s_state;//1-4±íÊ¾Ä³Ò»ÖÖÇé¿ö
-    string s_type;//±íÊ¾4ÖÖ»ù±¾ÀàĞÍ£¬integer real boolean char
-    llvm::Value* s_value;//ÓÒÖµ£¬ÔÚ±í´ïÊ½ÔËËãÖĞÊ¹ÓÃ
-    bool isleftvalue = false;//ÊÇ×óÖµÔò¸³ÖµÎªtrue,ÓÉÓïÒå·ÖÎö¸³Öµ
+    //åœ¨ä»»æ„æƒ…å†µä¸‹æœ‰æ„ä¹‰çš„å€¼
+    int s_state;//1-4è¡¨ç¤ºæŸä¸€ç§æƒ…å†µ
+    string s_type;//è¡¨ç¤º4ç§åŸºæœ¬ç±»å‹ï¼Œinteger real boolean char
+    llvm::Value* s_value;//å³å€¼ï¼Œåœ¨è¡¨è¾¾å¼è¿ç®—ä¸­ä½¿ç”¨
+    bool isleftvalue = false;//æ˜¯å·¦å€¼åˆ™èµ‹å€¼ä¸ºtrue,ç”±è¯­ä¹‰åˆ†æèµ‹å€¼
 
 
-    //1.ÊÇÒ»¸ö×ÖÃæÖµ³£Á¿£¬¸ù¾İs_typeÇø±ğÀàĞÍ
-    double s_real;//½öÔÚ×ÖÃæÁ¿Ê±ÓĞÒâÒå
-    int s_int;//½öÔÚ×ÖÃæÁ¿Ê±ÓĞÒâÒå
-    char s_char;//½öÔÚ×ÖÃæÁ¿Ê±ÓĞÒâÒå
-    bool s_bool;//½öÔÚ×ÖÃæÁ¿Ê±ÓĞÒâÒå
+    //1.æ˜¯ä¸€ä¸ªå­—é¢å€¼å¸¸é‡ï¼Œæ ¹æ®s_typeåŒºåˆ«ç±»å‹
+    double s_real;//ä»…åœ¨å­—é¢é‡æ—¶æœ‰æ„ä¹‰
+    int s_int;//ä»…åœ¨å­—é¢é‡æ—¶æœ‰æ„ä¹‰
+    char s_char;//ä»…åœ¨å­—é¢é‡æ—¶æœ‰æ„ä¹‰
+    bool s_bool;//ä»…åœ¨å­—é¢é‡æ—¶æœ‰æ„ä¹‰
 
-    //2.ÊÇÒ»¸ö±äÁ¿»ò³£Á¿±äÁ¿
-    bool s_isconst;//ÊÇ·ñÊÇconst±äÁ¿
-    string s_identifier;//±äÁ¿»òÊı×éµÄ·ûºÅ±í±êÊ¶·û
-    SymbolTableItem* s_var_item;//·ûºÅ±í±íÏî
-    bool s_isarray;//ÊÇ·ñÊÇÊı×é
+    //2.æ˜¯ä¸€ä¸ªå˜é‡æˆ–å¸¸é‡å˜é‡
+    bool s_isconst;//æ˜¯å¦æ˜¯constå˜é‡
+    string s_identifier;//å˜é‡æˆ–æ•°ç»„çš„ç¬¦å·è¡¨æ ‡è¯†ç¬¦
+    SymbolTableItem* s_var_item;//ç¬¦å·è¡¨è¡¨é¡¹
+    bool s_isarray;//æ˜¯å¦æ˜¯æ•°ç»„
     vector<string> s_index_type_list;
-    vector<llvm::Value*> s_index_list;//ÊÇÊı×éÊ±²ÅÓĞÒâÒå£¬Êı×éindexÁĞ±í
-    llvm::Value* llvmleftValue = NULL;//ÔÚÊÇ±äÁ¿»òÊı×éÊ±±£´æ×óÖµÖ¸Õë£¬ÔÚ´«ÒıÓÃÊ±Ê¹ÓÃ
-    //±êÊ¶·ûÀàĞÍ»òÊı×éÔªËØÀàĞÍÊÇs_type
+    vector<llvm::Value*> s_index_list;//æ˜¯æ•°ç»„æ—¶æ‰æœ‰æ„ä¹‰ï¼Œæ•°ç»„indexåˆ—è¡¨
+    llvm::Value* llvmleftValue = NULL;//åœ¨æ˜¯å˜é‡æˆ–æ•°ç»„æ—¶ä¿å­˜å·¦å€¼æŒ‡é’ˆï¼Œåœ¨ä¼ å¼•ç”¨æ—¶ä½¿ç”¨//todo:ä»£ç ç”Ÿæˆæ—¶ä¸ºè¿™ä¸ªèµ‹å·¦å€¼
+    //æ ‡è¯†ç¬¦ç±»å‹æˆ–æ•°ç»„å…ƒç´ ç±»å‹æ˜¯s_type
 
-    //3.º¯Êıµ÷ÓÃÓï¾ä
-    string s_func_identifier;//º¯ÊıÃû±êÊ¶·û
-    SymbolTableItem* s_func_item;//·ûºÅ±í±íÏî
+    //3.å‡½æ•°è°ƒç”¨è¯­å¥
+    string s_func_identifier;//å‡½æ•°åæ ‡è¯†ç¬¦
+    SymbolTableItem* s_func_item;//ç¬¦å·è¡¨è¡¨é¡¹
     vector<string> s_parameter_type_list;
-    vector<llvm::Value*> s_parameter_list;//ÊÇº¯Êıµ÷ÓÃÊ±²ÅÓĞÒâÒå£¬º¯Êı²ÎÊıÁĞ±í
-    //·µ»ØÖµÀàĞÍÊÇs_type
+    vector<llvm::Value*> s_parameter_list;//æ˜¯å‡½æ•°è°ƒç”¨æ—¶æ‰æœ‰æ„ä¹‰ï¼Œå‡½æ•°å‚æ•°åˆ—è¡¨
+    //è¿”å›å€¼ç±»å‹æ˜¯s_type
 
-    //4.µ¥Ä¿ÔËËã
-    string s_op;//µ¥Ä¿ÔËËã·ûÀàĞÍ£¬¹²ÈıÖÖ·Ö±ğÊÇ·Ç£¬È¡·´£¬¼ÓÀ¨ºÅ !,-,()//Êµ¼ÊÉÏ¿ÉÄÜ¼ÓÀ¨ºÅÓëÄãÃ»Ê²Ã´¹ØÏµ£¬ÎÒÕâ±ß»á´¦ÀíÓÅÏÈ¼¶µ«»¹ÊÇ¼ÇÉÏ
+    //4.å•ç›®è¿ç®—
+    string s_op;//å•ç›®è¿ç®—ç¬¦ç±»å‹ï¼Œå…±ä¸‰ç§åˆ†åˆ«æ˜¯éï¼Œå–åï¼ŒåŠ æ‹¬å· !,-,()//å®é™…ä¸Šå¯èƒ½åŠ æ‹¬å·ä¸ä½ æ²¡ä»€ä¹ˆå…³ç³»ï¼Œæˆ‘è¿™è¾¹ä¼šå¤„ç†ä¼˜å…ˆçº§ä½†è¿˜æ˜¯è®°ä¸Š
     string s_operand0_type;
     llvm::Value* s_operand0;
-
-
+    llvm::Value* function_call_generation();
+    llvm::Value* code_generation() override;
     factor_AST(BitNode* bn)
     {
         type = factor;
@@ -1719,21 +1717,21 @@ public:
 class term_AST :public ASTNode
 {
 public:
-    int s_state;//¹²ÓĞÁ½ÖÖ×´Ì¬£¬×´Ì¬1ÊÇÊôĞÔµÄ´«µİ£¬²»×öÔËËã£¬×´Ì¬2×öÔËËã
+    int s_state;//å…±æœ‰ä¸¤ç§çŠ¶æ€ï¼ŒçŠ¶æ€1æ˜¯å±æ€§çš„ä¼ é€’ï¼Œä¸åšè¿ç®—ï¼ŒçŠ¶æ€2åšè¿ç®—
     string s_type;
     llvm::Value* s_value;
-    bool isleftvalue = false;//ÊÇ×óÖµÔò¸³ÖµÎªtrue
-    llvm::Value* llvmleftValue;//×óÖµÖ¸Õë£¬ÔÚ´«ÒıÓÃÊ±Ê¹ÓÃ
+    bool isleftvalue = false;//æ˜¯å·¦å€¼åˆ™èµ‹å€¼ä¸ºtrue
+    llvm::Value* llvmleftValue;//å·¦å€¼æŒ‡é’ˆï¼Œåœ¨ä¼ å¼•ç”¨æ—¶ä½¿ç”¨
 
-    //1.¶şÔªÔËËã
-    string s_op;//³Ë£¬³ı£¬Õû³ı£¬È¡Ä££¬Óë²Ù×÷£¨Èç¹ûs_typeÊÇboolean×öÂß¼­Óë£¬Èç¹ûÊÇinteger×ö°´Î»Óë£©*,/,div,mod,and
+    //1.äºŒå…ƒè¿ç®—
+    string s_op;//ä¹˜ï¼Œé™¤ï¼Œæ•´é™¤ï¼Œå–æ¨¡ï¼Œä¸æ“ä½œï¼ˆå¦‚æœs_typeæ˜¯booleanåšé€»è¾‘ä¸ï¼Œå¦‚æœæ˜¯integeråšæŒ‰ä½ä¸ï¼‰*,/,div,mod,and
     llvm::Value* operand0;
     string operand0_type;
     llvm::Value* operand1;
     string operand1_type;
 
-    //2.ÊôĞÔ´«µİ
-
+    //2.å±æ€§ä¼ é€’
+    llvm::Value* code_generation() override;
     term_AST(BitNode* bn)
     {
         type = term;
@@ -1757,46 +1755,6 @@ public:
             this->s_op = ch1->s_value;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
-            this->s_type = ch0->s_type;
-
-            pascal_info_cat();
-//            //ÓïÒå¼ì²é
-//            //²Ù×÷ÊıÀàĞÍÊÇ·ñÏàÍ¬
-//            if(operand1_type!=operand0_type)
-//            {
-//                MULOP_AST* id = (MULOP_AST*) this->children[1];
-//                SemanticError* err = new SemanticError(id->line,id->col,
-//                                                       "operand type Error",
-//                                                       "The two operands of '"+id->s_value+"' must be of the same type" );
-//                semantic_error_list.push_back(err);
-//            }
-//            //³Ë³ı±ØĞëÊÇÕûÊıºÍ¸¡µã
-//            if((ch1->s_value=="*"||ch1->s_value=="/")&&)
-//            {
-//                MULOP_AST* id = (MULOP_AST*) this->children[1];
-//                SemanticError* err = new SemanticError(id->line,id->col,
-//                                                       "operand type Error",
-//                                                       "The two operands of '"+id->s_value+"' must be of the same type" );
-//                semantic_error_list.push_back(err);
-//            }
-//            //Õû³ıºÍÄ£±ØĞëÊÇÕûÊı
-//            if(operand1_type!=operand0_type)
-//            {
-//                MULOP_AST* id = (MULOP_AST*) this->children[1];
-//                SemanticError* err = new SemanticError(id->line,id->col,
-//                                                       "operand type Error",
-//                                                       "The two operands of '"+id->s_value+"' must be of the same type" );
-//                semantic_error_list.push_back(err);
-//            }
-//            //and±ØĞëÊÇBoolean
-//            if(operand1_type!=operand0_type)
-//            {
-//                MULOP_AST* id = (MULOP_AST*) this->children[1];
-//                SemanticError* err = new SemanticError(id->line,id->col,
-//                                                       "operand type Error",
-//                                                       "The two operands of '"+id->s_value+"' must be of the same type" );
-//                semantic_error_list.push_back(err);
-//            }
         }
         else if(this->children.size()==1)
         {
@@ -1807,12 +1765,11 @@ public:
             this->s_value = ch0->s_value;
             this->isleftvalue = ch0->isleftvalue;
             this->llvmleftValue = ch0->llvmleftValue;
-            pascal_info_cat();
         }else
             sematic_error();
 
-
-        //semantic_checking();
+        pascal_info_cat();
+        semantic_checking();//todo:è®¾ç½®s_type
         this->s_value = code_generation();
     }
 };
@@ -1820,21 +1777,21 @@ public:
 class simple_expression_AST :public ASTNode
 {
 public:
-    int s_state;//¹²ÓĞÁ½ÖÖ×´Ì¬£¬×´Ì¬1ÊÇÊôĞÔµÄ´«µİ£¬²»×öÔËËã£¬×´Ì¬2×öÔËËã
+    int s_state;//å…±æœ‰ä¸¤ç§çŠ¶æ€ï¼ŒçŠ¶æ€1æ˜¯å±æ€§çš„ä¼ é€’ï¼Œä¸åšè¿ç®—ï¼ŒçŠ¶æ€2åšè¿ç®—
     string s_type;
     llvm::Value* s_value;
-    bool isleftvalue = false;//ÊÇ×óÖµÔò¸³ÖµÎªtrue
-    llvm::Value* llvmleftValue;//×óÖµÖ¸Õë£¬ÔÚ´«ÒıÓÃÊ±Ê¹ÓÃ
+    bool isleftvalue = false;//æ˜¯å·¦å€¼åˆ™èµ‹å€¼ä¸ºtrue
+    llvm::Value* llvmleftValue;//å·¦å€¼æŒ‡é’ˆï¼Œåœ¨ä¼ å¼•ç”¨æ—¶ä½¿ç”¨
 
-    //1.¶şÔªÔËËã
-    string s_op;//¼Ó£¬¼õ£¬»ò²Ù×÷£¨Èç¹ûs_typeÊÇboolean×öÂß¼­»ò£¬Èç¹ûÊÇinteger×ö°´Î»»ò£©+,-,or
+    //1.äºŒå…ƒè¿ç®—
+    string s_op;//åŠ ï¼Œå‡ï¼Œæˆ–æ“ä½œï¼ˆå¦‚æœs_typeæ˜¯booleanåšé€»è¾‘æˆ–ï¼Œå¦‚æœæ˜¯integeråšæŒ‰ä½æˆ–ï¼‰+,-,or
     llvm::Value* operand0;
     string operand0_type;
     llvm::Value* operand1;
     string operand1_type;
 
-    //2.ÊôĞÔ´«µİ
-
+    //2.å±æ€§ä¼ é€’
+    llvm::Value* code_generation() override;
     simple_expression_AST(BitNode* bn)
     {
         type = simple_expression;
@@ -1881,7 +1838,7 @@ public:
             sematic_error();
 
         pascal_info_cat();
-        semantic_checking();//todo:ÉèÖÃs_type
+        semantic_checking();//todo:è®¾ç½®s_type
         this->s_value = code_generation();
     }
 
@@ -1890,20 +1847,20 @@ public:
 class expression_AST :public ASTNode
 {
 public:
-    int s_state;//¹²ÓĞÁ½ÖÖ×´Ì¬£¬×´Ì¬1ÊÇÊôĞÔµÄ´«µİ£¬²»×öÔËËã£¬×´Ì¬2×öÔËËã
+    int s_state;//å…±æœ‰ä¸¤ç§çŠ¶æ€ï¼ŒçŠ¶æ€1æ˜¯å±æ€§çš„ä¼ é€’ï¼Œä¸åšè¿ç®—ï¼ŒçŠ¶æ€2åšè¿ç®—
     string s_type;
     llvm::Value* s_value;
-    bool isleftvalue = false;//ÊÇ×óÖµÔò¸³ÖµÎªtrue
-    llvm::Value* llvmleftValue;//×óÖµÖ¸Õë£¬ÔÚ´«ÒıÓÃÊ±Ê¹ÓÃ
+    bool isleftvalue = false;//æ˜¯å·¦å€¼åˆ™èµ‹å€¼ä¸ºtrue
+    llvm::Value* llvmleftValue;//å·¦å€¼æŒ‡é’ˆï¼Œåœ¨ä¼ å¼•ç”¨æ—¶ä½¿ç”¨
 
-    //1.¶şÔªÔËËã
-    string s_op;//µÈÓÚ£¬²»µÈÓÚ£¬Ğ¡ÓÚ£¬Ğ¡ÓÚµÈÓÚ£¬´óÓÚ£¬´óÓÚµÈÓÚ =,<>,<,<=,>,>=
+    //1.äºŒå…ƒè¿ç®—
+    string s_op;//ç­‰äºï¼Œä¸ç­‰äºï¼Œå°äºï¼Œå°äºç­‰äºï¼Œå¤§äºï¼Œå¤§äºç­‰äº =,<>,<,<=,>,>=
     llvm::Value* operand0;
     string operand0_type;
     llvm::Value* operand1;
     string operand1_type;
-
-    //2.ÊôĞÔ´«µİ
+    llvm::Value* code_generation() override;
+    //2.å±æ€§ä¼ é€’
     expression_AST(BitNode* bn)
     {
         type = expression;
@@ -1942,7 +1899,7 @@ public:
             sematic_error();
 
         pascal_info_cat();
-        semantic_checking();//todo:ÉèÖÃs_type
+        semantic_checking();//todo:è®¾ç½®s_type
         this->s_value = code_generation();
     }
 
@@ -2000,8 +1957,8 @@ class id_varpart_AST :public ASTNode
 {
 public:
     bool s_isarray;
-    vector<string> s_type_list;//Êı×éindexÁĞ±í²ÎÊıÀàĞÍ£¬Ö»¿ÉÄÜÊÇint£¬ÓïÒå¶ÔÆäÀàĞÍ¼ì²é
-    vector<llvm::Value*> s_value_list;//Êı×éindexÁĞ±í²ÎÊıµÄÖµ
+    vector<string> s_type_list;//æ•°ç»„indexåˆ—è¡¨å‚æ•°ç±»å‹ï¼Œåªå¯èƒ½æ˜¯intï¼Œè¯­ä¹‰å¯¹å…¶ç±»å‹æ£€æŸ¥
+    vector<llvm::Value*> s_value_list;//æ•°ç»„indexåˆ—è¡¨å‚æ•°çš„å€¼
     id_varpart_AST(BitNode* bn)
     {
         type = id_varpart;
@@ -2038,15 +1995,14 @@ class variable_AST :public ASTNode
 {
 public:
     string s_identifier;
-    string s_type;//±íÊ¾4ÖÖ»ù±¾ÀàĞÍ£¬integer real boolean char
-    bool s_isconst;//ÊÇ·ñ³£Á¿
+    string s_type;//è¡¨ç¤º4ç§åŸºæœ¬ç±»å‹ï¼Œinteger real boolean char
+    bool s_isconst;//æ˜¯å¦å¸¸é‡
     SymbolTableItem* item;
-    bool s_isarray;//ÊÇ·ñÊÇÊı×é
-    vector<string> s_type_list;//Êı×éindexÁĞ±í²ÎÊıÀàĞÍ£¬Ö»¿ÉÄÜÊÇint£¬ÓïÒå¶ÔÆäÀàĞÍ¼ì²é
-    vector<llvm::Value*> s_value_list;//Êı×éindexÁĞ±í²ÎÊıµÄÖµ
-
-    llvm::Value* llvmleftValue = NULL;//ÔÚÊÇ±äÁ¿»òÊı×éÊ±±£´æ×óÖµÖ¸Õë£¬ÔÚ´«ÒıÓÃÊ±Ê¹ÓÃ
-
+    bool s_isarray;//æ˜¯å¦æ˜¯æ•°ç»„
+    vector<string> s_type_list;//æ•°ç»„indexåˆ—è¡¨å‚æ•°ç±»å‹ï¼Œåªå¯èƒ½æ˜¯intï¼Œè¯­ä¹‰å¯¹å…¶ç±»å‹æ£€æŸ¥
+    vector<llvm::Value*> s_value_list;//æ•°ç»„indexåˆ—è¡¨å‚æ•°çš„å€¼
+    llvm::Value* llvmleftValue = nullptr;//åœ¨æ˜¯å˜é‡æˆ–æ•°ç»„æ—¶ä¿å­˜å·¦å€¼æŒ‡é’ˆï¼Œåœ¨ä¼ å¼•ç”¨æ—¶ä½¿ç”¨//todo:ä»£ç ç”Ÿæˆæ—¶ä¸ºè¿™ä¸ªèµ‹å·¦å€¼
+    llvm::Value *code_generation() override;
     variable_AST(BitNode* bn)
     {
         type = variable;
@@ -2055,7 +2011,7 @@ public:
 
     void semantic_action() override
     {
-        //Ö»ÓĞÒ»ÖÖÉú³ÉÊ½
+        //åªæœ‰ä¸€ç§ç”Ÿæˆå¼
         ID_AST* ch0 = (ID_AST*) this->children[0];
         id_varpart_AST* ch1 = (id_varpart_AST*) this->children[1];
 
@@ -2068,7 +2024,7 @@ public:
         this->s_type_list = ch1->s_type_list;
         this->s_value_list = ch1->s_value_list;
 
-        //´Ó·ûºÅ±í»ñµÃÀàĞÍ
+        //ä»ç¬¦å·è¡¨è·å¾—ç±»å‹
         this->item = symbol_table.get(this->s_identifier);
         symbol_type t;
         if(this->s_isarray = true)
@@ -2167,11 +2123,11 @@ public:
 class procedure_call_AST :public ASTNode
 {
 public:
-    string s_identifier;//¹ı³ÌÃû
-    SymbolTableItem* s_item;//¹ı³ÌµÄ·ûºÅ±í±íÏî
+    string s_identifier;//è¿‡ç¨‹å
+    SymbolTableItem* s_item;//è¿‡ç¨‹çš„ç¬¦å·è¡¨è¡¨é¡¹
     vector<string> s_type_list;
     vector<llvm::Value*> s_value_list;
-
+    llvm::Value* code_generation() override;
     procedure_call_AST(BitNode* bn)
     {
         type = procedure_call;
@@ -2200,7 +2156,7 @@ public:
             this->s_item = symbol_table.get(this->s_identifier);
             this->s_type_list = ch2->s_type_list;
 
-            //ÓïÒå¼ì²é£¬Î´¶¨ÒåµÄid
+            //è¯­ä¹‰æ£€æŸ¥ï¼Œæœªå®šä¹‰çš„id
             if(s_item==NULL)
             {
                 ID_AST* id = ch0;
@@ -2218,10 +2174,10 @@ public:
                 semantic_error_list.push_back(err);
                 return;
             }
-            if(s_item!=NULL)//´æÔÚº¯ÊıÃû²Å½øĞĞº¯Êıµ÷ÓÃµÄÓïÒå¼ì²é
+            if(s_item!=NULL)//å­˜åœ¨å‡½æ•°åæ‰è¿›è¡Œå‡½æ•°è°ƒç”¨çš„è¯­ä¹‰æ£€æŸ¥
             {
                 MyFunctionType* functionType = s_item->value.function_val;
-                if(functionType->arg_name_list.size()!=ch2->s_value_list.size())//¼ì²é²ÎÊıÊıÁ¿ÊÇ·ñÆ¥Åä
+                if(functionType->arg_name_list.size()!=ch2->s_value_list.size())//æ£€æŸ¥å‚æ•°æ•°é‡æ˜¯å¦åŒ¹é…
                 {
                     ID_AST* id = ch0;
                     SemanticError* err = new SemanticError(id->line,id->col,
@@ -2233,7 +2189,7 @@ public:
                 {
                     for (int i = 0; i < functionType->arg_name_list.size(); ++i)
                     {
-                        if(functionType->arg_type_list[i]!=s_type_list[i])//²ÎÊıÀàĞÍ´íÎó
+                        if(functionType->arg_type_list[i]!=s_type_list[i])//å‚æ•°ç±»å‹é”™è¯¯
                         {
                             ID_AST* id = ch0;
                             SemanticError* err = new SemanticError(id->line,id->col,
@@ -2241,9 +2197,9 @@ public:
                                                                    "in procedure '"+id->identifier+"',parameter "+functionType->arg_name_list[i]+"type must be"+functionType->arg_type_list[i]);
                             semantic_error_list.push_back(err);
                         }
-                        if(functionType->arg_isvar_list[i])//¼ì²éÒıÓÃ²ÎÊıÎ»ÄÜ·ñÊÇÒıÓÃ
+                        if(functionType->arg_isvar_list[i])//æ£€æŸ¥å¼•ç”¨å‚æ•°ä½èƒ½å¦æ˜¯å¼•ç”¨
                         {
-                            if(!ch2->s_expression_list[i]->isleftvalue)//µ«²»ÊÇ¿ÉÒıÓÃÀàĞÍ
+                            if(!ch2->s_expression_list[i]->isleftvalue)//ä½†ä¸æ˜¯å¯å¼•ç”¨ç±»å‹
                             {
                                 ID_AST* id = ch0;
                                 SemanticError* err = new SemanticError(id->line,id->col,
@@ -2277,38 +2233,40 @@ public:
 class statement_AST :public ASTNode
 {
 public:
-    //Óï¾äÓĞ¶àÖÖÀàĞÍ
+    //è¯­å¥æœ‰å¤šç§ç±»å‹
     llvm::Value* s_cur_llvmvalue;
     int s_state;
-    BasicBlock* block1;
-    BasicBlock* block2;
-    BasicBlock* block3;
+    llvm::Function* function;//å½“å‰æ‰€åœ¨çš„å‡½æ•°
+    llvm::IRBuilderBase::InsertPoint IP;//è®°å½•å½“å‰çš„æ’å…¥ç‚¹
+    llvm::BasicBlock* block1;
+    llvm::BasicBlock* block2;
+    llvm::BasicBlock* block3;
 
-    //1.¸³ÖµÓï¾ä
+    //1.èµ‹å€¼è¯­å¥
     variable_AST* s_variable;
     string s_expression_type;
     llvm::Value* s_expression_value;
 
-    //2.¹ı³Ìµ÷ÓÃ
-    string s_identifier;//¹ı³ÌÃû
-    SymbolTableItem* s_item;//¹ı³ÌµÄ·ûºÅ±í±íÏî
+    //2.è¿‡ç¨‹è°ƒç”¨
+    string s_identifier;//è¿‡ç¨‹å
+    SymbolTableItem* s_item;//è¿‡ç¨‹çš„ç¬¦å·è¡¨è¡¨é¡¹
     vector<string> s_type_list;
     vector<llvm::Value*> s_value_list;
 
-    //3.¸´ºÏÓï¾ä
+    //3.å¤åˆè¯­å¥
     vector<statement_AST*> s_statement_list;
 
     //4.if-else
-    //expression¹²ÓÃ¸³ÖµÓï¾äµÄ
+    //expressionå…±ç”¨èµ‹å€¼è¯­å¥çš„
     statement_AST* s_if_statement;
-    bool s_has_else;//ÅĞ¶ÏÓĞÎŞelse²¿·Ö
+    bool s_has_else;//åˆ¤æ–­æœ‰æ— elseéƒ¨åˆ†
     statement_AST* s_else_statement;
 
     //5.for
     statement_AST* s_for_statement;
 
     string s_for_identifier;
-    string s_for_type;//±íÊ¾4ÖÖ»ù±¾ÀàĞÍ£¬integer real boolean char
+    string s_for_type;//è¡¨ç¤º4ç§åŸºæœ¬ç±»å‹ï¼Œinteger real boolean char
     SymbolTableItem* s_for_item;
 
     string s_for_expression_type1;
@@ -2320,14 +2278,24 @@ public:
     vector<variable_AST*> s_variable_list;
 
     //7.write
-    //expression_list¹²ÓÃprocedure_callµÄ
+    //expression_listå…±ç”¨procedure_callçš„
 
-    //8.¿ÕÓï¾ä
-    //¿ÕÓï¾äÊ±£¬ĞĞºÅºÍÁĞºÅ²»È·¶¨
+    //8.ç©ºè¯­å¥
+    //ç©ºè¯­å¥æ—¶ï¼Œè¡Œå·å’Œåˆ—å·ä¸ç¡®å®š
 
-    //9.while Éú³ÉÊ½WHILE expression DO statement
+    //9.while ç”Ÿæˆå¼WHILE expression DO statement
 
-
+    llvm::Value* code_generation() override;
+    llvm::Value* if_code_generation_1();
+    llvm::Value* if_code_generation_2();
+    llvm::Value* if_code_generation_3();
+    llvm::Value* for_code_generation_1();
+    llvm::Value* for_code_generation_2();
+    llvm::Value* while_code_generation_1();
+    llvm::Value* while_code_generation_2();
+    llvm::Value* assign_code_generation();
+    llvm::Value *write();
+    llvm::Value* read();
     statement_AST(BitNode* bn)
     {
         type = statement;
@@ -2549,25 +2517,10 @@ void statement_AST::semantic_action()
     {
         this->s_state = 8;
     }
-    else if(this->children[0]->type==WHILE)
-    {
-        this->s_state = 9;
-        expression_AST* ch1 = (expression_AST*) this->children[1];
-        statement_AST* ch3 = (statement_AST*) this->children[3];
-        for (int i = 0; i < this->children.size(); ++i) {
-            this->children[i]->semantic_action();
-        }
-        this->s_expression_type = ch1->s_type;
-        this->s_expression_value = ch1->s_value;
-        this->s_for_statement = ch3;
-        get_line_col(this->children[0]);
-    }
     else
         sematic_error();
 
-    if(this->children.size()!=0)
-        pascal_info_cat();
-
+    pascal_info_cat();
     semantic_checking();
     code_generation();
 }
@@ -2612,11 +2565,7 @@ void factor_AST::semantic_action() {
             this->s_index_type_list = ch0->s_type_list;
             this->s_index_list = ch0->s_value_list;
             if (this->s_isconst== false)
-            {
                 this->isleftvalue = true;
-                this->llvmleftValue = ch0->llvmleftValue;
-            }
-
         }
         else if(this->children[0]->type==ID)
         {
@@ -2633,7 +2582,7 @@ void factor_AST::semantic_action() {
             this->s_func_item = symbol_table.get(this->s_func_identifier);
             this->s_parameter_type_list = ch2->s_type_list;
 
-            //ÓïÒå¼ì²é£¬Î´¶¨ÒåµÄid
+            //è¯­ä¹‰æ£€æŸ¥ï¼Œæœªå®šä¹‰çš„id
             if(s_func_item==NULL)
             {
                 ID_AST* id = ch0;
@@ -2643,7 +2592,7 @@ void factor_AST::semantic_action() {
                 semantic_error_list.push_back(err);
                 return;
             }
-            if(s_func_item->type!=function)
+            if(s_func_item->type!=symbol_type::function)
             {
                 ID_AST* id = ch0;
                 SemanticError* err = new SemanticError(id->line,id->col,
@@ -2653,10 +2602,10 @@ void factor_AST::semantic_action() {
                 return;
             }
 
-            if(s_func_item!=NULL)//´æÔÚº¯ÊıÃû²Å½øĞĞº¯Êıµ÷ÓÃµÄÓïÒå¼ì²é
+            if(s_func_item!=NULL)//å­˜åœ¨å‡½æ•°åæ‰è¿›è¡Œå‡½æ•°è°ƒç”¨çš„è¯­ä¹‰æ£€æŸ¥
             {
                 MyFunctionType* functionType = s_func_item->value.function_val;
-                if(!functionType->isfunction)//Èç¹û²»ÊÇº¯Êı
+                if(!functionType->isfunction)//å¦‚æœä¸æ˜¯å‡½æ•°
                 {
                     ID_AST* id = ch0;
                     SemanticError* err = new SemanticError(id->line,id->col,
@@ -2667,7 +2616,7 @@ void factor_AST::semantic_action() {
                 }
                 this->s_type = functionType->ret_type;
 
-                if(functionType->arg_name_list.size()!=ch2->s_value_list.size())//¼ì²é²ÎÊıÊıÁ¿ÊÇ·ñÆ¥Åä
+                if(functionType->arg_name_list.size()!=ch2->s_value_list.size())//æ£€æŸ¥å‚æ•°æ•°é‡æ˜¯å¦åŒ¹é…
                 {
                     ID_AST* id = ch0;
                     SemanticError* err = new SemanticError(id->line,id->col,
@@ -2679,7 +2628,7 @@ void factor_AST::semantic_action() {
                 {
                     for (int i = 0; i < functionType->arg_name_list.size(); ++i)
                     {
-                        if(functionType->arg_type_list[i]!=s_parameter_type_list[i])//²ÎÊıÀàĞÍ´íÎó
+                        if(functionType->arg_type_list[i]!=s_parameter_type_list[i])//å‚æ•°ç±»å‹é”™è¯¯
                         {
                             ID_AST* id = ch0;
                             SemanticError* err = new SemanticError(id->line,id->col,
@@ -2687,9 +2636,9 @@ void factor_AST::semantic_action() {
                                                                    "in function '"+id->identifier+"',parameter "+functionType->arg_name_list[i]+"type must be"+functionType->arg_type_list[i]);
                             semantic_error_list.push_back(err);
                         }
-                        if(functionType->arg_isvar_list[i])//¼ì²éÒıÓÃ²ÎÊıÎ»ÄÜ·ñÊÇÒıÓÃ
+                        if(functionType->arg_isvar_list[i])//æ£€æŸ¥å¼•ç”¨å‚æ•°ä½èƒ½å¦æ˜¯å¼•ç”¨
                         {
-                            if(!ch2->s_expression_list[i]->isleftvalue)//µ«²»ÊÇ¿ÉÒıÓÃÀàĞÍ
+                            if(!ch2->s_expression_list[i]->isleftvalue)//ä½†ä¸æ˜¯å¯å¼•ç”¨ç±»å‹
                             {
                                 ID_AST* id = ch0;
                                 SemanticError* err = new SemanticError(id->line,id->col,
@@ -2733,16 +2682,6 @@ void factor_AST::semantic_action() {
             this->s_operand0_type = ch1->s_type;
             this->s_operand0 = ch1->s_value;
             this->s_type = ch1->s_type;
-
-            //ÓïÒå¼ì²é
-            if(s_type!="boolean")
-            {
-                NUM_AST* id = (NUM_AST*) this->children[0];
-                SemanticError* err = new SemanticError(id->line,id->col,
-                                                       "operand type Error",
-                                                       "'not' operator only can be used on boolean type operand");
-                semantic_error_list.push_back(err);
-            }
         }
         else if(this->children[0]->type==UMINUS)
         {
@@ -2755,21 +2694,11 @@ void factor_AST::semantic_action() {
             this->s_operand0_type = ch1->s_type;
             this->s_operand0 = ch1->s_value;
             this->s_type = ch1->s_type;
-
-            //ÓïÒå¼ì²é
-            if(s_type!="integer"&&s_type!="real")
-            {
-                NUM_AST* id = (NUM_AST*) this->children[0];
-                SemanticError* err = new SemanticError(id->line,id->col,
-                                                       "operand type Error",
-                                                       "'-' operator only can be used on integer type or real type");
-                semantic_error_list.push_back(err);
-            }
         } else
             sematic_error();
 
         pascal_info_cat();
-    semantic_checking();//todo:ÉèÖÃs_type
+    semantic_checking();//todo:è®¾ç½®s_type
         this->s_value = code_generation();
 }
 
@@ -2846,7 +2775,7 @@ public:
         else if (bn->type == "BOOLEAN")
             nodeptr = new BOOLEAN_AST(bn);
         else if (bn->type == "WHILE")
-            nodeptr = new WHILE_AST(bn);
+            nodeptr = new WRITE_AST(bn);
         else if (bn->type == "programstruct")
             nodeptr = new programstruct_AST(bn);
         else if (bn->type == "program_head")
@@ -2922,10 +2851,10 @@ public:
 
 	ASTNode* ADT2AST(BitNode* bn)
 	{
-		//¸¸½Úµã¶¯×÷
+		//çˆ¶èŠ‚ç‚¹åŠ¨ä½œ
 		ASTNode* cur_node = create_ASTNode(bn);
 		int n = bn->children.size();
-		//×Ó½Úµã±éÀú
+		//å­èŠ‚ç‚¹éå†
 		for (size_t i = 0; i < n; i++)
 		{
 			ASTNode* child = ADT2AST(bn->children[i]);
@@ -2940,4 +2869,997 @@ private:
 
 
 };
+class Type_IR{
+public:
+    llvm::LLVMContext llvmContext;
+    map<string, string> arrayTypeList;           //æ•°ç»„å…ƒç´ ç±»å‹åˆ—è¡¨
+    map<string, vector<pair<int, int>> > arrayRangeLists; //æ•°ç»„ä¸Šä¸‹ç•Œåˆ—è¡¨
+    map<string, vector<int>> arraySizeLists;     //æ•°ç»„å¤§å°åˆ—è¡¨
+    map<string, llvm::ArrayType*> arrayTypes;       //æ•°ç»„å˜é‡å¯¹åº”çš„LLVM Type
+    //TypeSystem(LLVMContext& context): llvmContext(context) {}
+    Type_IR(llvm::LLVMContext& context): llvmContext() {}
+    llvm::Type* type_int = llvm::Type::getInt32Ty(llvmContext);
+    llvm::Type* type_real = llvm::Type::getFloatTy(llvmContext);
+    llvm::Type* type_char = llvm::Type::getInt8Ty(llvmContext);
+    llvm::Type* type_boolean = llvm::Type::getInt1Ty(llvmContext);
+    llvm::Type* type_void = llvm::Type::getVoidTy(llvmContext);
+    llvm::Type* type_int64 = llvm::Type::getInt64Ty(llvmContext);
+    //è·å–llvmç±»å‹
+    llvm::Type* getLLVMType(const string& type);
+    llvm::Type* getLLVMType(const int& type);
+    llvm::Type* getArrayLLVMType(SymbolTableItem* item);
+    llvm::Type* createArrayType(SymbolTableItem* item);
+    //å¢åŠ llvmç±»å‹
+    void addArrayType(const string &name, llvm::ArrayType *type, SymbolTableItem* item);
+    //è·å–æ•°ç»„å…ƒç´ ç±»å‹å
+    string getArrayMemberType(const string& arrName);
+    //åˆ¤æ–­ä¸¤ä¸ªç±»å‹æ˜¯å¦ç›¸åŒ
+    bool isSameType(const string& type1, const string& type2);
+    //åˆ¤æ–­æ˜¯å¦æ˜¯åŸºæœ¬ç±»å‹
+    bool isBasicType(const string& type);
+    bool isBasicType(const int& type);
+    
+};
+/**
+ * åˆå§‹åŒ–åº“å‡½æ•°
+ */
+llvm::Value* get_item(variable_AST* var);
+void CodeGenContext::init_funcStack()
+{
+    cout << "CodeGenerate::init_funcStack" << endl;
+    vector<llvm::Type *> param;
+    // å†™æ•´æ•°
+    param.push_back(this->type_ir.type_int);
+    llvm::FunctionType *func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
+    llvm::Function *func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "write_int", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // å†™å®æ•°
+    param.push_back(this->type_ir.type_real);
+    func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "write_real", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // å†™å­—ç¬¦
+    param.push_back(this->type_ir.type_char);
+    func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "write_char", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // å†™å¸ƒå°”
+    param.push_back(this->type_ir.type_boolean);
+    func_type = llvm::FunctionType::get(this->type_ir.type_void, param, false);
+    func = llvm::Function::Create(func_type,llvm::Function::ExternalLinkage, "write_boolean", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // è¯»æ•´æ•°
+    param.push_back(this->type_ir.type_void);
+    func_type = llvm::FunctionType::get(this->type_ir.type_int, param, false);
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_int", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // è¯»å®æ•°
+    param.push_back(this->type_ir.type_void);
+    func_type = llvm::FunctionType::get(this->type_ir.type_real, param, false);
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_real", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // è¯»å­—ç¬¦
+    param.push_back(this->type_ir.type_void);
+    func_type = llvm::FunctionType::get(this->type_ir.type_char, param, false);
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_char", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    // è¯»å¸ƒå°”
+    param.push_back(this->type_ir.type_void);
+    func_type = llvm::FunctionType::get(this->type_ir.type_boolean, param, false);
+    func = llvm::Function::Create(func_type, llvm::Function::ExternalLinkage, "read_boolean", this->module.get());
+    this->funcStack.push_back(func);
+    param.clear();
+    llvm::sys::DynamicLibrary::AddSymbol("write_int", this->funcStack[0]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_real", this->funcStack[1]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_char", this->funcStack[2]);
+    llvm::sys::DynamicLibrary::AddSymbol("write_boolean", this->funcStack[3]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_int", this->funcStack[4]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_real", this->funcStack[5]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_char", this->funcStack[6]);
+    llvm::sys::DynamicLibrary::AddSymbol("read_boolean", this->funcStack[7]);
+}
+// AST CodeGenerate
+/**
+ * ä¸»ç¨‹åºIRç”Ÿæˆ è¯¥æ¨¡å—å·²å®Œæˆ
+ */
+llvm::Value *programstruct_AST::code_generation()
+{
+    cout << "programstruct_AST::code_generation" << endl;
+    // ç”Ÿæˆmain program
+    llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
+    llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", context.module.get());
+    // åŸºæœ¬å—ç”Ÿæˆ
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program, 0);
+    // ä¸»ç¨‹åºå—ç”Ÿæˆ
+    context.builder = make_unique<llvm::IRBuilder<>>(block);
+    return nullptr;
+}
+// å¸¸é‡å…ƒç´ ï¼š
+/**
+ * å¸¸é‡å®šä¹‰IRç”Ÿæˆ è¯¥æ¨¡å—å·²å®Œæˆ
+ * @return Value* å¸¸é‡çš„llvm Value
+ */
+llvm::Value *const_value_AST::code_generation()
+{
+    cout << "const_value_AST::code_generation" << endl;
+    llvm::Value *ret = nullptr;
+    if (this->s_type == "integer")
+    {
+        int value = this->s_int < 0 ? -this->s_int : this->s_int;
+        ret = llvm::ConstantInt::get(context.type_ir.type_int, value, true);
+    }
+    else if (this->s_type == "real")
+    {
+        double value = this->s_real < 1e-6 ? -this->s_real : this->s_real;
+        ret = llvm::ConstantFP::get(context.type_ir.type_real, value);
+    }
+    else if (this->s_type == "char")
+    {
+        char value = this->s_char;
+        ret = llvm::ConstantInt::get(context.type_ir.type_char, value, true);
+    }
+    else if (this->s_type == "boolean")
+    {
+        bool value = this->s_bool;
+        ret = llvm::ConstantInt::get(context.type_ir.type_boolean, value, true);
+    }
+    else
+    {
+        ret = LogErrorV("unknown const type" + this->s_type);
+    }
+    return ret;
+}
+// å…ƒç´  å¸¸é‡ å˜é‡ ç±»å‹
 
+/**
+ * å˜é‡å£°æ˜IRç”Ÿæˆ è¯¥æ¨¡å—å·²å®Œæˆ 
+ * bugå¯èƒ½å‡ºç°åœ¨ æ•°ç»„å®šä¹‰
+ * @return Value* å±€éƒ¨å˜é‡åœ°å€
+ */
+/**
+llvm::Value *variable_AST::code_generation()
+{
+    cout << "variable_AST::code_generation" << endl;
+    this->item = symbolTable.get(this->s_identifier);
+    if (this->item == nullptr)
+        return LogErrorV("unknown variable name" + this->s_identifier);
+    llvm::Value *ret = nullptr;                                   // å±€éƒ¨å˜é‡åœ°å€
+    llvm::Type *type = nullptr; // å±€éƒ¨å˜é‡ç±»å‹
+    if (this->s_isarray)
+    {
+        // è·å–æ•°ç»„å¯¹åº”çš„llvm type
+        type = context.type_ir.getArrayLLVMType(this->item);
+        // æ•°ç»„å…ƒç´ ç›´æ¥ç”¨æ•°æ®å®šä¹‰ï¼Œè·å–æ•°æ®ç±»å‹
+        if (type == nullptr)//æ•°ç»„ç±»å‹æœªå®šä¹‰
+            type = context.type_ir.createArrayType(this->item);//æ–°å»ºæ•°ç»„ç±»å‹
+        // æ ˆä¸Šåˆ›å»ºå±€éƒ¨å˜é‡
+        if (type)
+            ret = context.builder->CreateAlloca(type, nullptr);
+    }
+    else
+    {
+        type = context.type_ir.getLLVMType(this->s_type);//è·å–åŸºæœ¬å˜é‡ç±»å‹
+        if (type == nullptr)
+            return LogErrorV("unknown variable type");
+        ret = context.builder->CreateAlloca(type, nullptr);
+    }
+    if (ret == nullptr)
+        return LogError("create alloca failed");
+    return ret;
+}*/
+
+/**
+ * ç±»å‹IRç”Ÿæˆ
+ * æ²¡ç”¨
+ * @return Value*
+ */
+llvm::Value *type_AST::code_generation()
+{
+    //ä¼¼ä¹æ²¡ç”¨ï¼Œvaré‚£é‡Œç”Ÿæˆäº†
+    cout << "type_Ast::code_generation" << endl;
+    // æ•°ç»„ç±»å‹
+    llvm::Type* ret = nullptr;
+    if (this->l_isarray)
+    {
+        cout << "type_Ast::code_generation is_array" << endl;
+    }
+    return nullptr;
+}
+
+// å‡½æ•°
+/**
+ * å‡½æ•° è¿‡ç¨‹å®šä¹‰IRç”Ÿæˆ è¯¥æ¨¡å—å·²å®Œæˆ
+ * bugå¯èƒ½å‡ºç°åœ¨ ä¼ å€¼ä¼ å¼•ç”¨ ç¬¦å·è¡¨å­˜å‚¨
+ * @return Value* å‡½æ•°åœ°å€æŒ‡é’ˆ
+ */
+llvm::Function* subprogram_head_AST::code_generation()
+{
+    cout<<"subprogram_head_AST::code_generation"<<endl;
+    vector<llvm::Type*> argTypes;
+    vector<pair<string,bool>> argNames;//å½¢å‚åå­—å’Œæ˜¯å¦æ˜¯å¼•ç”¨ä¼ é€’
+    //ä»ä¸€å †s_listä¸­è·å–æ¯ä¸ªå½¢å‚çš„ç±»å‹,æˆ‘åŒæ—¶å¯ä»¥çŸ¥é“ä»–ä»¬æ˜¯å¦æ˜¯å¼•ç”¨ä¼ é€’
+    for(int i = 0 ;i<this->s_list.size();i++)
+    {
+        //è·å–æ¯ä¸ªå½¢å‚çš„llvmç±»å‹
+        for(int j = 0;i<s_list[i]->s_id_list.size();++j)
+        {
+            argTypes.push_back(context.type_ir.getLLVMType(this->s_list[i]->s_type));
+            argNames.push_back(make_pair(this->s_list[i]->s_id_list[j],this->s_list[i]->s_isvar));
+        }
+    }
+    //è·å–å‡½æ•°è¿”å›å€¼ç±»å‹
+    //è‹¥æ˜¯è¿‡ç¨‹å°±æ˜¯void
+    string ret_string = (s_ret_type == "") ? "void":this->s_ret_type;
+    llvm::Type* retType = context.type_ir.getLLVMType(ret_string);
+    //ç”Ÿæˆå‡½æ•°ç±»å‹
+    llvm::FunctionType* type = llvm::FunctionType::get(retType,argTypes,false);
+    //ç”Ÿæˆå‡½æ•°
+    llvm::Function* func = llvm::Function::Create(type,llvm::Function::ExternalLinkage,this->program_name,context.module.get());
+    //ç”ŸæˆåŸºæœ¬å—
+    llvm::BasicBlock* block = llvm::BasicBlock::Create(context.llvmContext,"entry",func,0);
+    context.builder->SetInsertPoint(block);
+    //å½¢å‚
+    auto argName = argNames.begin();
+    auto argType =argTypes.begin();
+    SymbolTableItem* item = nullptr;
+    for(auto& arg:func->args())
+    {
+        arg.setName(argName->first);
+        llvm::Value* loc = nullptr;
+        if(argName->second)//æ˜¯å¼•ç”¨ä¼ é€’
+        {
+            //è·å–å¼•ç”¨å€¼åœ°å€
+            loc =&arg;//ä¼ å…¥å€¼æ˜¯åœ°å€
+            llvm::Value* tmp = context.builder->CreateLoad(loc);//è½½å…¥æ•°æ®
+            context.builder->CreateStore(tmp,loc,false);//å‚æ•°å­˜åˆ°åœ°å€ä¸­
+        }  
+        else
+        {
+            //è·å–å±€éƒ¨å˜é‡åœ°å€
+            loc = context.builder->CreateAlloca(*argType,nullptr,argName->first);
+            context.builder->CreateStore(&arg,loc,false);//å‚æ•°å­˜åˆ°åœ°å€ä¸­
+        }
+        //ç¬¦å·è¡¨è®°å½•å½¢å‚
+        item = symbol_table.get(argName->first);//è·å–ç¬¦å·è¡¨é¡¹
+        item->value.basic_val->llvmvalue = loc;//è®°å½•å½¢å‚åœ°å€
+        argName++;
+        argType++;
+    }
+    return func;
+}
+/**
+ * å‡½æ•°è¿”å›å€¼ç”Ÿæˆï¼Œ è¯¥æ¨¡å—æœªå®Œå…¨å®Œæˆ
+ */
+//æ­¤å¤„å»ºè®®ï¼Œç”¨ç¬¦å·è¡¨è®°å½•è¿”å›å€¼
+llvm::Value* subprogram_body_AST::ret_generation(llvm::Value* ret)
+{
+    //è¯­ä¹‰åˆ†æéœ€è¦åŠ ä¸€ä¸ªæ ‡è®°ï¼Œæ ‡è®°æ˜¯å¦æ˜¯å‡½æ•°
+    if(isfunction)
+    {
+        context.builder->CreateRetVoid();
+    }
+    else{
+        context.builder->CreateRet(ret);//ç¬¦å·è¡¨è®°å½•è¿”å›å€¼
+    }
+}
+/**
+ * program IRç”Ÿæˆ
+ *è¯¥æ¨¡å—å·²å®Œæˆ,ä¸program_structure_AST::code_generation()é‡å¤
+ */
+llvm::Value *program_body_AST::code_generation()
+{
+    cout << "program_body::code_generation" << endl;
+    // ç”Ÿæˆå‡½æ•°
+    llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
+    llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", context.module.get());
+    // ç”ŸæˆåŸºæœ¬å—
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program);
+    // ä¸»ç¨‹åºå—ç”Ÿæˆ
+    context.builder = make_unique<llvm::IRBuilder<>>(block);
+    return nullptr;
+}
+/**
+ * subprogram IRç”Ÿæˆ
+ * è¯¥æ¨¡å—å·²å®Œæˆ,åºŸå¼ƒ
+ */
+llvm::Value *subprogram_body_AST::code_generation()
+{
+    cout << "program_body::code_generation" << endl;
+    // ç”Ÿæˆå‡½æ•°
+    llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
+    llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "sub", context.module.get());
+    // ç”ŸæˆåŸºæœ¬å—
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program);
+    // å—æ’å…¥
+    context.builder->SetInsertPoint(block);
+    return nullptr;
+}
+/**
+ * è¿‡ç¨‹è°ƒç”¨ IRç”Ÿæˆ  è¯¥æ¨¡å—å·²å®Œæˆ
+ * @return Value* è¿‡ç¨‹call
+ */
+llvm::Value *procedure_call_AST::code_generation()
+{
+    cout << "procedure_call_AST::code_generation" << endl;
+    // ç¬¦å·è¡¨é‡Œå¯»æ‰¾procedeure id
+    //å½“ç„¶ï¼Œè¿™é‡Œå¯èƒ½æ‹¿è¿‡äº†
+    this->s_item = symbol_table.get(this->s_identifier);
+    if (this->s_item == nullptr)
+        return LogErrorV("procedure not found in sympol table");
+    vector<llvm::Value *> args; // è·å–å‚æ•°åˆ—è¡¨
+    int count = 0;
+    for (auto &item : s_value_list)
+    {
+        if (s_type_list[count]== "real")
+            item = context.builder->CreateSIToFP(item, context.type_ir.type_int);
+        args.push_back(item);
+        ++count;
+    }
+    // è·å–ä¸€ä¸ªè¿‡ç¨‹æŒ‡é’ˆ todo
+    // Function* pro_ptr = record->func;
+    llvm::Function *pro_ptr = nullptr;
+    return context.builder->CreateCall(pro_ptr, args, "Call Procedure");
+    /**
+     * ä¹Ÿå¯ä»¥è¿™ä¹ˆå†™,ä¸Šé¢é‚£ä¸ªåšäº†é”™è¯¯å¤„ç†ï¼Œä½†æ˜¯ï¼Œè¯­ä¹‰åˆ†æé‚£é‡Œå°±çˆ†äº†ï¼Œæ‰€ä»¥æ²¡å¿…è¦23333
+     *  auto ptr = s_item->value.function_val;//è·å–å‡½æ•°ç¬¦å·è¡¨æŒ‡é’ˆ
+     * Function* call = ptr->llvmfunction;//è·å–å‡½æ•°æŒ‡é’ˆ
+     * return context.builder->CreateCall(call, s_value_list, "Call Procedure")
+    */
+}
+/**
+ * å‡½æ•°è°ƒç”¨ IRç”Ÿæˆ  è¯¥æ¨¡å—å·²å®Œæˆ
+ * @return Value* å‡½æ•°call
+*/
+llvm::Value *factor_AST::function_call_generation()
+{
+    cout<<"factor_AST::function_call_generation"<<endl;
+    auto ptr = s_func_item->value.function_val;//è·å–å‡½æ•°ç¬¦å·è¡¨æŒ‡é’ˆ
+    llvm::Function* call = ptr->llvmfunction;//è·å–å‡½æ•°æŒ‡é’ˆ
+    return context.builder->CreateCall(call, s_parameter_list, "Call Function");
+}
+// è¡¨è¾¾å¼
+/**
+ * factor IRç”Ÿæˆ
+ * å› å­
+ * è¯¥éƒ¨åˆ†åŒ…æ‹¬ å¸¸æ•°å€¼ã€å˜é‡å€¼ã€å‡½æ•°è°ƒç”¨ã€è¡¨è¾¾å¼ã€å–éã€å–è´Ÿ
+ */
+llvm::Value *factor_AST::code_generation()
+{
+    cout << "factor_AST::code_generation" << endl;
+    llvm::Value *value = nullptr;
+    // å››ç§å¸¸æ•°
+    switch (s_state)
+    {
+    case 1: // å¸¸æ•°
+    {
+        if (s_type == "integer")
+            value = llvm::ConstantInt::get(context.type_ir.type_int, s_int, true);
+        else if (s_type == "real")
+            value = llvm::ConstantInt::get(context.type_ir.type_real, s_real, true);
+        else if (s_type == "char")
+            value = llvm::ConstantInt::get(context.type_ir.type_char, s_char, true);
+        else if (s_type == "boolean")
+            value = llvm::ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
+    }
+    break;
+    case 2:
+    {
+        value = this->s_value; // å˜é‡ï¼Œæ‹¿è§£æå€¼
+    }
+    break;
+    case 3: // å‡½æ•°ã€è¡¨è¾¾å¼
+    {
+        value = this->s_value; // å˜é‡ï¼Œæ‹¿è§£æå€¼
+    }
+    break;
+    case 4: //å•ç›®è¿ç®—ç¬¦
+    {
+        if (this->s_op == "!") // å–é
+            value = context.builder->CreateNot(this->s_operand0, "not");
+        else if (this->s_op == "1") // å–è´Ÿ
+        {
+            // æµ®ç‚¹å½¢
+            if (this->s_operand0_type == "real")
+            {
+                llvm::Value *temp = llvm::ConstantFP::get(context.type_ir.type_real, (double)(0.0));
+                value = context.builder->CreateFNeg(this->s_operand0, "uminus");
+            }
+            else
+            {
+                llvm::Value *temp = llvm::ConstantInt::get(context.type_ir.type_real, 0, true);
+                value = context.builder->CreateNeg(this->s_operand0, "uminus");
+            }
+        }
+    }
+    break;
+    }
+    // å¯ä»¥è¯­æ³•åš
+    // this->s_value = value;
+    return value;
+}
+/**
+ * term IRç”Ÿæˆ
+ * è¯¥éƒ¨åˆ†åŒ…æ‹¬ mulop ï¼š *ã€/ã€divã€mod å’Œ and
+ */
+llvm::Value *term_AST::code_generation()
+{
+    cout << "term_AST::code_generation" << endl;
+    // äºŒä½è¿ç®—ç¬¦
+    llvm::Value* value = nullptr;
+    //ç±»å‹è½¬æ¢,å¾…æµ®ç‚¹å…¨éƒ¨è½¬æµ®ç‚¹ /è¿ç®—å¥½åƒä¸ç”¨
+    bool judge = true;
+    if(operand0_type=="real"||operand1_type=="real"){
+        operand0 = context.builder->CreateSIToFP(operand0,context.type_ir.type_real);
+        operand1 = context.builder->CreateSIToFP(operand1,context.type_ir.type_real);
+        judge = false;
+    }
+    if(s_op=="*"){
+        if(judge)
+            value = context.builder->CreateMul(operand0,operand1,"multmp");
+        else
+            value = context.builder->CreateFMul(operand0,operand1,"multmp");
+    }
+    //ä¸¤ç§é™¤æ³•æœ‰å¾…å•†æ¦·
+    else if(s_op=="/"){
+        if(judge)
+            value = context.builder->CreateSDiv(operand0,operand1,"divtmp");
+        else
+            value = context.builder->CreateFDiv(operand0,operand1,"div");
+    }
+    else if(s_op=="div"){
+        if(judge)
+            value = context.builder->CreateSDiv(operand0,operand1,"divtmp");
+        else
+            value = context.builder->CreateFDiv(operand0,operand1,"divtmp");
+    }
+    //å–æ¨¡æ²¡æœ‰æµ®ç‚¹
+    else if(s_op=="mod"){
+        value = context.builder->CreateSRem(operand0,operand1,"modtmp");
+    }
+    else if(s_op=="and"){
+        value = context.builder->CreateAnd(operand0,operand1,"andtmp");
+    }
+    return value;
+}
+/**
+ * simple_expression IRç”Ÿæˆ
+ * è¯¥éƒ¨åˆ†åŒ…æ‹¬ addop ï¼š+ã€-ã€or
+*/
+llvm::Value *simple_expression_AST::code_generation()
+{
+    cout << "simple_expression_AST::code_generation" << endl;
+    llvm::Value* value = nullptr;
+    //ç±»å‹è½¬æ¢,å¾…æµ®ç‚¹å…¨éƒ¨è½¬æµ®ç‚¹ /è¿ç®—å¥½åƒä¸ç”¨
+    bool judge = true;
+    if(operand0_type=="real"||operand1_type=="real"){
+        operand0 = context.builder->CreateSIToFP(operand0,context.type_ir.type_real);
+        operand1 = context.builder->CreateSIToFP(operand1,context.type_ir.type_real);
+        judge = false;
+    }
+    if(s_op=="+"){
+        if(judge)
+            value = context.builder->CreateAdd(operand0,operand1,"addtmp");
+        else
+            value = context.builder->CreateFAdd(operand0,operand1,"addtmp");
+    }
+    //ä¸¤ç§é™¤æ³•æœ‰å¾…å•†æ¦·
+    else if(s_op=="-"){
+        if(judge)
+            value = context.builder->CreateSub(operand0,operand1,"subtmp");
+        else
+            value = context.builder->CreateFSub(operand0,operand1,"subtmp");
+    }
+    else if(s_op=="or"){
+        value = context.builder->CreateOr(operand0,operand1,"ortmp");
+    }
+    return value;
+}
+/**
+ * expression IRç”Ÿæˆ
+ * è¯¥éƒ¨åˆ†åŒ…æ‹¬ relop ï¼š=ã€<>ã€<ã€<=ã€>ã€>=
+*/
+llvm::Value *expression_AST::code_generation()
+{
+    cout << "expression_AST::code_generation" << endl;
+    llvm::Value* value = nullptr;
+    //ç±»å‹è½¬æ¢,å¸¦æµ®ç‚¹å…¨éƒ¨è½¬æµ®ç‚¹ 
+    bool judge = true;
+    if(operand0_type=="real"||operand1_type=="real"){
+        operand0 = context.builder->CreateSIToFP(operand0,context.type_ir.type_real);
+        operand1 = context.builder->CreateSIToFP(operand1,context.type_ir.type_real);
+        judge = false;
+    }
+    if(s_op=="<"){
+        if(judge)
+            value = context.builder->CreateICmpSLT(operand0,operand1,"lttmp");
+        else
+            value = context.builder->CreateFCmpULT(operand0,operand1,"lttmp");
+    }
+    else if(s_op=="<="){
+        if(judge)
+            value = context.builder->CreateICmpSLE(operand0,operand1,"letmp");
+        else
+            value = context.builder->CreateFCmpULE(operand0,operand1,"letmp");
+    }else if(s_op==">"){
+        if(judge)
+            value = context.builder->CreateICmpSGT(operand0,operand1,"gttmp");
+        else
+            value = context.builder->CreateFCmpUGT(operand0,operand1,"gttmp");
+    }else if(s_op==">="){
+        if(judge)
+            value = context.builder->CreateICmpSGE(operand0,operand1,"getmp");
+        else
+            value = context.builder->CreateFCmpUGE(operand0,operand1,"getmp");
+    }else if(s_op=="="){
+        if(judge)
+            value = context.builder->CreateICmpEQ(operand0,operand1,"eqtmp");
+        else
+            value = context.builder->CreateFCmpUEQ(operand0,operand1,"eqtmp");
+    }else if(s_op=="<>"){
+        if(judge)
+            value = context.builder->CreateICmpNE(operand0,operand1,"netmp");
+        else
+            value = context.builder->CreateFCmpUNE(operand0,operand1,"netmp");
+    }
+    return value;
+}
+
+// è¯­å¥
+llvm::Value *statement_AST::code_generation()
+{
+    cout << "statement_AST::code_generation" << endl;
+    // todo
+    return nullptr;
+}
+/**
+ * if è¯­å¥
+ * ç¬¬ä¸€é˜¶æ®µ
+*/
+llvm::Value* statement_AST::if_code_generation_1()
+{
+    cout << "statement_AST::if_code_generation" << endl;
+    if(s_expression_value == nullptr)
+        return LogErrorV("if expression is null");
+    s_expression_value = expressionToBoolean(s_expression_value);
+    function = context.builder->GetInsertBlock()->getParent();//å¾—åˆ°ifè¯­å¥æ‰€å±å‡½æ•°
+    block1 = llvm::BasicBlock::Create(context.llvmContext, "then", function);
+    block2 = llvm::BasicBlock::Create(context.llvmContext, "else"); // elseéƒ¨åˆ†
+    block3 = llvm::BasicBlock::Create(context.llvmContext, "ifcont");
+    if(s_has_else)
+    {
+        //æœ‰else
+        context.builder->CreateCondBr(s_expression_value, block1, block2);
+    } 
+    else{
+        //æ— else
+        context.builder->CreateCondBr(s_expression_value, block1, block3);
+    }
+    context.builder->SetInsertPoint(block1);
+    IP = context.builder->saveIP();//ä¿å­˜æ’å…¥ç‚¹
+    return nullptr;
+}
+/**
+ * if è¯­å¥
+ * ç¬¬äºŒé˜¶æ®µ
+*/
+llvm::Value* statement_AST::if_code_generation_2()
+{
+    context.builder->restoreIP(IP);
+    //restoreIP(IP);//æ¢å¤æ’å…¥ç‚¹
+    block1 = context.builder->GetInsertBlock();
+    // åœ¨thenBBæ’å…¥çš„æœ€åä¸€æ¡æŒ‡ä»¤æ˜¯retï¼Œåˆ™ä¸å†è·³è½¬å›final_block
+    if(block1->getTerminator()== nullptr)
+        context.builder->CreateBr(block3);
+    if(s_has_else)
+    {
+        function->getBasicBlockList().push_back(block2);
+        context.builder->SetInsertPoint(block2);
+        IP = context.builder->saveIP();//ä¿å­˜æ’å…¥ç‚¹
+        //ç”Ÿæˆelse
+    }
+    return nullptr;
+}
+/**
+ * ifè¯­å¥
+ * ç¬¬ä¸‰é˜¶æ®µ
+*/
+llvm::Value *statement_AST::if_code_generation_3()
+{
+    context.builder->restoreIP(IP);
+    if(s_has_else)
+    {
+        if(block2->getTerminator()== nullptr)
+            context.builder->CreateBr(block3);
+    }
+    function->getBasicBlockList().push_back(block3);
+    context.builder->SetInsertPoint(block3);
+    return nullptr;
+}
+/**
+ * forè¯­å¥
+ * ç¬¬ä¸€é˜¶æ®µ
+*/
+llvm::Value *statement_AST::for_code_generation_1()
+{
+    cout<<"statement_AST::for_code_generation"<<endl;
+    function = context.builder->GetInsertBlock()->getParent();//å¾—åˆ°forè¯­å¥æ‰€å±å‡½æ•°
+    block1 = llvm::BasicBlock::Create(context.llvmContext, "forloop", function);
+    block2 = llvm::BasicBlock::Create(context.llvmContext, "forcont", function);
+    s_expression_value = expressionToBoolean(s_expression_value);//æ¡ä»¶å€¼
+    context.builder->CreateCondBr(s_expression_value, block1, block2);
+    context.builder->SetInsertPoint(block1);
+    IP = context.builder->saveIP();//ä¿å­˜æ’å…¥ç‚¹
+    //å¾ªç¯ä½“ç”Ÿæˆ
+    return nullptr;
+}
+/**
+ * forè¯­å¥
+ * ç¬¬äºŒé˜¶æ®µ
+*/
+llvm::Value *statement_AST::for_code_generation_2()
+{
+    context.builder->SetInsertPoint(block1);//è®¾ç½®æ’å…¥ç‚¹ï¼Œè¿™ä¸ªåœ°æ–¹æœ‰å¾…è€ƒé‡
+    s_expression_value = expressionToBoolean(s_expression_value);//æ¡ä»¶å€¼
+    context.builder->CreateCondBr(s_expression_value, block1, block2);
+    function->getBasicBlockList().push_back(block2);
+    context.builder->SetInsertPoint(block2);
+    return nullptr;
+}
+/**
+ * whileè¯­å¥
+ * ç¬¬ä¸€é˜¶æ®µ
+*/
+llvm::Value* statement_AST::while_code_generation_1()
+{
+    cout<<"statement_AST::while_code_generation"<<endl;
+    function = context.builder->GetInsertBlock()->getParent();//å¾—åˆ°whileè¯­å¥æ‰€å±å‡½æ•°
+    block1 = llvm::BasicBlock::Create(context.llvmContext, "whileloop", function);
+    block2 = llvm::BasicBlock::Create(context.llvmContext, "whilecont", function);
+    s_expression_value = expressionToBoolean(s_expression_value);//æ¡ä»¶å€¼
+    context.builder->CreateCondBr(s_expression_value, block1, block2);
+    context.builder->SetInsertPoint(block1);
+    IP = context.builder->saveIP();//ä¿å­˜æ’å…¥ç‚¹
+    return nullptr;
+}
+/**
+ * whileè¯­å¥
+ * ç¬¬äºŒé˜¶æ®µ
+*/
+llvm::Value* statement_AST::while_code_generation_2()
+{
+    context.builder->SetInsertPoint(block1);//è®¾ç½®æ’å…¥ç‚¹ï¼Œè¿™ä¸ªåœ°æ–¹æœ‰å¾…è€ƒé‡
+    s_expression_value = expressionToBoolean(s_expression_value);//æ¡ä»¶å€¼
+    context.builder->CreateCondBr(s_expression_value, block1, block2);
+    function->getBasicBlockList().push_back(block2);
+    context.builder->SetInsertPoint(block2);
+    return nullptr;
+}
+/**
+ * assignè¯­å¥
+*/
+llvm::Value* statement_AST::assign_code_generation()
+{
+    cout<<"statement_AST::assign_code_generation"<<endl;
+    //è·å–å·¦å€¼ item
+    SymbolTableItem* item = this->s_variable->item;
+    if(item == nullptr)
+        return LogErrorV("assign_code_generation: item is null");
+    //è·å–å·¦å€¼,å·¦å€¼å¯ä»¥æ˜¯å˜é‡ï¼Œä¹Ÿå¯ä»¥æ˜¯æ•°ç»„å…ƒç´ ï¼Œ
+    llvm::Value* value = nullptr;//å·¦å€¼å˜é‡åœ°å€
+    if(this->s_expression_type == "return")//å‡½æ•°è¿”å›å€¼
+    {
+        //è®°å½•å‡½æ•°è¿”å›å€¼
+        item->value.function_val->ret_llvmval = s_expression_value;
+        return nullptr;
+    }
+    if(item->type == 6&&s_expression_type=="integer"){
+        s_expression_value = context.builder->CreateSIToFP(s_expression_value, context.type_ir.type_real);
+    }
+    if(item->type == 5&&s_expression_type=="real"){
+        s_expression_value = context.builder->CreateFPToSI(s_expression_value, context.type_ir.type_int);
+    }
+    if(s_variable->s_isarray)//å¯èƒ½æœ‰é—®é¢˜ 
+    {
+        //è·å–æŒ‡é’ˆ è·å–æ•°ç»„å…ƒç´ åœ°å€
+        //Value* ptr = nullptr;
+        value = get_item(this->s_variable);
+        context.builder->CreateStore(s_expression_value, value);
+    }
+    else{
+        value = item->value.basic_val->llvmvalue;
+        context.builder->CreateStore(s_expression_value, value);
+    }
+    return value;
+
+}
+/**
+ * wirte è¯­å¥
+ */
+llvm::Value *statement_AST::write()
+{
+    cout << "statement_AST::wirte_procedure" << endl;
+    vector<llvm::Value *> args;
+    int count = 0;
+    int index = 0;
+    for (auto &item : s_value_list)
+    {
+        args.clear();
+        args.push_back(item);
+        if (args.empty())
+            return LogErrorV("write procedure failed");   
+        if(s_type_list[count]=="integer")
+            index = 0;
+        else if(s_type_list[count]=="real")
+            index = 1;
+        else if(s_type_list[count]=="char")
+            index = 2;
+        else if(s_type_list[count]=="boolean")
+            index = 3;
+        //è°ƒç”¨åº“å‡½æ•°
+        context.builder->CreateCall(context.funcStack[index], args, "write");
+        ++count;
+    }
+    return nullptr;
+}
+/**
+ * read è¯­å¥
+ */
+llvm::Value *statement_AST::read()
+{
+    cout << "procedure_call_AST::read_procedure" << endl;
+    vector<llvm::Value *> args;
+    int index;
+    int count = 0;
+    for (auto &item : s_variable_list)
+    {
+        if(s_type_list[count]=="integer")
+            index = 4;
+        else if(s_type_list[count]=="real")
+            index = 5;
+        else if(s_type_list[count]=="char")
+            index = 6;
+        else if(s_type_list[count]=="boolean")
+            index = 7;
+        llvm::Value *ret = context.builder->CreateCall(context.funcStack[index], args, "read");
+        //todo å˜é‡æ“ä½œ
+        llvm::Value *addr = nullptr;
+        addr = item->item->value.basic_val->llvmvalue; // è·å–å˜é‡åœ°å€
+        context.builder->CreateStore(ret, addr);
+        ++count;
+    }
+    return nullptr;
+}
+
+// å¼•ç”¨
+llvm::Value* variable_AST::code_generation()
+{
+    cout<<"variable_AST::code_generation"<<endl;
+    //è·å–å·¦å€¼ item
+    SymbolTableItem* item = this->item;
+    llvm::Value* addr = nullptr;//å·¦å€¼å˜é‡åœ°å€
+    if(item->type<9)//æ™®é€šå˜é‡
+    {
+        addr = item->value.basic_val->llvmvalue;
+        this->llvmleftValue = addr;
+        return context.builder->CreateLoad(addr,false,"");
+    }
+    else if(item->type==10)//æ•°ç»„
+    {
+        //è·å–æ•°ç»„
+        addr = get_item(this);
+        this->llvmleftValue = addr;
+        return context.builder->CreateLoad(addr,false,"");
+    }
+}
+// è¾…åŠ©å‡½æ•°
+/**
+ * è·å–å·¦å€¼
+*/
+llvm::Value* get_item(variable_AST* var)
+{
+    cout<<"get_item"<<endl;
+    llvm::Value* ptr = nullptr;
+    SymbolTableItem* item = var->item;
+    ptr = var->item->value.array_val->llvmvalue;//æ•°ç»„é¦–åœ°å€
+    string cur = "";//å½“å‰ç»´åº¦type
+    for(int i = 0;i<var->s_type_list.size();++i)//éå†ç»´åº¦
+    {
+        cur = var->s_type_list[i];
+        ptr = get_array_item(cur,ptr,item->value.array_val->begin[i],var->s_value_list[i]);
+    }
+    return ptr;
+}
+/**
+ * è·å–æ•°ç»„å…ƒç´ æŒ‡é’ˆ
+ */
+llvm::Value *get_array_item(const string &type, llvm::Value *array,int loc, llvm::Value* index)
+{
+    cout << "get_array_item" << endl;
+    llvm::Type *item_type = context.type_ir.getLLVMType(type);
+    if (item_type == nullptr)
+        return LogErrorV("unknown type");
+    auto base = llvm::ConstantInt::get(context.type_ir.type_int, loc);
+    llvm::Value *ret = context.builder->CreateGEP(item_type, array, {base, index});
+    if (ret == nullptr)
+        return LogErrorV("get array item failed");
+    return ret;
+}
+
+llvm::Value *expressionToBoolean(llvm::Value* value){
+    if(value->getType()->getTypeID() == llvm::Type::IntegerTyID)
+    {
+        value = context.builder->CreateIntCast(value,context.type_ir.type_boolean,true);
+        value = context.builder->CreateICmpNE(value,llvm::ConstantInt::get(context.type_ir.type_boolean,0,true));
+    }
+    else if(value->getType()->getTypeID() == llvm::Type::FloatTyID)
+    {
+        value = context.builder->CreateFCmpONE(value, llvm::ConstantFP::get(context.llvmContext, llvm::APFloat(0.0)));
+    }
+    return value;
+}
+llvm::Value* LogErrorV(string str)
+{
+
+}
+llvm::Value* LogError(const char *str)
+{
+
+}
+void objectGenerate(string &filename)
+{
+    // åˆå§‹åŒ–llvmï¼Œè®¾ç½®ç›®æ ‡æœº
+    llvm::InitializeAllTargetInfos(); // åˆå§‹åŒ–æ‰€æœ‰ç›®æ ‡ä¿¡æ¯
+    llvm::InitializeAllTargets();     // åˆå§‹åŒ–æ‰€æœ‰ç›®æ ‡
+    llvm::InitializeAllTargetMCs();   // åˆå§‹åŒ–æ‰€æœ‰ç›®æ ‡æœºç 
+    llvm::InitializeAllAsmParsers();  // åˆå§‹åŒ–æ‰€æœ‰æ±‡ç¼–è§£æå™¨
+    llvm::InitializeAllAsmPrinters(); // åˆå§‹åŒ–æ‰€æœ‰æ±‡ç¼–æ‰“å°å™¨
+
+    // è·å–ç›®æ ‡ä¸‰å…ƒç»„å¹¶è®¾ç½®
+    string targetTriple = llvm::sys::getDefaultTargetTriple();
+    context.module->setTargetTriple(targetTriple);
+
+    // è·å–ç›®æ ‡æœºæ•°æ®ç±»å‹å¹¶è®¾ç½®
+    string TargetError;
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(targetTriple, TargetError);
+    if (!target)
+    {
+        llvm::errs() << TargetError;
+        return;
+    }
+    // targetMachineå¯¹è±¡è¡¨ç¤ºç›®æ ‡æ¶æ„ï¼Œå®ƒåŒ…å«äº†ç”¨äºç”Ÿæˆç›®æ ‡ä»£ç çš„æ‰€æœ‰å¿…è¦ä¿¡æ¯ã€‚
+    string CPU = "generic";
+    string features = "";
+    llvm::TargetOptions options;
+    std::unique_ptr<llvm::TargetMachine> targetMachine(target->createTargetMachine(targetTriple, CPU, features, options, llvm::Reloc::Model::PIC_));
+    // è®¾ç½®æ¨¡å—çš„æ•°æ®å¸ƒå±€ã€‚æ•°æ®å¸ƒå±€æè¿°äº†ç›®æ ‡æ¶æ„ä¸­æ•°æ®ç±»å‹çš„å¤§å°ã€å¯¹é½æ–¹å¼å’Œå­—èŠ‚é¡ºåºç­‰ä¿¡æ¯
+    context.module->setDataLayout(targetMachine->createDataLayout());
+
+    // è®¾ç½®ç›®æ ‡æ–‡ä»¶ç±»å‹
+    llvm::CodeGenFileType type;
+    if (filename[filename.size() - 1] == 's')
+    { // ç”Ÿæˆæ±‡ç¼–æ–‡ä»¶
+        type = llvm::CGFT_AssemblyFile;
+    }
+    else if (filename[filename.size() - 1] == 'o')
+    { // ç”Ÿæˆç›®æ ‡æ–‡ä»¶
+        type = llvm::CGFT_ObjectFile;
+    }
+    else
+    {
+        llvm::errs() << "Unsupported target file format: " + filename;
+        return;
+    }
+
+    // å°†ç›®æ ‡ä»£ç è¾“å‡ºåˆ°æ–‡ä»¶
+    error_code errorCode;
+    // åŸå§‹æ–‡ä»¶æè¿°ç¬¦è¾“å‡ºæµã€‚lvm::raw_ostream ç±»ï¼Œå¹¶æä¾›äº†å°†æ•°æ®å†™å…¥æ–‡ä»¶æè¿°ç¬¦çš„åŠŸèƒ½ã€‚
+    llvm::raw_fd_ostream dest(filename.c_str(), errorCode, llvm::sys::fs::OF_None);
+    llvm::legacy::PassManager passManager;
+
+    // è®¾ç½®ä¼˜åŒ–æµæ°´çº¿
+    if (targetMachine->addPassesToEmitFile(passManager, dest, nullptr, llvm::CGFT_ObjectFile))
+    {
+        llvm::errs() << "theTargetMachine can't emit a file of this type";
+        return;
+    }
+    passManager.run(*context.module);
+    //å°†ç¼“å†²åŒºæ•°æ®å†™å…¥æ–‡ä»¶
+    dest.flush();
+    llvm::outs() << "Object code generated successfully!"
+           << "\n";
+    llvm::outs() << "File name: " << filename.c_str() << "\n";
+}
+bool isBasicType(const string &type)
+{
+    return (type == "integer" | type == "real" | type == "char" | type == "boolean");
+}
+bool isBasicType(const int& type)
+{
+    return type >= 5 && type <= 8;
+}
+llvm::Type *Type_IR::getLLVMType(const string &type)
+{
+    if (type == "integer")
+        return this->type_int;
+    if (type == "real")
+        return this->type_real;
+    if (type == "char")
+        return this->type_char;
+    if (type == "boolean")
+        return this->type_boolean;
+    if (type == "void")
+        return this->type_void;
+    LogErrorV("[getLLVMType]  Unknown type: " + type);
+    return nullptr;
+}
+llvm::Type *Type_IR::getLLVMType(const int &type)
+{
+    if (type == 5)
+        return this->type_int;
+    if (type == 6)
+        return this->type_real;
+    if (type == 7)
+        return this->type_boolean;
+    if (type == 8)
+        return this->type_char;
+    LogErrorV("[getLLVMType]  Unknown type: " + type);
+    return nullptr;
+}
+llvm::Type *Type_IR::getArrayLLVMType(SymbolTableItem *item)
+{
+    string name = "array";
+    for (int i = 0; i < item->value.array_val->size.size(); i++)
+    {
+        name += "_" + to_string(item->value.array_val->begin[i]) + "_" + to_string(item->value.array_val->end[i]);
+    }
+    if (arrayTypes.find(name) != arrayTypes.end())
+        return arrayTypes[name];
+    return nullptr;
+}
+llvm::Type *Type_IR::createArrayType(SymbolTableItem *item)
+{
+    string name = "array";
+    int range = 1;
+    for (int i = 0; i < item->value.array_val->size.size(); i++)
+    {
+        name += "_" + to_string(item->value.array_val->begin[i]) + "_" + to_string(item->value.array_val->end[i]);
+        range *= item->value.array_val->size[i];
+    }
+    llvm::Type *type = context.type_ir.getLLVMType(item->type); // è·å–åŸºæœ¬ç±»å‹
+    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, range);   // æ•°ç»„type
+    context.type_ir.addArrayType(name, arrayType, item);
+    return arrayType;
+}
+void Type_IR::addArrayType(const string &name, llvm::ArrayType *type, SymbolTableItem *item)
+{
+    arrayTypes[name] = type;
+    arrayTypeList[name] = item->type;
+    vector<pair<int, int>> temp;
+    for (int i = 0; i < item->value.array_val->size.size(); i++)
+        temp.push_back(make_pair(item->value.array_val->begin[i], item->value.array_val->end[i]));
+    arrayRangeLists[name] = temp;
+}
+string Type_IR::getArrayMemberType(const string &name)
+{
+    SymbolTableItem *item = symbol_table.get(name);
+    if (item == nullptr)
+    {
+        LogErrorV("Unknown array name: " + name);
+        return "";
+    }
+    
+    if (isBasicType(item->type))
+    {
+        LogErrorV("Not array name: " + name);
+        return "";
+    }
+
+    return name;
+}

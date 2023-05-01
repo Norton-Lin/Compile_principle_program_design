@@ -11,11 +11,11 @@
 #include<llvm/ADT/Optional.h>
 #include"CodeGenerate.h"
 using namespace std;
-using namespace llvm;
 /**
  * @brief 生成目标代码
  * @param context 代码生成上下文
  * @param filename 目标代码文件名
 */
-void objectGenerate(CodeGenContext& context,string& filename);
+extern CodeGenContext context;
+void objectGenerate(string& filename);
 #endif

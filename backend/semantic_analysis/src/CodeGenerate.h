@@ -23,6 +23,15 @@
 #include<llvm/Support/TargetSelect.h>
 #include<llvm/ADT/APFloat.h>
 #include<llvm/ADT/STLExtras.h>
+#include<llvm/Support/FileSystem.h>
+#include<llvm/Support/Host.h>
+#include<llvm/Support/raw_ostream.h>
+#include<llvm/Support/TargetRegistry.h>
+#include<llvm/Support/TargetSelect.h>
+#include<llvm/Support/FormattedStream.h>
+#include<llvm/Target/TargetMachine.h>
+#include<llvm/Target/TargetOptions.h>
+#include<llvm/ADT/Optional.h>
 #include<stdio.h>
 #include<string>
 #include<vector>
@@ -33,7 +42,6 @@
 //验证类型
 #define ISTYPE(value, id) (value->getType()->getTypeID() == id)
 using namespace std;
-using namespace llvm;
 /**
  * 在整个编译器程序中使用一个单例的CodeGenContext对象
  * 维护全局的编译信息。在这个对象中主要维护的成员包括
@@ -43,21 +51,22 @@ using namespace llvm;
 */
 class CodeGenContext { 
 public:
-    LLVMContext llvmContext;
-    unique_ptr<IRBuilder<>> builder;
-    unique_ptr<Module> module;//中间代码生成对象
+    llvm::LLVMContext llvmContext;
+    unique_ptr<llvm::IRBuilder<>> builder;
+    unique_ptr<llvm::Module> module;//中间代码生成对象
     Type_IR type_ir;//自定义类型系统
-    vector<Function*> funcStack;//函数栈
+    vector<llvm::Function*> funcStack;//函数栈
     CodeGenContext(): type_ir(llvmContext) {
-        module = make_unique<Module>("main", this->llvmContext);
+        module = make_unique<llvm::Module>("main", this->llvmContext);
     }
     //初始化库函数
     void init_funcStack();
 };
-Value* LogErrorV(string str);
-Value* LogError(const char *str);
+llvm::Value* LogErrorV(string str);
+llvm::Value* LogError(const char *str);
 //获取数组元素指针
-Value* get_array_item(CodeGenContext& context,const string& type, Value* array, int index);
+llvm::Value *get_array_item(const string &type, llvm::Value *array,int loc, llvm::Value* index);
 //Value* getArrayIndex(string type,vector<T> idvaprt);
-Value *expressionToBoolean(Value* value);//表达式转换为布尔值
+llvm::Value *expressionToBoolean(llvm::Value* value);//表达式转换为布尔值
+void objectGenerate(string& filename);
 #endif

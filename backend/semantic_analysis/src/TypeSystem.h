@@ -8,9 +8,8 @@
 #include <map>
 #include <vector>
 #include"symbol_table.hpp"
-extern SymbolTable* symbol_table;
+extern SymbolTable symbol_table;
 using namespace std;
-using namespace llvm;
 /**
  * 类型系统
  * 用于维护自定义类型的定义
@@ -24,20 +23,20 @@ public:
     map<string, vector<int>> arraySizeLists;     //数组大小列表
     map<string, llvm::ArrayType*> arrayTypes;       //数组变量对应的LLVM Type
     //TypeSystem(LLVMContext& context): llvmContext(context) {}
-    Type_IR(LLVMContext& context): llvmContext() {}
-    Type* type_int = Type::getInt32Ty(llvmContext);
-    Type* type_real = Type::getFloatTy(llvmContext);
-    Type* type_char = Type::getInt8Ty(llvmContext);
-    Type* type_boolean = Type::getInt1Ty(llvmContext);
-    Type* type_void = Type::getVoidTy(llvmContext);
-    Type* type_int64 = Type::getInt64Ty(llvmContext);
+    Type_IR(llvm::LLVMContext& context): llvmContext() {}
+    llvm::Type* type_int = llvm::Type::getInt32Ty(llvmContext);
+    llvm::Type* type_real = llvm::Type::getFloatTy(llvmContext);
+    llvm::Type* type_char = llvm::Type::getInt8Ty(llvmContext);
+    llvm::Type* type_boolean = llvm::Type::getInt1Ty(llvmContext);
+    llvm::Type* type_void = llvm::Type::getVoidTy(llvmContext);
+    llvm::Type* type_int64 = llvm::Type::getInt64Ty(llvmContext);
     //获取llvm类型
-    Type* getLLVMType(const string& type);
-    Type* getLLVMType(const int& type);
-    Type* getArrayLLVMType(SymbolTableItem* item);
-    Type* createArrayType(SymbolTableItem* item);
+    llvm::Type* getLLVMType(const string& type);
+    llvm::Type* getLLVMType(const int& type);
+    llvm::Type* getArrayLLVMType(SymbolTableItem* item);
+    llvm::Type* createArrayType(SymbolTableItem* item);
     //增加llvm类型
-    void Type_IR::addArrayType(const string &name, llvm::ArrayType *type, SymbolTableItem* item);
+    void addArrayType(const string &name, llvm::ArrayType *type, SymbolTableItem* item);
     //获取数组元素类型名
     string getArrayMemberType(const string& arrName);
     //判断两个类型是否相同

@@ -9,7 +9,7 @@ bool isBasicType(const int& type)
 {
     return type >= 5 && type <= 8;
 }
-Type *Type_IR::getLLVMType(const string &type)
+llvm::Type *Type_IR::getLLVMType(const string &type)
 {
     if (type == "integer")
         return this->type_int;
@@ -24,7 +24,7 @@ Type *Type_IR::getLLVMType(const string &type)
     LogErrorV("[getLLVMType]  Unknown type: " + type);
     return nullptr;
 }
-Type *Type_IR::getLLVMType(const int &type)
+llvm::Type *Type_IR::getLLVMType(const int &type)
 {
     if (type == 5)
         return this->type_int;
@@ -37,7 +37,7 @@ Type *Type_IR::getLLVMType(const int &type)
     LogErrorV("[getLLVMType]  Unknown type: " + type);
     return nullptr;
 }
-Type *Type_IR::getArrayLLVMType(SymbolTableItem *item)
+llvm::Type *Type_IR::getArrayLLVMType(SymbolTableItem *item)
 {
     string name = "array";
     for (int i = 0; i < item->value.array_val->size.size(); i++)
@@ -48,7 +48,7 @@ Type *Type_IR::getArrayLLVMType(SymbolTableItem *item)
         return arrayTypes[name];
     return nullptr;
 }
-Type *Type_IR::createArrayType(SymbolTableItem *item)
+llvm::Type *Type_IR::createArrayType(SymbolTableItem *item)
 {
     string name = "array";
     int range = 1;
@@ -57,8 +57,8 @@ Type *Type_IR::createArrayType(SymbolTableItem *item)
         name += "_" + to_string(item->value.array_val->begin[i]) + "_" + to_string(item->value.array_val->end[i]);
         range *= item->value.array_val->size[i];
     }
-    Type *type = context.type_ir.getLLVMType(item->type); // 获取基本类型
-    ArrayType *arrayType = ArrayType::get(type, range);   // 数组type
+    llvm::Type *type = context.type_ir.getLLVMType(item->type); // 获取基本类型
+    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, range);   // 数组type
     context.type_ir.addArrayType(name, arrayType, item);
     return arrayType;
 }
@@ -73,7 +73,7 @@ void Type_IR::addArrayType(const string &name, llvm::ArrayType *type, SymbolTabl
 }
 string Type_IR::getArrayMemberType(const string &name)
 {
-    SymbolTableItem *item = symbol_table->get(name);
+    SymbolTableItem *item = symbol_table.get(name);
     if (item == nullptr)
     {
         LogErrorV("Unknown array name: " + name);
