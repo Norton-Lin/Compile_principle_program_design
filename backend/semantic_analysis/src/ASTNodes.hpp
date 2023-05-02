@@ -25,20 +25,20 @@ using namespace std;
 
 enum ast_type
 {
-	// 终结符
-	PROGRAM, CONST, VAR, PROCEDURE, FUNCTION, BEGIN, END, ARRAY, OF, IF,
-	THEN, FOR, TO, DO, READ, WRITE, NOT, ELSE, RANGE, UMINUS,
-	ID, RELOP, DIGITS, NUM, VARTYPE, ADDOP, MULOP, ASSIGNOP, SEPARATOR, CHAR,
-	BOOLEAN,WHILE,
+    // 终结符
+    PROGRAM, CONST, VAR, PROCEDURE, FUNCTION, BEGIN, END, ARRAY, OF, IF,
+    THEN, FOR, TO, DO, READ, WRITE, NOT, ELSE, RANGE, UMINUS,
+    ID, RELOP, DIGITS, NUM, VARTYPE, ADDOP, MULOP, ASSIGNOP, SEPARATOR, CHAR,
+    BOOLEAN,WHILE,
 
-	// 非终结符
-	programstruct = 100, program_head, program_body, idlist, const_declarations,
-	const_declaration, const_value, var_declarations, var_declaration, basic_type,
-	type, period, subprogram_declarations, subprogram, subprogram_head,
-	formal_parameter, parameter_list, parameter, var_parameter, value_parameter,
-	subprogram_body, compound_statement, statement_list, statement, variable_list,
-	variable, id_varpart, procedure_call, else_part, term,
-	factor, simple_expression, expression_list, expression
+    // 非终结符
+    programstruct = 100, program_head, program_body, idlist, const_declarations,
+    const_declaration, const_value, var_declarations, var_declaration, basic_type,
+    type, period, subprogram_declarations, subprogram, subprogram_head,
+    formal_parameter, parameter_list, parameter, var_parameter, value_parameter,
+    subprogram_body, compound_statement, statement_list, statement, variable_list,
+    variable, id_varpart, procedure_call, else_part, term,
+    factor, simple_expression, expression_list, expression
 };
 
 class const_value_AST;
@@ -86,9 +86,9 @@ void printErrorList()
 class ASTNode
 {
 public:
-	ast_type type;
-	ASTNode* father;
-	vector<ASTNode*> children;
+    ast_type type;
+    ASTNode* father;
+    vector<ASTNode*> children;
     int line;
     int col;
 
@@ -99,10 +99,11 @@ public:
         for (int i = 0; i < this->children.size(); ++i) {
             this->pascal_info += this->children[i]->pascal_info + " ";
         }
+        cout<<"pascal_info:"<<this->pascal_info<<endl;
     }
 
 public:
-	ASTNode() {};
+    ASTNode() {};
 
     void get_line_col(BitNode* bn)
     {
@@ -114,14 +115,15 @@ public:
         this->line = ch->line;
         this->col = ch->col;
     }
-	virtual void semantic_action() {};
-	virtual void semantic_checking() {};
-	virtual llvm::Value *code_generation() {return NULL;};
+    virtual void semantic_action() {};
+    virtual void semantic_checking() {};
+    virtual llvm::Value *code_generation() {return NULL;};
 };
 
 //终结符
 class WHILE_AST :public ASTNode
 {
+    public:
     WHILE_AST(BitNode* bn)
     {
         type = WHILE;
@@ -132,23 +134,23 @@ class WHILE_AST :public ASTNode
 class PROGRAM_AST :public ASTNode
 {
 public:
-	PROGRAM_AST(BitNode* bn)
-	{
-		type = PROGRAM;
+    PROGRAM_AST(BitNode* bn)
+    {
+        type = PROGRAM;
         pascal_info = bn->data;
-	}
+    }
 };
 
 class CONST_AST :public ASTNode
 {
 public:
     string s_value;
-	CONST_AST(BitNode* bn)
-	{
+    CONST_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
         this->s_value=bn->data;
-		type = CONST;
-	}
+        type = CONST;
+    }
 
 };
 
@@ -156,12 +158,12 @@ class VAR_AST :public ASTNode
 {
 public:
     string s_value;
-	VAR_AST(BitNode* bn)
-	{
+    VAR_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = VAR;
+        type = VAR;
         this->s_value = bn->data;
-	}
+    }
 
 };
 
@@ -169,12 +171,12 @@ class PROCEDURE_AST :public ASTNode
 {
 public:
     string s_value;
-	PROCEDURE_AST(BitNode* bn)
-	{
+    PROCEDURE_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = PROCEDURE;
+        type = PROCEDURE;
         this->s_value = bn->data;
-	}
+    }
 
 };
 
@@ -182,12 +184,12 @@ class FUNCTION_AST :public ASTNode
 {
 public:
     string s_value;
-	FUNCTION_AST(BitNode* bn)
-	{
+    FUNCTION_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = FUNCTION;
+        type = FUNCTION;
         this->s_value = bn->data;
-	}
+    }
 
 };
 
@@ -195,13 +197,13 @@ class BEGIN_AST :public ASTNode
 {
 public:
     string value;
-	BEGIN_AST(BitNode* bn)
-	{
+    BEGIN_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = BEGIN;
+        type = BEGIN;
         this->value = bn->data;
         get_line_col(bn);
-	}
+    }
 
 };
 
@@ -209,12 +211,12 @@ class END_AST :public ASTNode
 {
 public:
     string value;
-	END_AST(BitNode* bn)
-	{
+    END_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = END;
+        type = END;
         this->value = bn->data;
-	}
+    }
 
 };
 
@@ -222,12 +224,12 @@ class ARRAY_AST :public ASTNode
 {
 public:
     string s_value;
-	ARRAY_AST(BitNode* bn)
-	{
+    ARRAY_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = ARRAY;
+        type = ARRAY;
         this->s_value = bn->data;
-	}
+    }
 
 };
 
@@ -235,47 +237,47 @@ class OF_AST :public ASTNode
 {
 public:
     string s_value;
-	OF_AST(BitNode* bn)
-	{
+    OF_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = OF;
+        type = OF;
         this->s_value = bn->data;
-	}
+    }
 
 };
 
 class IF_AST :public ASTNode
 {
 public:
-	IF_AST(BitNode* bn)
-	{
+    IF_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
         get_line_col(bn);
-		type = IF;
-	}
+        type = IF;
+    }
 
 };
 
 class THEN_AST :public ASTNode
 {
 public:
-	THEN_AST(BitNode* bn)
-	{
+    THEN_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = THEN;
-	}
+        type = THEN;
+    }
 
 };
 
 class FOR_AST :public ASTNode
 {
 public:
-	FOR_AST(BitNode* bn)
-	{
+    FOR_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = FOR;
+        type = FOR;
         get_line_col(bn);
-	}
+    }
 
 };
 
@@ -283,11 +285,11 @@ class TO_AST :public ASTNode
 {
 public:
 
-	TO_AST(BitNode* bn)
-	{
+    TO_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = TO;
-	}
+        type = TO;
+    }
 
 };
 
@@ -295,56 +297,56 @@ class DO_AST :public ASTNode
 {
 public:
     DO_AST(BitNode* bn)
-	{
+    {
         pascal_info = bn->data;
-		type = DO;
-	}
+        type = DO;
+    }
 
 };
 
 class READ_AST :public ASTNode
 {
 public:
-	READ_AST(BitNode* bn)
-	{
+    READ_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = READ;
+        type = READ;
         get_line_col(bn);
-	}
+    }
 
 };
 
 class WRITE_AST :public ASTNode
 {
 public:
-	WRITE_AST(BitNode* bn)
-	{
+    WRITE_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = WRITE;
+        type = WRITE;
         get_line_col(bn);
-	}
+    }
 
 };
 
 class NOT_AST :public ASTNode
 {
 public:
-	NOT_AST(BitNode* bn)
-	{
+    NOT_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = NOT;
-	}
+        type = NOT;
+    }
 
 };
 
 class ELSE_AST :public ASTNode
 {
 public:
-	ELSE_AST(BitNode* bn)
-	{
+    ELSE_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = ELSE;
-	}
+        type = ELSE;
+    }
 
 };
 
@@ -352,12 +354,12 @@ class RANGE_AST :public ASTNode
 {
 public:
     string s_value;
-	RANGE_AST(BitNode* bn)
-	{
+    RANGE_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = RANGE;//..
+        type = RANGE;//..
         this->s_value = bn->data;
-	}
+    }
 
 };
 
@@ -365,12 +367,12 @@ class UMINUS_AST :public ASTNode
 {
 public:
     string s_value;
-	UMINUS_AST(BitNode* bn)
-	{
+    UMINUS_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = UMINUS;//-
+        type = UMINUS;//-
         this->s_value = bn->data;//todo:检查类型是否一致
-	}
+    }
 
 };
 
@@ -378,10 +380,10 @@ class RELOP_AST :public ASTNode
 {
 public:
     string s_value;
-	RELOP_AST(BitNode* bn)
-	{
+    RELOP_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = RELOP;//关系运算符
+        type = RELOP;//关系运算符
         this->s_value = bn->data;//todo:检查是否相符s
     }
 
@@ -392,13 +394,13 @@ class DIGITS_AST :public ASTNode
 public:
     string s_type;
     int s_int;
-	DIGITS_AST(BitNode* bn)
-	{
+    DIGITS_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = DIGITS;
+        type = DIGITS;
         this->s_type = "integer";
         this->s_int = stoi(bn->data);
-	}
+    }
 
 };
 
@@ -408,13 +410,13 @@ class NUM_AST :public ASTNode
 public:
     string s_type;
     double s_real;
-	NUM_AST(BitNode* bn)
-	{
+    NUM_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
         type = NUM;
         this->s_type="real";
         this->s_real = stod(bn->data);
-	}
+    }
 
 };
 
@@ -422,12 +424,12 @@ class VARTYPE_AST :public ASTNode
 {
 public:
     string s_value;
-	VARTYPE_AST(BitNode* bn)
-	{
+    VARTYPE_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = VARTYPE;//todo:integer real boolean char
+        type = VARTYPE;//todo:integer real boolean char
         this->s_value = bn->data;
-	}
+    }
 
 };
 
@@ -435,13 +437,13 @@ class ADDOP_AST :public ASTNode
 {
 public:
     string s_value;
-	ADDOP_AST(BitNode* bn)
-	{
+    ADDOP_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = ADDOP;
+        type = ADDOP;
         this->s_value = bn->data;//todo:检查类型是否一致(OK)
         get_line_col(bn);
-	}
+    }
 
 };
 
@@ -449,12 +451,12 @@ class MULOP_AST :public ASTNode
 {
 public:
     string s_value;
-	MULOP_AST(BitNode* bn)
-	{
+    MULOP_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = MULOP;
+        type = MULOP;
         this->s_value = bn->data;//todo：检查语法分析给出的字符串是否与语义分析定义相同，不相同则在此修改
-	}
+    }
 
 };
 
@@ -462,25 +464,25 @@ class ASSIGNOP_AST :public ASTNode
 {
 public:
     string s_value;
-	ASSIGNOP_AST(BitNode* bn)
-	{
+    ASSIGNOP_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = ASSIGNOP;
+        type = ASSIGNOP;
         this->s_value = bn->data;
-	}
+    }
 
 };
 
 class SEPARATOR_AST :public ASTNode
 {
 public:
-	string value;
-	SEPARATOR_AST(BitNode* bn)
-	{
+    string value;
+    SEPARATOR_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = SEPARATOR;
-		this->value = bn->data;
-	}
+        type = SEPARATOR;
+        this->value = bn->data;
+    }
 
 };
 
@@ -489,13 +491,13 @@ class CHAR_AST :public ASTNode
 public:
     string s_type;//只能是value
     char s_char;
-	CHAR_AST(BitNode* bn)
-	{
+    CHAR_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
         type = CHAR;
         s_type="char";
         this->s_char = bn->data[0];
-	}
+    }
 
 };
 
@@ -504,31 +506,31 @@ class BOOLEAN_AST :public ASTNode
 public:
     bool s_bool;
     string s_type;
-	BOOLEAN_AST(BitNode* bn)
-	{
+    BOOLEAN_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = BOOLEAN;
+        type = BOOLEAN;
         this->s_type = "boolean";
         if(bn->data=="true")
             this->s_bool = true;
         else
             this->s_bool = false;
-	}
+    }
 
 };
 
 class ID_AST :public ASTNode
 {
 public:
-	string identifier;
+    string identifier;
 
-	ID_AST(BitNode* bn)
-	{
+    ID_AST(BitNode* bn)
+    {
         pascal_info = bn->data;
-		type = ID;
-		this->identifier = bn->data;
+        type = ID;
+        this->identifier = bn->data;
         get_line_col(bn);
-	}
+    }
 
 };
 
@@ -538,47 +540,47 @@ public:
 class idlist_AST :public ASTNode
 {
 public:
-	vector<string> list;
+    vector<string> list;
     vector<ID_AST*> s_id_ast_list;
-	idlist_AST(BitNode* bn)
-	{
-		type = idlist;
-	}
+    idlist_AST(BitNode* bn)
+    {
+        type = idlist;
+    }
 
-	void semantic_action()
-	{
-		if (this->children.size() == 3)
-		{
-			idlist_AST* child1 = (idlist_AST*)this->children[0];
-			ID_AST* child3 = (ID_AST*)this->children[2];
+    void semantic_action()
+    {
+        if (this->children.size() == 3)
+        {
+            idlist_AST* child1 = (idlist_AST*)this->children[0];
+            ID_AST* child3 = (ID_AST*)this->children[2];
 
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->semantic_action();
             }
 
-			this->list = child1->list;
+            this->list = child1->list;
             this->s_id_ast_list = child1->s_id_ast_list;
-			this->list.push_back(child3->identifier);
+            this->list.push_back(child3->identifier);
             this->s_id_ast_list.push_back(child3);
-		}
-		else if (this->children.size() == 1)
-		{
-			ID_AST* child1 = (ID_AST*)this->children[0];
+        }
+        else if (this->children.size() == 1)
+        {
+            ID_AST* child1 = (ID_AST*)this->children[0];
 
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->semantic_action();
             }
 
-			this->list.push_back(child1->identifier);
+            this->list.push_back(child1->identifier);
             this->s_id_ast_list.push_back(child1);
-		}
-		else
-			sematic_error();
+        }
+        else
+            sematic_error();
 
         pascal_info_cat();
         semantic_checking();
         code_generation();
-	}
+    }
 
 };
 
@@ -588,22 +590,22 @@ public:
 class program_head_AST :public ASTNode
 {
 public:
-	string program_name;
-	vector<string> parameters;
+    string program_name;
+    vector<string> parameters;
 
-	program_head_AST(BitNode* bn)
-	{
-		type = program_head;
-	}
+    program_head_AST(BitNode* bn)
+    {
+        type = program_head;
+    }
 
 
-	void semantic_action()
-	{
-		if (this->children.size() == 6)
-		{
+    void semantic_action()
+    {
+        if (this->children.size() == 6)
+        {
             //有综合属性的节点
-			ID_AST* ch1 = (ID_AST*)this->children[1];
-			idlist_AST* ch3 = (idlist_AST*)this->children[3];
+            ID_AST* ch1 = (ID_AST*)this->children[1];
+            idlist_AST* ch3 = (idlist_AST*)this->children[3];
 
             //父节点继承属性准备
 
@@ -613,23 +615,23 @@ public:
             }
 
             //设置父节点综合属性
-			this->program_name = ch1->identifier;
-			this->parameters = ch3->list;
-		}
-		else if (this->children.size() == 3)
-		{
-			ID_AST* ch1 = (ID_AST*)this->children[1];
+            this->program_name = ch1->identifier;
+            this->parameters = ch3->list;
+        }
+        else if (this->children.size() == 3)
+        {
+            ID_AST* ch1 = (ID_AST*)this->children[1];
 
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->semantic_action();
             }
 
-			this->program_name = ch1->identifier;
-		}
-		else
-		{
-			cout << "error" << endl;
-		}
+            this->program_name = ch1->identifier;
+        }
+        else
+        {
+            cout << "error" << endl;
+        }
 
         //设置符号表父表名称
         symbol_table.main_function = this->program_name;
@@ -665,7 +667,7 @@ public:
 
         pascal_info_cat();
         this->code_generation();
-	}
+    }
 
 
 };
@@ -728,6 +730,7 @@ public:
     char s_char;
     double s_real;
     bool s_bool;
+    llvm::Value *s_value = nullptr;
     llvm::Value *code_generation() override;
     const_value_AST(BitNode* bn)
     {
@@ -811,7 +814,7 @@ public:
         sematic_error();
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        s_value = code_generation();
     }
 
     void semantic_checking() override
@@ -862,6 +865,7 @@ public:
                 SymbolTableItem* item = new SymbolTableItem(s_pair_list[i].first);
                 MyBasicType* value = new MyBasicType();
                 item->value.basic_val = value;
+                item->value.basic_val->llvmvalue = s_pair_list[i].second->s_value;
 
                 if (s_pair_list[i].second->s_type=="integer")
                 {
@@ -1082,6 +1086,7 @@ class var_declarations_AST :public ASTNode
 public:
     bool l_isglobal;//表示是主函数定义的全局变量还是子函数定义的局部变量
     vector<pair<idlist_AST*,type_AST*>> s_id_type_list;
+    llvm::Value* code_generation() override;
     var_declarations_AST(BitNode* bn)
     {
         type = var_declarations;
@@ -1118,7 +1123,6 @@ public:
                         idtype = var_bool;
                     else//char
                         idtype = var_char;
-
                     if (s_id_type_list[i].second->l_isarray)
                     {
                         int dimension = s_id_type_list[i].second->s_index_list.size();
@@ -1138,6 +1142,7 @@ public:
                                                                        "Array range error",
                                                                        "identifier '"+id->identifier+"' array[a..b],a>b");
                                 semantic_error_list.push_back(err);
+                                return;
                             }
                         }
                         MyArrayType* value = new MyArrayType(begin,end,idtype);
@@ -1159,17 +1164,18 @@ public:
                                                                "Duplicate definition",
                                                                "identifier '"+id->identifier+"' used more than once");
                         semantic_error_list.push_back(err);
+                        return;
                     }
                 }
 
             }
+            this->code_generation();
         } else if (this->children.size()==0)
             ;//do nothing
         else
             sematic_error();
         pascal_info_cat();
-        semantic_checking();
-        code_generation();
+        //semantic_checking();
     }
 };
 
@@ -1177,6 +1183,7 @@ class program_body_AST :public ASTNode
 {
 public:
     llvm::Value *code_generation() override;
+    llvm::IRBuilderBase::InsertPoint IP ;
     program_body_AST(BitNode* bn) {
         type = program_body;
     }
@@ -1190,6 +1197,8 @@ public:
             ch1->l_isglobal = true;
 
             for (int i = 0; i < this->children.size(); ++i) {
+                if(this->children[i]->type==121)
+                    context.builder->restoreIP(IP);
                 this->children[i]->semantic_action();
             }
         }
@@ -1199,18 +1208,19 @@ public:
         get_line_col(this->children[3]);
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        //code_generation();
     }
 };
 
 class programstruct_AST :public ASTNode
 {
 public:
+    llvm::IRBuilderBase::InsertPoint IP ;
     programstruct_AST(BitNode* bn)
     {
         type = programstruct;
     }
-    //virtual llvm::Value *code_generation() override;//todo:拆分成多步生成
+    //virtual llvm::Value *code_generation() override;
 
     void semantic_action()
     {
@@ -1219,14 +1229,16 @@ public:
             program_head_AST* ch0 = (program_head_AST*)this->children[0];
             program_body_AST* ch1 = (program_body_AST*)this->children[1];
             SEPARATOR_AST* ch2 = (SEPARATOR_AST*)this->children[2];
-
+            code_generation();
             for (int i = 0; i < this->children.size(); ++i) {
+                if(i==1)
+                    ch1->IP = IP;
                 this->children[i]->semantic_action();
             }
             pascal_info_cat();
             semantic_checking();
-            code_generation();
         }
+        context.builder->CreateRetVoid();
     }
     llvm::Value *code_generation() override;
 };
@@ -1393,7 +1405,7 @@ class formal_parameter_AST :public ASTNode
 {
 public:
     vector<parameter_AST*> s_list;
-    llvm::Value *code_generation() override;
+    //llvm::Value *code_generation() override;
     formal_parameter_AST(BitNode* bn)
     {
         type = formal_parameter;
@@ -1430,8 +1442,11 @@ public:
     string s_ret_type;//仅在是函数时有返回值类型
     string program_name;
     vector<parameter_AST*> s_list;
-    llvm::Function *code_generation();
-    
+    llvm::Function* s_llvmfunction;//5.1
+    SymbolTableItem* s_item;//5.1
+
+    llvm::Function* function_generation();
+
     subprogram_head_AST(BitNode* bn)
     {
         type = subprogram_head;
@@ -1473,6 +1488,7 @@ public:
         MyFunctionType* functionType = new MyFunctionType(&symbol_table);
         value.function_val = functionType;
         SymbolTableItem* item = new SymbolTableItem(this->program_name,s_isfunction?symbol_type::function:procedure,value);
+        this->s_item = item;
         functionType->isfunction = this->s_isfunction;
         if (s_isfunction)
         {
@@ -1537,7 +1553,7 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        functionType->llvmfunction = function_generation();
     }
 
 };
@@ -1545,7 +1561,9 @@ public:
 class subprogram_body_AST :public ASTNode
 {
 public:
-    bool isfunction;
+    bool isfunction;//标记todo
+    SymbolTableItem* l_item;//5.1
+
     llvm::Value *code_generation() override;
     llvm::Value*ret_generation(llvm::Value* ret);
     subprogram_body_AST(BitNode* bn)
@@ -1562,10 +1580,14 @@ public:
             this->children[i]->semantic_action();
         }
         get_line_col(this->children[2]);
-
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        //l_item空指针时
+        isfunction = l_item->type == symbol_type::function;
+        cout<<"isfunction:"<<isfunction<<endl;
+        ret_generation(this->l_item->value.function_val->ret_llvmval);//5.1
+        //code_generation();//todo 改成ret_generation(Value* ret)插入符号表
+       
     }
 
 };
@@ -1588,6 +1610,9 @@ public:
         subprogram_body_AST* ch2 = (subprogram_body_AST*) this->children[2];
 
         for (int i = 0; i < this->children.size(); ++i) {
+            cout<<i<<endl;
+            if(i==2)
+                ch2->l_item = ch0->s_item;
             this->children[i]->semantic_action();
         }
 
@@ -1596,6 +1621,7 @@ public:
 
         this->s_sub_head = ch0;
         this->s_sub_body = ch2;
+        this->s_sub_body->l_item = this->s_sub_head->s_item;
 
         pascal_info_cat();
         semantic_checking();
@@ -1671,7 +1697,7 @@ public:
     //在任意情况下有意义的值
     int s_state;//1-4表示某一种情况
     string s_type;//表示4种基本类型，integer real boolean char
-    llvm::Value* s_value;//右值，在表达式运算中使用
+    llvm::Value* s_value = nullptr;//右值，在表达式运算中使用
     bool isleftvalue = false;//是左值则赋值为true,由语义分析赋值
 
 
@@ -1688,7 +1714,7 @@ public:
     bool s_isarray;//是否是数组
     vector<string> s_index_type_list;
     vector<llvm::Value*> s_index_list;//是数组时才有意义，数组index列表
-    llvm::Value* llvmleftValue = NULL;//在是变量或数组时保存左值指针，在传引用时使用//todo:代码生成时为这个赋左值
+    llvm::Value* llvmleftValue = NULL;//在是变量或数组时保存左值指针，在传引用时使用
     //标识符类型或数组元素类型是s_type
 
     //3.函数调用语句
@@ -1755,10 +1781,10 @@ public:
             this->s_op = ch1->s_value;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
+            this->s_value = code_generation();
         }
         else if(this->children.size()==1)
         {
-            this->s_state = 2;
             factor_AST* ch0 = (factor_AST*) this->children[0];
             ch0->semantic_action();
             this->s_type = ch0->s_type;
@@ -1770,7 +1796,7 @@ public:
 
         pascal_info_cat();
         semantic_checking();//todo:设置s_type
-        this->s_value = code_generation();
+        cout<<this->s_value<<endl;
     }
 };
 
@@ -1823,6 +1849,7 @@ public:
             this->operand1_type = ch2->s_type;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
+            this->s_value = code_generation();
 
         }
         else if(this->children.size()==1)
@@ -1839,7 +1866,7 @@ public:
 
         pascal_info_cat();
         semantic_checking();//todo:设置s_type
-        this->s_value = code_generation();
+        cout<<this->s_value<<endl;
     }
 
 };
@@ -1885,6 +1912,7 @@ public:
             this->s_op = ch1->s_value;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
+            this->s_value = code_generation();
         }
         else if(this->children.size()==1)
         {
@@ -1900,7 +1928,7 @@ public:
 
         pascal_info_cat();
         semantic_checking();//todo:设置s_type
-        this->s_value = code_generation();
+        cout<<this->s_value<<endl;
     }
 
 };
@@ -1927,7 +1955,6 @@ public:
             for (int i = 0; i < this->children.size(); ++i) {
                 this->children[i]->semantic_action();
             }
-
             this->s_type_list = ch0->s_type_list;
             this->s_type_list.push_back(ch2->s_type);
             this->s_value_list = ch0->s_value_list;
@@ -1946,7 +1973,7 @@ public:
             this->s_expression_list.push_back(ch0);
         }else
             sematic_error();
-
+        cout<<3<<endl;
         pascal_info_cat();
         semantic_checking();
         code_generation();
@@ -2001,8 +2028,9 @@ public:
     bool s_isarray;//是否是数组
     vector<string> s_type_list;//数组index列表参数类型，只可能是int，语义对其类型检查
     vector<llvm::Value*> s_value_list;//数组index列表参数的值
-    llvm::Value* llvmleftValue = nullptr;//在是变量或数组时保存左值指针，在传引用时使用//todo:代码生成时为这个赋左值
+    llvm::Value* llvmleftValue = nullptr;//在是变量或数组时保存左值指针，在传引用时使用
     llvm::Value *code_generation() override;
+    llvm::Value *s_value = nullptr;
     variable_AST(BitNode* bn)
     {
         type = variable;
@@ -2018,16 +2046,16 @@ public:
         for (int i = 0; i < this->children.size(); ++i) {
             this->children[i]->semantic_action();
         }
-
         this->s_identifier = ch0->identifier;
         this->s_isarray = ch1->s_isarray;
         this->s_type_list = ch1->s_type_list;
         this->s_value_list = ch1->s_value_list;
-
         //从符号表获得类型
         this->item = symbol_table.get(this->s_identifier);
-        symbol_type t;
-        if(this->s_isarray = true)
+        if(this->item==nullptr)
+            cout<<"error"<<endl;
+        symbol_type t = symbol_type::unknown;
+        if(this->s_isarray == true)
         {
             if (this->item->type!=array_type)
                 sematic_error();//todo
@@ -2039,7 +2067,6 @@ public:
         {
             t = this->item->type;
         }
-
         switch (t) {
             case var_int:
                 this->s_type = "integer";
@@ -2078,7 +2105,7 @@ public:
         pascal_info_cat();
         get_line_col(ch0);
         semantic_checking();
-        code_generation();
+        s_value=code_generation();
     }
 
 };
@@ -2096,8 +2123,10 @@ public:
 
     void semantic_action() override
     {
+        
         if (this->children.size()==3)
         {
+            cout<<this->children.size()<<endl;
             variable_list_AST* ch0 = (variable_list_AST*) this->children[0];
             variable_AST* ch2 = (variable_AST*) this->children[2];
             for (int i = 0; i < this->children.size(); ++i) {
@@ -2238,9 +2267,10 @@ public:
     int s_state;
     llvm::Function* function;//当前所在的函数
     llvm::IRBuilderBase::InsertPoint IP;//记录当前的插入点
-    llvm::BasicBlock* block1;
-    llvm::BasicBlock* block2;
-    llvm::BasicBlock* block3;
+    llvm::BasicBlock* block1 = nullptr;
+    llvm::BasicBlock* block2 = nullptr;
+    llvm::BasicBlock* block3 = nullptr;
+    llvm::BasicBlock* block4 = nullptr;
 
     //1.赋值语句
     variable_AST* s_variable;
@@ -2284,6 +2314,7 @@ public:
     //空语句时，行号和列号不确定
 
     //9.while 生成式WHILE expression DO statement
+    llvm::Value* while_temp_value;
 
     llvm::Value* code_generation() override;
     llvm::Value* if_code_generation_1();
@@ -2409,7 +2440,6 @@ public:
         }
         else
             sematic_error();
-
         pascal_info_cat();
         get_line_col(this->children[0]);
         semantic_checking();
@@ -2435,6 +2465,7 @@ void statement_AST::semantic_action()
         this->s_expression_type = ch2->s_type;
         this->s_expression_value = ch2->s_value;
         get_line_col(ch0);
+        assign_code_generation();
     }
     else if(this->children[0]->type==procedure_call)
     {
@@ -2453,6 +2484,27 @@ void statement_AST::semantic_action()
         compound_statement_AST* ch0 = (compound_statement_AST*) this->children[0];
         ch0->semantic_action();
         this->s_statement_list = ch0->s_statement_list;
+
+        //
+        cout<<"this->s_statement_list.size()"<<this->s_statement_list.size()<<endl;
+        for(int i = this->s_statement_list.size()-1; i >=0 ; i--)
+        {
+            if(this->s_statement_list[i]->children.size()==0)
+            {
+                continue;
+            }
+            if(this->s_statement_list[i]->children[0]->type==IF||
+            this->s_statement_list[i]->children[0]->type==WHILE||
+            this->s_statement_list[i]->children[0]->type==FOR)
+            {
+                cout<<"111111111"<<endl;
+                this->block4 = this->s_statement_list[i]->block3;
+                if(this->block4==nullptr)
+                    cout<<"block4 is nullptr"<<endl;
+                break;
+            }
+        }
+
         get_line_col(ch0);
     }
     else if(this->children[0]->type==IF)
@@ -2461,14 +2513,48 @@ void statement_AST::semantic_action()
         expression_AST* ch1 = (expression_AST*) this->children[1];
         statement_AST* ch3 = (statement_AST*) this->children[3];
         else_part_AST* ch4 = (else_part_AST*) this->children[4];
-        for (int i = 0; i < this->children.size(); ++i) {
-            this->children[i]->semantic_action();
-        }
+
+        this->children[0]->semantic_action();
+        this->children[1]->semantic_action();
         this->s_expression_type = ch1->s_type;
         this->s_expression_value = ch1->s_value;
+        this->children[2]->semantic_action();
+        this->if_code_generation_1();
+        this->children[3]->semantic_action();
         this->s_if_statement = ch3;
+        
+        if(ch3->children[0]->type==compound_statement)
+        {
+            this->block4 = ch3->block4;
+            cout<<"ch7 11111"<<endl;
+            if(this->block4==nullptr)
+                cout<<"ch3 11111"<<endl;
+            
+        }
+        else
+        {
+            this->block4 = ch3->block3;
+        }
+
+        this->if_code_generation_2();
+        this->children[4]->semantic_action();
         this->s_has_else = ch4->s_has_else;
         this->s_else_statement = ch4->s_statement;
+        if(s_else_statement->children[0]->type==compound_statement)
+        {
+            this->block4 = s_else_statement->block4;
+            cout<<"s_else_statement 11111"<<endl;
+            if(this->block4==nullptr)
+                cout<<"s_else_statement 11111"<<endl;
+            
+        }
+        else
+        {
+            this->block4 = s_else_statement->block3;
+        }
+        this->if_code_generation_3();
+
+
         get_line_col(this->children[0]);
     }
     else if(this->children[0]->type==FOR)
@@ -2478,18 +2564,59 @@ void statement_AST::semantic_action()
         expression_AST* ch3 = (expression_AST*) this->children[3];
         expression_AST* ch5 = (expression_AST*) this->children[5];
         statement_AST* ch7 = (statement_AST*) this->children[7];
-        for (int i = 0; i < this->children.size(); ++i) {
-            this->children[i]->semantic_action();
-        }
+
+        this->children[0]->semantic_action();
+        this->children[1]->semantic_action();
+
         this->s_for_identifier = ch1->identifier;
         this->s_for_item = symbol_table.get(s_for_identifier);
-        this->s_for_type = "integer";
+
+        this->children[2]->semantic_action();
+        this->children[3]->semantic_action();
 
         this->s_for_expression_type1 = ch3->s_type;
         this->s_for_expression_value1 = ch3->s_value;
+
+        this->children[4]->semantic_action();
+        this->children[5]->semantic_action();
+
         this->s_for_expression_type2 = ch5->s_type;
         this->s_for_expression_value2 = ch5->s_value;
-        this->s_for_statement = ch7;
+
+        this->children[6]->semantic_action();
+        this->for_code_generation_1();
+        this->children[7]->semantic_action();
+        this->s_for_statement = ch7 ;
+
+        if(ch7->children[0]->type==compound_statement)
+        {
+            this->block4 = ch7->block4;
+            cout<<"ch7 11111"<<endl;
+            if(this->block4==nullptr)
+                cout<<"ch3 11111"<<endl;
+            
+        }
+        else
+        {
+            this->block4 = ch7->block3;
+        }
+        /*
+        cout<<ch7->children[0]->type<<endl;
+        if(ch7->children[0]->type==IF||
+        ch7->children[0]->type==WHILE||
+        ch7->children[0]->type==FOR)
+        {
+            this->block4 = ch7->block3;
+            cout<<"ch7 22222"<<endl;
+        }
+        */
+        this->for_code_generation_2();
+
+
+        this->s_for_item = symbol_table.get(s_for_identifier);
+        this->s_for_type = "integer";
+
+
         get_line_col(this->children[0]);
     }
     else if(this->children[0]->type == READ)
@@ -2501,6 +2628,7 @@ void statement_AST::semantic_action()
         }
         this->s_variable_list = ch2->s_variable_list;
         get_line_col(this->children[0]);
+        read();
     }
     else if(this->children[0]->type == WRITE)
     {
@@ -2512,14 +2640,46 @@ void statement_AST::semantic_action()
         this->s_type_list = ch2->s_type_list;
         this->s_value_list = ch2->s_value_list;
         get_line_col(this->children[0]);
+        write();
     }
     else if(this->children.size()==0)
     {
         this->s_state = 8;
     }
+    else if(this->children[0]->type==WHILE)
+    {
+        this->s_state = 9;
+        expression_AST* ch1 = (expression_AST*) this->children[1];
+        statement_AST* ch3 = (statement_AST*) this->children[3];
+
+        this->children[0]->semantic_action();
+        this->children[1]->semantic_action();
+        this->s_expression_type = ch1->s_type;
+        this->s_expression_value = ch1->s_value;
+        this->children[2]->semantic_action();
+        this->while_code_generation_1();
+        this->children[3]->semantic_action();
+        if(ch3->children[0]->type==compound_statement)
+        {
+            this->block4 = ch3->block4;
+            cout<<"ch3 11111"<<endl;
+            if(this->block4==nullptr)
+                cout<<"ch3 11111"<<endl;
+            
+        }
+        else
+        {
+            this->block4 = ch3->block3;
+        }
+        this->s_for_statement = ch3;
+        this->while_code_generation_2();
+
+
+
+        get_line_col(this->children[0]);
+    }
     else
         sematic_error();
-
     pascal_info_cat();
     semantic_checking();
     code_generation();
@@ -2528,71 +2688,88 @@ void statement_AST::semantic_action()
 
 void factor_AST::semantic_action() {
 
-        if(this->children[0]->type==NUM)
-        {
-            this->s_state = 1;
-            NUM_AST* ch0 = (NUM_AST*) this->children[0];
-            ch0->semantic_action();
-            this->s_type = ch0->s_type;
-            this->s_real = ch0->s_real;
+    cout<<this->s_value<<endl;
+    if(this->children[0]->type==NUM)
+    {
+        this->s_state = 1;
+        NUM_AST* ch0 = (NUM_AST*) this->children[0];
+        ch0->semantic_action();
+        this->s_type = ch0->s_type;
+        this->s_real = ch0->s_real;
+    }
+    else if(this->children[0]->type==DIGITS)
+    {
+        this->s_state = 1;
+        DIGITS_AST* ch0 = (DIGITS_AST*) this->children[0];
+        ch0->semantic_action();
+        this->s_type = ch0->s_type;
+        this->s_int = ch0->s_int;
+    }
+    else if(this->children[0]->type==BOOLEAN)
+    {
+        this->s_state = 1;
+        BOOLEAN_AST* ch0 = (BOOLEAN_AST*) this->children[0];
+        ch0->semantic_action();
+        this->s_type = ch0->s_type;
+        this->s_bool = ch0->s_bool;
+    }
+    else if(this->children[0]->type==variable)
+    {
+        this->s_state = 2;
+        variable_AST* ch0 = (variable_AST*) this->children[0];
+        ch0->semantic_action();
+        this->s_type = ch0->s_type;
+        this->s_isconst = ch0->s_isconst;
+        this->s_isarray = ch0->s_isarray;
+        this->s_identifier = ch0->s_identifier;
+        this->s_var_item = ch0->item;
+        this->s_index_type_list = ch0->s_type_list;
+        this->s_index_list = ch0->s_value_list;
+        this->s_value = ch0->s_value;
+        this->isleftvalue = true;
+        this->llvmleftValue = ch0->llvmleftValue;
+        if (this->s_isconst== false)
+            this->isleftvalue = true;
+    }
+    else if(this->children[0]->type==ID)
+    {
+        this->s_state = 3;
+        ID_AST* ch0 = (ID_AST*)this->children[0];
+        expression_list_AST* ch2 = (expression_list_AST*) this->children[2];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->semantic_action();
         }
-        else if(this->children[0]->type==DIGITS)
-        {
-            this->s_state = 1;
-            DIGITS_AST* ch0 = (DIGITS_AST*) this->children[0];
-            ch0->semantic_action();
-            this->s_type = ch0->s_type;
-            this->s_int = ch0->s_int;
-        }
-        else if(this->children[0]->type==BOOLEAN)
-        {
-            this->s_state = 1;
-            BOOLEAN_AST* ch0 = (BOOLEAN_AST*) this->children[0];
-            ch0->semantic_action();
-            this->s_type = ch0->s_type;
-            this->s_bool = ch0->s_bool;
-        }
-        else if(this->children[0]->type==variable)
-        {
-            this->s_state = 2;
-            variable_AST* ch0 = (variable_AST*) this->children[0];
-            ch0->semantic_action();
-            this->s_type = ch0->s_type;
-            this->s_isconst = ch0->s_isconst;
-            this->s_isarray = ch0->s_isarray;
-            this->s_identifier = ch0->s_identifier;
-            this->s_var_item = ch0->item;
-            this->s_index_type_list = ch0->s_type_list;
-            this->s_index_list = ch0->s_value_list;
-            if (this->s_isconst== false)
-                this->isleftvalue = true;
-        }
-        else if(this->children[0]->type==ID)
-        {
-            this->s_state = 3;
-            ID_AST* ch0 = (ID_AST*)this->children[0];
-            expression_list_AST* ch2 = (expression_list_AST*) this->children[2];
-            for (int i = 0; i < this->children.size(); ++i) {
-                this->children[i]->semantic_action();
-            }
-            this->s_func_identifier = ch0->identifier;
-            this->s_parameter_list = ch2->s_value_list;
+        this->s_func_identifier = ch0->identifier;
+        this->s_parameter_list = ch2->s_value_list;
 
 
-            this->s_func_item = symbol_table.get(this->s_func_identifier);
-            this->s_parameter_type_list = ch2->s_type_list;
+        this->s_func_item = symbol_table.get(this->s_func_identifier);
+        this->s_parameter_type_list = ch2->s_type_list;
 
-            //语义检查，未定义的id
-            if(s_func_item==NULL)
-            {
-                ID_AST* id = ch0;
-                SemanticError* err = new SemanticError(id->line,id->col,
-                                                       "undefined identifier",
-                                                       "identifier '"+id->identifier+"' is undefined");
-                semantic_error_list.push_back(err);
-                return;
-            }
-            if(s_func_item->type!=symbol_type::function)
+        //语义检查，未定义的id
+        if(s_func_item==NULL)
+        {
+            ID_AST* id = ch0;
+            SemanticError* err = new SemanticError(id->line,id->col,
+                                                   "undefined identifier",
+                                                   "identifier '"+id->identifier+"' is undefined");
+            semantic_error_list.push_back(err);
+            return;
+        }
+        if(s_func_item->type!=symbol_type::function)
+        {
+            ID_AST* id = ch0;
+            SemanticError* err = new SemanticError(id->line,id->col,
+                                                   "identifier type Error",
+                                                   "in function '"+id->identifier+"',identifier is not a function");
+            semantic_error_list.push_back(err);
+            return;
+        }
+
+        if(s_func_item!=NULL)//存在函数名才进行函数调用的语义检查
+        {
+            MyFunctionType* functionType = s_func_item->value.function_val;
+            if(!functionType->isfunction)//如果不是函数
             {
                 ID_AST* id = ch0;
                 SemanticError* err = new SemanticError(id->line,id->col,
@@ -2601,116 +2778,105 @@ void factor_AST::semantic_action() {
                 semantic_error_list.push_back(err);
                 return;
             }
+            this->s_type = functionType->ret_type;
 
-            if(s_func_item!=NULL)//存在函数名才进行函数调用的语义检查
+            if(functionType->arg_name_list.size()!=ch2->s_value_list.size())//检查参数数量是否匹配
             {
-                MyFunctionType* functionType = s_func_item->value.function_val;
-                if(!functionType->isfunction)//如果不是函数
+                ID_AST* id = ch0;
+                SemanticError* err = new SemanticError(id->line,id->col,
+                                                       "number of parameter Error",
+                                                       "in procedure '"+id->identifier+"',The number of parameters does not match the definition");
+                semantic_error_list.push_back(err);
+            }
+            else
+            {
+                for (int i = 0; i < functionType->arg_name_list.size(); ++i)
                 {
-                    ID_AST* id = ch0;
-                    SemanticError* err = new SemanticError(id->line,id->col,
-                                                           "identifier type Error",
-                                                           "in function '"+id->identifier+"',identifier is not a function");
-                    semantic_error_list.push_back(err);
-                    return;
-                }
-                this->s_type = functionType->ret_type;
-
-                if(functionType->arg_name_list.size()!=ch2->s_value_list.size())//检查参数数量是否匹配
-                {
-                    ID_AST* id = ch0;
-                    SemanticError* err = new SemanticError(id->line,id->col,
-                                                           "number of parameter Error",
-                                                           "in procedure '"+id->identifier+"',The number of parameters does not match the definition");
-                    semantic_error_list.push_back(err);
-                }
-                else
-                {
-                    for (int i = 0; i < functionType->arg_name_list.size(); ++i)
+                    if(functionType->arg_type_list[i]!=s_parameter_type_list[i])//参数类型错误
                     {
-                        if(functionType->arg_type_list[i]!=s_parameter_type_list[i])//参数类型错误
+                        ID_AST* id = ch0;
+                        SemanticError* err = new SemanticError(id->line,id->col,
+                                                               "parameter type Error",
+                                                               "in function '"+id->identifier+"',parameter "+functionType->arg_name_list[i]+"type must be"+functionType->arg_type_list[i]);
+                        semantic_error_list.push_back(err);
+                    }
+                    if(functionType->arg_isvar_list[i])//检查引用参数位能否是引用
+                    {
+                        if(!ch2->s_expression_list[i]->isleftvalue)//但不是可引用类型
                         {
                             ID_AST* id = ch0;
                             SemanticError* err = new SemanticError(id->line,id->col,
                                                                    "parameter type Error",
-                                                                   "in function '"+id->identifier+"',parameter "+functionType->arg_name_list[i]+"type must be"+functionType->arg_type_list[i]);
+                                                                   "in function '"+id->identifier+"',parameter "+functionType->arg_name_list[i]+"type must be referencable");
                             semantic_error_list.push_back(err);
                         }
-                        if(functionType->arg_isvar_list[i])//检查引用参数位能否是引用
-                        {
-                            if(!ch2->s_expression_list[i]->isleftvalue)//但不是可引用类型
-                            {
-                                ID_AST* id = ch0;
-                                SemanticError* err = new SemanticError(id->line,id->col,
-                                                                       "parameter type Error",
-                                                                       "in function '"+id->identifier+"',parameter "+functionType->arg_name_list[i]+"type must be referencable");
-                                semantic_error_list.push_back(err);
-                            }
-                            this->s_parameter_list.push_back(ch2->s_expression_list[i]->llvmleftValue);
-                        }
-                        else
-                        {
-                            this->s_parameter_list.push_back(ch2->s_value_list[i]);
-                        }
+                        if(ch2->s_expression_list[i]->llvmleftValue==nullptr)
+                            cout<<"error"<<endl;
+                        this->s_parameter_list.push_back(ch2->s_expression_list[i]->llvmleftValue);
+                    }
+                    else
+                    {
+                        this->s_parameter_list.push_back(ch2->s_value_list[i]);
                     }
                 }
-
             }
-
 
         }
-        else if(this->children[0]->type==SEPARATOR)
-        {
-            this->s_state = 4;
-            expression_AST* ch1 = (expression_AST*) this->children[1];
-            for (int i = 0; i < this->children.size(); ++i) {
-                this->children[i]->semantic_action();
-            }
-            this->s_op = "()";
-            this->s_operand0_type = ch1->s_type;
-            this->s_operand0 = ch1->s_value;
-            this->s_type = ch1->s_type;
-        }
-        else if(this->children[0]->type==NOT)
-        {
-            this->s_state = 4;
-            factor_AST* ch1 = (factor_AST*) this->children[1];
-            for (int i = 0; i < this->children.size(); ++i) {
-                this->children[i]->semantic_action();
-            }
-            this->s_op = "!";
-            this->s_operand0_type = ch1->s_type;
-            this->s_operand0 = ch1->s_value;
-            this->s_type = ch1->s_type;
-        }
-        else if(this->children[0]->type==UMINUS)
-        {
-            this->s_state = 4;
-            factor_AST* ch1 = (factor_AST*) this->children[1];
-            for (int i = 0; i < this->children.size(); ++i) {
-                this->children[i]->semantic_action();
-            }
-            this->s_op = "-";
-            this->s_operand0_type = ch1->s_type;
-            this->s_operand0 = ch1->s_value;
-            this->s_type = ch1->s_type;
-        } else
-            sematic_error();
+        this->s_value = function_call_generation();
 
-        pascal_info_cat();
-    semantic_checking();//todo:设置s_type
-        this->s_value = code_generation();
+    }
+    else if(this->children[0]->type==SEPARATOR)
+    {
+        this->s_state = 4;
+        expression_AST* ch1 = (expression_AST*) this->children[1];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->semantic_action();
+        }
+        this->s_op = "()";
+        this->s_operand0_type = ch1->s_type;
+        this->s_operand0 = ch1->s_value;
+        this->s_type = ch1->s_type;
+    }
+    else if(this->children[0]->type==NOT)
+    {
+        this->s_state = 4;
+        factor_AST* ch1 = (factor_AST*) this->children[1];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->semantic_action();
+        }
+        this->s_op = "!";
+        this->s_operand0_type = ch1->s_type;
+        this->s_operand0 = ch1->s_value;
+        this->s_type = ch1->s_type;
+    }
+    else if(this->children[0]->type==UMINUS)
+    {
+        this->s_state = 4;
+        factor_AST* ch1 = (factor_AST*) this->children[1];
+        for (int i = 0; i < this->children.size(); ++i) {
+            this->children[i]->semantic_action();
+        }
+        this->s_op = "-";
+        this->s_operand0_type = ch1->s_type;
+        this->s_operand0 = ch1->s_value;
+        this->s_type = ch1->s_type;
+    } else
+        sematic_error();
+
+    pascal_info_cat();
+    //semantic_checking();
+    this->s_value = code_generation();
 }
 
 class SematicAnalysis
 {
 public:
-	SematicAnalysis() {};
+    SematicAnalysis() {};
 
 
-	ASTNode* create_ASTNode(BitNode* bn)
-	{
-		ASTNode* nodeptr = NULL;
+    ASTNode* create_ASTNode(BitNode* bn)
+    {
+        ASTNode* nodeptr = NULL;
 
         if (bn->type == "PROGRAM")
             nodeptr = new PROGRAM_AST(bn);
@@ -2775,7 +2941,7 @@ public:
         else if (bn->type == "BOOLEAN")
             nodeptr = new BOOLEAN_AST(bn);
         else if (bn->type == "WHILE")
-            nodeptr = new WRITE_AST(bn);
+            nodeptr = new WHILE_AST(bn);
         else if (bn->type == "programstruct")
             nodeptr = new programstruct_AST(bn);
         else if (bn->type == "program_head")
@@ -2845,30 +3011,31 @@ public:
         else if (bn->type == "expression")
             nodeptr = new expression_AST(bn);
 
-		return nodeptr;
+        return nodeptr;
 
-	}
+    }
 
-	ASTNode* ADT2AST(BitNode* bn)
-	{
-		//父节点动作
-		ASTNode* cur_node = create_ASTNode(bn);
-		int n = bn->children.size();
-		//子节点遍历
-		for (size_t i = 0; i < n; i++)
-		{
-			ASTNode* child = ADT2AST(bn->children[i]);
-			cur_node->children.push_back(child);
-			child->father = cur_node;
-		}
-		return cur_node;
-	}
+    ASTNode* ADT2AST(BitNode* bn)
+    {
+        //父节点动作
+        ASTNode* cur_node = create_ASTNode(bn);
+        int n = bn->children.size();
+        //子节点遍历
+        for (size_t i = 0; i < n; i++)
+        {
+            ASTNode* child = ADT2AST(bn->children[i]);
+            cur_node->children.push_back(child);
+            child->father = cur_node;
+        }
+        return cur_node;
+    }
 
 
 private:
 
 
 };
+/**
 class Type_IR{
 public:
     llvm::LLVMContext llvmContext;
@@ -2898,8 +3065,8 @@ public:
     //判断是否是基本类型
     bool isBasicType(const string& type);
     bool isBasicType(const int& type);
-    
-};
+
+};*/
 /**
  * 初始化库函数
  */
@@ -2976,9 +3143,11 @@ llvm::Value *programstruct_AST::code_generation()
     llvm::FunctionType *type = llvm::FunctionType::get(context.type_ir.type_void, false);
     llvm::Function *program = llvm::Function::Create(type, llvm::Function::ExternalLinkage, "main", context.module.get());
     // 基本块生成
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "entry", program, 0);
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(context.llvmContext, "main_entry", program, 0);
     // 主程序块生成
     context.builder = make_unique<llvm::IRBuilder<>>(block);
+    context.builder->SetInsertPoint(block);
+    IP = context.builder->saveIP();
     return nullptr;
 }
 // 常量元素：
@@ -2997,6 +3166,7 @@ llvm::Value *const_value_AST::code_generation()
     }
     else if (this->s_type == "real")
     {
+        cout<<"real"<<endl;
         double value = this->s_real < 1e-6 ? -this->s_real : this->s_real;
         ret = llvm::ConstantFP::get(context.type_ir.type_real, value);
     }
@@ -3019,41 +3189,52 @@ llvm::Value *const_value_AST::code_generation()
 // 元素 常量 变量 类型
 
 /**
- * 变量声明IR生成 该模块已完成 
+ * 变量声明IR生成 该模块已完成
  * bug可能出现在 数组定义
  * @return Value* 局部变量地址
  */
-/**
-llvm::Value *variable_AST::code_generation()
+llvm::Value *var_declarations_AST::code_generation()
 {
-    cout << "variable_AST::code_generation" << endl;
-    this->item = symbolTable.get(this->s_identifier);
-    if (this->item == nullptr)
-        return LogErrorV("unknown variable name" + this->s_identifier);
-    llvm::Value *ret = nullptr;                                   // 局部变量地址
-    llvm::Type *type = nullptr; // 局部变量类型
-    if (this->s_isarray)
+    cout << "var_declarations_AST::code_generation" << endl;
+    for(auto& item : this->s_id_type_list)
     {
-        // 获取数组对应的llvm type
-        type = context.type_ir.getArrayLLVMType(this->item);
-        // 数组元素直接用数据定义，获取数据类型
-        if (type == nullptr)//数组类型未定义
-            type = context.type_ir.createArrayType(this->item);//新建数组类型
-        // 栈上创建局部变量
-        if (type)
-            ret = context.builder->CreateAlloca(type, nullptr);
+        llvm::Type *type =nullptr;
+        llvm::Value *ret =nullptr;
+        SymbolTableItem* symbol_table_item = nullptr;
+        if (item.second->l_isarray)
+        {
+            for(auto& id:item.first->list)
+            {
+                symbol_table_item = symbol_table.get(id);
+                type = context.type_ir.getArrayLLVMType(symbol_table_item);
+                if (type == nullptr)//数组类型未定义
+                {
+                    type = context.type_ir.createArrayType(symbol_table_item);//新建数组类型
+                }
+                if(type)
+                {
+                    ret = context.builder->CreateAlloca(type, nullptr);
+                }
+                symbol_table_item->value.array_val->llvmvalue = ret;
+            }
+        }
+        else{
+            for(auto& id:item.first->list)
+            {
+                symbol_table_item = symbol_table.get(id);
+                type = context.type_ir.getLLVMType(item.second->s_type);//获取基本变量类型
+                context.module->getOrInsertGlobal(id, type);
+                llvm::GlobalVariable* v = context.module->getNamedGlobal(id);
+                v->setAlignment(llvm::MaybeAlign(4));
+                ret = context.builder->CreateLoad(v);
+                //llvm::GlobalVariable *v = llvm::cast<llvm::GlobalVariable>(context.module->getOrInsertGlobal(id,type));
+                //ret = context.builder->CreateAlloca(type, nullptr);
+                symbol_table_item->value.basic_val->llvmvalue = v;
+            }
+        }
     }
-    else
-    {
-        type = context.type_ir.getLLVMType(this->s_type);//获取基本变量类型
-        if (type == nullptr)
-            return LogErrorV("unknown variable type");
-        ret = context.builder->CreateAlloca(type, nullptr);
-    }
-    if (ret == nullptr)
-        return LogError("create alloca failed");
-    return ret;
-}*/
+    return nullptr;
+}
 
 /**
  * 类型IR生成
@@ -3079,7 +3260,7 @@ llvm::Value *type_AST::code_generation()
  * bug可能出现在 传值传引用 符号表存储
  * @return Value* 函数地址指针
  */
-llvm::Function* subprogram_head_AST::code_generation()
+llvm::Function* subprogram_head_AST::function_generation()
 {
     cout<<"subprogram_head_AST::code_generation"<<endl;
     vector<llvm::Type*> argTypes;
@@ -3088,9 +3269,14 @@ llvm::Function* subprogram_head_AST::code_generation()
     for(int i = 0 ;i<this->s_list.size();i++)
     {
         //获取每个形参的llvm类型
-        for(int j = 0;i<s_list[i]->s_id_list.size();++j)
+        for(int j = 0;j<s_list[i]->s_id_list.size();++j)
         {
-            argTypes.push_back(context.type_ir.getLLVMType(this->s_list[i]->s_type));
+            llvm::Type* cur = context.type_ir.getLLVMType(this->s_list[i]->s_type);
+            llvm::PointerType *pstructType = llvm::PointerType::get(cur, 0);
+            if(this->s_list[i]->s_isvar)
+               argTypes.push_back(pstructType);
+            else
+                argTypes.push_back(cur);
             argNames.push_back(make_pair(this->s_list[i]->s_id_list[j],this->s_list[i]->s_isvar));
         }
     }
@@ -3115,11 +3301,18 @@ llvm::Function* subprogram_head_AST::code_generation()
         llvm::Value* loc = nullptr;
         if(argName->second)//是引用传递
         {
-            //获取引用值地址
             loc =&arg;//传入值是地址
-            llvm::Value* tmp = context.builder->CreateLoad(loc);//载入数据
-            context.builder->CreateStore(tmp,loc,false);//参数存到地址中
-        }  
+            //cout<<loc->getType()->getTypeID()<<endl;
+            //llvm::Value* DestTy = context.builder->CreateAlloca(*argType,nullptr,argName->first);
+            //cout<<loc->getType()->getPointerElementType()->getTypeID()<<endl;
+            //loc = context.builder->CreateIntToPtr(loc,llvm::PointerType::get(DestTy->getType(), 0));
+            //cout<<loc->getType()->getTypeID()<<endl;
+            //cout<<loc->getType()->getPointerElementType()->getTypeID()<<endl;
+            //llvm::Value* tmp = context.builder->CreateLoad(loc,argName->first);//载入数据
+            //context.builder->CreateStore(tmp,loc,false);//参数存到地址中
+            //loc = context.builder->CreateAlloca(*argType,nullptr,argName->first);
+            //context.builder->CreateStore(&arg,loc,false);//参数存到地址中
+        }
         else
         {
             //获取局部变量地址
@@ -3132,22 +3325,27 @@ llvm::Function* subprogram_head_AST::code_generation()
         argName++;
         argType++;
     }
+    if(s_item->type==10)
+        s_item->value.function_val->ret_llvmval=context.builder->CreateAlloca(context.type_ir.getLLVMType(ret_string),nullptr,"ret");//返回值
     return func;
 }
 /**
  * 函数返回值生成， 该模块未完全完成
  */
 //此处建议，用符号表记录返回值
-llvm::Value* subprogram_body_AST::ret_generation(llvm::Value* ret)
+llvm::Value* subprogram_body_AST::ret_generation(llvm::Value* addr)
 {
     //语义分析需要加一个标记，标记是否是函数
     if(isfunction)
     {
-        context.builder->CreateRetVoid();
+        llvm::Value* ret = context.builder->CreateLoad(addr);
+        context.builder->CreateRet(ret);//符号表记录返回值
+        
     }
     else{
-        context.builder->CreateRet(ret);//符号表记录返回值
+        context.builder->CreateRetVoid();
     }
+    return nullptr;
 }
 /**
  * program IR生成
@@ -3204,7 +3402,8 @@ llvm::Value *procedure_call_AST::code_generation()
     }
     // 获取一个过程指针 todo
     // Function* pro_ptr = record->func;
-    llvm::Function *pro_ptr = nullptr;
+    llvm::Function *pro_ptr = s_item->value.function_val->llvmfunction;
+
     return context.builder->CreateCall(pro_ptr, args, "Call Procedure");
     /**
      * 也可以这么写,上面那个做了错误处理，但是，语义分析那里就爆了，所以没必要23333
@@ -3237,48 +3436,49 @@ llvm::Value *factor_AST::code_generation()
     // 四种常数
     switch (s_state)
     {
-    case 1: // 常数
-    {
-        if (s_type == "integer")
-            value = llvm::ConstantInt::get(context.type_ir.type_int, s_int, true);
-        else if (s_type == "real")
-            value = llvm::ConstantInt::get(context.type_ir.type_real, s_real, true);
-        else if (s_type == "char")
-            value = llvm::ConstantInt::get(context.type_ir.type_char, s_char, true);
-        else if (s_type == "boolean")
-            value = llvm::ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
-    }
-    break;
-    case 2:
-    {
-        value = this->s_value; // 变量，拿解析值
-    }
-    break;
-    case 3: // 函数、表达式
-    {
-        value = this->s_value; // 变量，拿解析值
-    }
-    break;
-    case 4: //单目运算符
-    {
-        if (this->s_op == "!") // 取非
-            value = context.builder->CreateNot(this->s_operand0, "not");
-        else if (this->s_op == "1") // 取负
+        case 1: // 常数
         {
-            // 浮点形
-            if (this->s_operand0_type == "real")
+            cout<<s_type<<endl;
+            if (s_type == "integer")
+                value = llvm::ConstantInt::get(context.type_ir.type_int, s_int, true);
+            else if (s_type == "real")
+                value = llvm::ConstantFP::get(context.type_ir.type_real, (double)s_real);
+            else if (s_type == "char")
+                value = llvm::ConstantInt::get(context.type_ir.type_char, s_char, true);
+            else if (s_type == "boolean")
+                value = llvm::ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
+        }
+            break;
+        case 2:
+        {
+            value = this->s_value; // 变量，拿解析值
+        }
+            break;
+        case 3: // 函数、表达式
+        {
+            value = this->s_value; // 变量，拿解析值
+        }
+            break;
+        case 4: //单目运算符
+        {
+            if (this->s_op == "!") // 取非
+                value = context.builder->CreateNot(this->s_operand0, "not");
+            else if (this->s_op == "1") // 取负
             {
-                llvm::Value *temp = llvm::ConstantFP::get(context.type_ir.type_real, (double)(0.0));
-                value = context.builder->CreateFNeg(this->s_operand0, "uminus");
-            }
-            else
-            {
-                llvm::Value *temp = llvm::ConstantInt::get(context.type_ir.type_real, 0, true);
-                value = context.builder->CreateNeg(this->s_operand0, "uminus");
+                // 浮点形
+                if (this->s_operand0_type == "real")
+                {
+                    llvm::Value *temp = llvm::ConstantFP::get(context.type_ir.type_real, (double)(0.0));
+                    value = context.builder->CreateFNeg(this->s_operand0, "uminus");
+                }
+                else
+                {
+                    llvm::Value *temp = llvm::ConstantInt::get(context.type_ir.type_real, 0, true);
+                    value = context.builder->CreateNeg(this->s_operand0, "uminus");
+                }
             }
         }
-    }
-    break;
+            break;
     }
     // 可以语法做
     // this->s_value = value;
@@ -3306,7 +3506,7 @@ llvm::Value *term_AST::code_generation()
         else
             value = context.builder->CreateFMul(operand0,operand1,"multmp");
     }
-    //两种除法有待商榷
+        //两种除法有待商榷
     else if(s_op=="/"){
         if(judge)
             value = context.builder->CreateSDiv(operand0,operand1,"divtmp");
@@ -3319,7 +3519,7 @@ llvm::Value *term_AST::code_generation()
         else
             value = context.builder->CreateFDiv(operand0,operand1,"divtmp");
     }
-    //取模没有浮点
+        //取模没有浮点
     else if(s_op=="mod"){
         value = context.builder->CreateSRem(operand0,operand1,"modtmp");
     }
@@ -3349,7 +3549,7 @@ llvm::Value *simple_expression_AST::code_generation()
         else
             value = context.builder->CreateFAdd(operand0,operand1,"addtmp");
     }
-    //两种除法有待商榷
+        //两种除法有待商榷
     else if(s_op=="-"){
         if(judge)
             value = context.builder->CreateSub(operand0,operand1,"subtmp");
@@ -3369,7 +3569,7 @@ llvm::Value *expression_AST::code_generation()
 {
     cout << "expression_AST::code_generation" << endl;
     llvm::Value* value = nullptr;
-    //类型转换,带浮点全部转浮点 
+    //类型转换,带浮点全部转浮点
     bool judge = true;
     if(operand0_type=="real"||operand1_type=="real"){
         operand0 = context.builder->CreateSIToFP(operand0,context.type_ir.type_real);
@@ -3431,12 +3631,13 @@ llvm::Value* statement_AST::if_code_generation_1()
     function = context.builder->GetInsertBlock()->getParent();//得到if语句所属函数
     block1 = llvm::BasicBlock::Create(context.llvmContext, "then", function);
     block2 = llvm::BasicBlock::Create(context.llvmContext, "else"); // else部分
-    block3 = llvm::BasicBlock::Create(context.llvmContext, "ifcont");
+    block3 = llvm::BasicBlock::Create(context.llvmContext, "ifcont"); 
+    s_has_else = true;
     if(s_has_else)
     {
         //有else
         context.builder->CreateCondBr(s_expression_value, block1, block2);
-    } 
+    }
     else{
         //无else
         context.builder->CreateCondBr(s_expression_value, block1, block3);
@@ -3451,12 +3652,18 @@ llvm::Value* statement_AST::if_code_generation_1()
 */
 llvm::Value* statement_AST::if_code_generation_2()
 {
+    cout << "statement_AST::if_code_generation_2" << endl;
     context.builder->restoreIP(IP);
     //restoreIP(IP);//恢复插入点
     block1 = context.builder->GetInsertBlock();
     // 在thenBB插入的最后一条指令是ret，则不再跳转回final_block
     if(block1->getTerminator()== nullptr)
         context.builder->CreateBr(block3);
+    if(block4!=nullptr)
+    {
+        context.builder->SetInsertPoint(block4);
+        context.builder->CreateBr(block3);
+    }
     if(s_has_else)
     {
         function->getBasicBlockList().push_back(block2);
@@ -3472,11 +3679,17 @@ llvm::Value* statement_AST::if_code_generation_2()
 */
 llvm::Value *statement_AST::if_code_generation_3()
 {
+    cout << "statement_AST::if_code_generation_3" << endl;
     context.builder->restoreIP(IP);
     if(s_has_else)
     {
         if(block2->getTerminator()== nullptr)
             context.builder->CreateBr(block3);
+        if(block4!=nullptr)
+        {
+            context.builder->SetInsertPoint(block4);
+            context.builder->CreateBr(block3);
+        }
     }
     function->getBasicBlockList().push_back(block3);
     context.builder->SetInsertPoint(block3);
@@ -3488,12 +3701,21 @@ llvm::Value *statement_AST::if_code_generation_3()
 */
 llvm::Value *statement_AST::for_code_generation_1()
 {
-    cout<<"statement_AST::for_code_generation"<<endl;
+    llvm::Value* condition = nullptr;
+    cout<<"statement_AST::for_code_generation_1"<<endl;
     function = context.builder->GetInsertBlock()->getParent();//得到for语句所属函数
     block1 = llvm::BasicBlock::Create(context.llvmContext, "forloop", function);
-    block2 = llvm::BasicBlock::Create(context.llvmContext, "forcont", function);
-    s_expression_value = expressionToBoolean(s_expression_value);//条件值
-    context.builder->CreateCondBr(s_expression_value, block1, block2);
+    block3 = llvm::BasicBlock::Create(context.llvmContext, "forcont");
+    if(s_for_expression_value1 == nullptr)
+       cout<<"for expression1 is null"<<endl;
+    if(s_for_expression_value2 == nullptr)
+        cout<<"for expression2 is null"<<endl;
+    condition = context.builder->CreateICmpSLE(s_for_expression_value1, s_for_expression_value2, "for.condition.compare.result");
+    s_for_item = symbol_table.get(s_for_identifier);
+    context.builder->CreateStore(s_for_expression_value1, s_for_item->value.basic_val->llvmvalue);
+    //s_expression_value = expressionToBoolean(s_for_expression_valpue1,s_for_expression_value2);//条件值
+    cout<<2<<endl;
+    context.builder->CreateCondBr(condition, block1, block3);
     context.builder->SetInsertPoint(block1);
     IP = context.builder->saveIP();//保存插入点
     //循环体生成
@@ -3505,11 +3727,39 @@ llvm::Value *statement_AST::for_code_generation_1()
 */
 llvm::Value *statement_AST::for_code_generation_2()
 {
-    context.builder->SetInsertPoint(block1);//设置插入点，这个地方有待考量
-    s_expression_value = expressionToBoolean(s_expression_value);//条件值
-    context.builder->CreateCondBr(s_expression_value, block1, block2);
-    function->getBasicBlockList().push_back(block2);
-    context.builder->SetInsertPoint(block2);
+    cout<<"statement_AST::for_code_generation_2"<<endl;
+    llvm::Value* condition = nullptr;
+    llvm::Value* increase = nullptr;
+    llvm::Value* value_old = nullptr;
+    if(block4!=nullptr)
+    {
+        cout<<"bolck:"<<endl;
+        context.builder->SetInsertPoint(block4);//设置插入点，这个地方有待考量
+        s_for_item = symbol_table.get(s_for_identifier);
+        value_old = context.builder->CreateLoad(s_for_item->value.basic_val->llvmvalue);
+        increase = context.builder->CreateAdd(value_old, context.builder->getInt32(1), "increase");
+        context.builder->CreateStore(increase, s_for_item->value.basic_val->llvmvalue);
+        value_old = context.builder->CreateLoad(s_for_item->value.basic_val->llvmvalue);
+        condition = context.builder->CreateICmpSLE(value_old, s_for_expression_value2, "for.condition.compare.result");
+        context.builder->CreateCondBr(condition, block1, block3);
+    }
+    else{
+        cout<<"bolck3:"<<endl;
+        context.builder->SetInsertPoint(block1);//设置插入点，这个地方有待考量
+        s_for_item = symbol_table.get(s_for_identifier);
+        value_old = context.builder->CreateLoad(s_for_item->value.basic_val->llvmvalue);
+        increase = context.builder->CreateAdd(value_old, context.builder->getInt32(1), "increase");
+        context.builder->CreateStore(increase, s_for_item->value.basic_val->llvmvalue);
+        value_old = context.builder->CreateLoad(s_for_item->value.basic_val->llvmvalue);
+        condition = context.builder->CreateICmpSLE(value_old, s_for_expression_value2, "for.condition.compare.result");
+        context.builder->CreateCondBr(condition, block1, block3);
+        //s_expression_value = expressionToBoolean(s_for_expression_value1,s_for_expression_value2);//
+    }
+    function->getBasicBlockList().push_back(block3);
+    context.builder->SetInsertPoint(block3);
+    //condition = (llvm::Value*)(true);
+    //cout<< function->getBasicBlockList().size();
+    //context.builder->CreateCondBr(condition,block2,&function->getBasicBlockList().back());
     return nullptr;
 }
 /**
@@ -3521,9 +3771,9 @@ llvm::Value* statement_AST::while_code_generation_1()
     cout<<"statement_AST::while_code_generation"<<endl;
     function = context.builder->GetInsertBlock()->getParent();//得到while语句所属函数
     block1 = llvm::BasicBlock::Create(context.llvmContext, "whileloop", function);
-    block2 = llvm::BasicBlock::Create(context.llvmContext, "whilecont", function);
+    block3 = llvm::BasicBlock::Create(context.llvmContext, "whilecont", function);
     s_expression_value = expressionToBoolean(s_expression_value);//条件值
-    context.builder->CreateCondBr(s_expression_value, block1, block2);
+    context.builder->CreateCondBr(s_expression_value, block1, block3);
     context.builder->SetInsertPoint(block1);
     IP = context.builder->saveIP();//保存插入点
     return nullptr;
@@ -3536,9 +3786,9 @@ llvm::Value* statement_AST::while_code_generation_2()
 {
     context.builder->SetInsertPoint(block1);//设置插入点，这个地方有待考量
     s_expression_value = expressionToBoolean(s_expression_value);//条件值
-    context.builder->CreateCondBr(s_expression_value, block1, block2);
-    function->getBasicBlockList().push_back(block2);
-    context.builder->SetInsertPoint(block2);
+    context.builder->CreateCondBr(s_expression_value, block1, block3);
+    function->getBasicBlockList().push_back(block3);
+    context.builder->SetInsertPoint(block3);
     return nullptr;
 }
 /**
@@ -3565,7 +3815,7 @@ llvm::Value* statement_AST::assign_code_generation()
     if(item->type == 5&&s_expression_type=="real"){
         s_expression_value = context.builder->CreateFPToSI(s_expression_value, context.type_ir.type_int);
     }
-    if(s_variable->s_isarray)//可能有问题 
+    if(s_variable->s_isarray)//可能有问题
     {
         //获取指针 获取数组元素地址
         //Value* ptr = nullptr;
@@ -3573,7 +3823,10 @@ llvm::Value* statement_AST::assign_code_generation()
         context.builder->CreateStore(s_expression_value, value);
     }
     else{
-        value = item->value.basic_val->llvmvalue;
+        if(item->type < 10)
+            value = item->value.basic_val->llvmvalue;
+        else
+            value = item->value.function_val->ret_llvmval;
         context.builder->CreateStore(s_expression_value, value);
     }
     return value;
@@ -3593,7 +3846,7 @@ llvm::Value *statement_AST::write()
         args.clear();
         args.push_back(item);
         if (args.empty())
-            return LogErrorV("write procedure failed");   
+            return LogErrorV("write procedure failed");
         if(s_type_list[count]=="integer")
             index = 0;
         else if(s_type_list[count]=="real")
@@ -3619,13 +3872,13 @@ llvm::Value *statement_AST::read()
     int count = 0;
     for (auto &item : s_variable_list)
     {
-        if(s_type_list[count]=="integer")
+        if(item->s_type=="integer")
             index = 4;
-        else if(s_type_list[count]=="real")
+        else if(item->s_type=="real")
             index = 5;
-        else if(s_type_list[count]=="char")
+        else if(item->s_type=="char")
             index = 6;
-        else if(s_type_list[count]=="boolean")
+        else if(item->s_type=="boolean")
             index = 7;
         llvm::Value *ret = context.builder->CreateCall(context.funcStack[index], args, "read");
         //todo 变量操作
@@ -3650,13 +3903,14 @@ llvm::Value* variable_AST::code_generation()
         this->llvmleftValue = addr;
         return context.builder->CreateLoad(addr,false,"");
     }
-    else if(item->type==10)//数组
+    else if(item->type==9)//数组
     {
         //获取数组
         addr = get_item(this);
         this->llvmleftValue = addr;
         return context.builder->CreateLoad(addr,false,"");
     }
+    return nullptr;
 }
 // 辅助函数
 /**
@@ -3695,8 +3949,8 @@ llvm::Value *get_array_item(const string &type, llvm::Value *array,int loc, llvm
 llvm::Value *expressionToBoolean(llvm::Value* value){
     if(value->getType()->getTypeID() == llvm::Type::IntegerTyID)
     {
-        value = context.builder->CreateIntCast(value,context.type_ir.type_boolean,true);
-        value = context.builder->CreateICmpNE(value,llvm::ConstantInt::get(context.type_ir.type_boolean,0,true));
+        value = context.builder->CreateIntCast(value,context.type_ir.type_int,true);
+        value = context.builder->CreateICmpNE(value, llvm::ConstantInt::get(context.type_ir.type_int, 0));
     }
     else if(value->getType()->getTypeID() == llvm::Type::FloatTyID)
     {
@@ -3704,86 +3958,89 @@ llvm::Value *expressionToBoolean(llvm::Value* value){
     }
     return value;
 }
+
 llvm::Value* LogErrorV(string str)
 {
-
+    cout<<str<<endl;
+    return nullptr;
 }
+
 llvm::Value* LogError(const char *str)
 {
-
+    return nullptr;
 }
-void objectGenerate(string &filename)
-{
-    // 初始化llvm，设置目标机
-    llvm::InitializeAllTargetInfos(); // 初始化所有目标信息
-    llvm::InitializeAllTargets();     // 初始化所有目标
-    llvm::InitializeAllTargetMCs();   // 初始化所有目标机码
-    llvm::InitializeAllAsmParsers();  // 初始化所有汇编解析器
-    llvm::InitializeAllAsmPrinters(); // 初始化所有汇编打印器
 
-    // 获取目标三元组并设置
-    string targetTriple = llvm::sys::getDefaultTargetTriple();
+void objectGenerate(string& filename) {
+    cout<<"ObjCodeGen"<<endl;
+
+    //初始化llvm，设置目标机
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+
+    //获取目标三元组并设置
+    auto targetTriple = llvm::sys::getDefaultTargetTriple();
     context.module->setTargetTriple(targetTriple);
 
-    // 获取目标机数据类型并设置
+    //获取目标机数据类型并设置
     string TargetError;
-    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(targetTriple, TargetError);
-    if (!target)
-    {
-        llvm::errs() << TargetError;
+    auto target = llvm::TargetRegistry::lookupTarget(targetTriple, TargetError);
+    if(!target){
+        llvm::errs()<<TargetError;
         return;
     }
-    // targetMachine对象表示目标架构，它包含了用于生成目标代码的所有必要信息。
-    string CPU = "generic";
-    string features = "";
-    llvm::TargetOptions options;
-    std::unique_ptr<llvm::TargetMachine> targetMachine(target->createTargetMachine(targetTriple, CPU, features, options, llvm::Reloc::Model::PIC_));
-    // 设置模块的数据布局。数据布局描述了目标架构中数据类型的大小、对齐方式和字节顺序等信息
-    context.module->setDataLayout(targetMachine->createDataLayout());
+    auto CPU = "generic";
+    auto features = "";
 
-    // 设置目标文件类型
+    llvm::TargetOptions options;
+    auto relocationModel = llvm::Reloc::Model::PIC_;
+    auto theTargetMachine = target->createTargetMachine(targetTriple, CPU, features, options, relocationModel);
+    context.module->setDataLayout(theTargetMachine->createDataLayout());
+
+    //int outputType = 0;
     llvm::CodeGenFileType type;
-    if (filename[filename.size() - 1] == 's')
-    { // 生成汇编文件
+    if(filename[filename.size()-1] == 's'){    //生成汇编文件
         type = llvm::CGFT_AssemblyFile;
     }
-    else if (filename[filename.size() - 1] == 'o')
-    { // 生成目标文件
+    else if(filename[filename.size()-1] == 'o'){ //生成目标文件
         type = llvm::CGFT_ObjectFile;
     }
-    else
-    {
+    else{
         llvm::errs() << "Unsupported target file format: " + filename;
         return;
     }
 
-    // 将目标代码输出到文件
-    error_code errorCode;
-    // 原始文件描述符输出流。lvm::raw_ostream 类，并提供了将数据写入文件描述符的功能。
-    llvm::raw_fd_ostream dest(filename.c_str(), errorCode, llvm::sys::fs::OF_None);
-    llvm::legacy::PassManager passManager;
+    //将目标代码输出到文件
+    error_code ErrCode;
+    llvm::raw_fd_ostream dest(filename.c_str(), ErrCode, llvm::sys::fs::OF_None);
 
-    // 设置优化流水线
-    if (targetMachine->addPassesToEmitFile(passManager, dest, nullptr, llvm::CGFT_ObjectFile))
-    {
+    llvm::legacy::PassManager pass;
+    if(theTargetMachine->addPassesToEmitFile(pass, dest, &dest, type)){
         llvm::errs() << "theTargetMachine can't emit a file of this type";
         return;
     }
-    passManager.run(*context.module);
-    //将缓冲区数据写入文件
+    context.module->print(llvm::outs(), nullptr);
+    pass.run(*(context.module));
     dest.flush();
-    llvm::outs() << "Object code generated successfully!"
-           << "\n";
-    llvm::outs() << "File name: " << filename.c_str() << "\n";
+
+    //打印LLVM IR
+    
+
+    llvm::outs() << "Object code wrote to " << filename.c_str() << "\n";
 }
+
 bool isBasicType(const string &type)
 {
     return (type == "integer" | type == "real" | type == "char" | type == "boolean");
 }
+
 bool isBasicType(const int& type)
 {
     return type >= 5 && type <= 8;
 }
+
 llvm::Type *Type_IR::getLLVMType(const string &type)
 {
     if (type == "integer")
@@ -3812,6 +4069,7 @@ llvm::Type *Type_IR::getLLVMType(const int &type)
     LogErrorV("[getLLVMType]  Unknown type: " + type);
     return nullptr;
 }
+
 llvm::Type *Type_IR::getArrayLLVMType(SymbolTableItem *item)
 {
     string name = "array";
@@ -3823,6 +4081,7 @@ llvm::Type *Type_IR::getArrayLLVMType(SymbolTableItem *item)
         return arrayTypes[name];
     return nullptr;
 }
+
 llvm::Type *Type_IR::createArrayType(SymbolTableItem *item)
 {
     string name = "array";
@@ -3832,11 +4091,12 @@ llvm::Type *Type_IR::createArrayType(SymbolTableItem *item)
         name += "_" + to_string(item->value.array_val->begin[i]) + "_" + to_string(item->value.array_val->end[i]);
         range *= item->value.array_val->size[i];
     }
-    llvm::Type *type = context.type_ir.getLLVMType(item->type); // 获取基本类型
+    llvm::Type *type = context.type_ir.getLLVMType(item->value.array_val->type); // 获取基本类型
     llvm::ArrayType *arrayType = llvm::ArrayType::get(type, range);   // 数组type
     context.type_ir.addArrayType(name, arrayType, item);
     return arrayType;
 }
+
 void Type_IR::addArrayType(const string &name, llvm::ArrayType *type, SymbolTableItem *item)
 {
     arrayTypes[name] = type;
@@ -3846,9 +4106,11 @@ void Type_IR::addArrayType(const string &name, llvm::ArrayType *type, SymbolTabl
         temp.push_back(make_pair(item->value.array_val->begin[i], item->value.array_val->end[i]));
     arrayRangeLists[name] = temp;
 }
+
 string Type_IR::getArrayMemberType(const string &name)
 {
     SymbolTableItem *item = symbol_table.get(name);
+    /**
     if (item == nullptr)
     {
         LogErrorV("Unknown array name: " + name);
@@ -3860,6 +4122,6 @@ string Type_IR::getArrayMemberType(const string &name)
         LogErrorV("Not array name: " + name);
         return "";
     }
-
+    */
     return name;
 }
