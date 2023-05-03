@@ -45,8 +45,9 @@ sudo apt-get install flex bison
 编译词法分析源文件`lex-link.l`，生成文件`lex.yy.cpp`
 
 ```cmd
-flex -o lex.yy.cpp lex-link.l
+flex -wincompat -o lex.yy.cpp lex-link.l
 ```
+>不添加选项`-wincompat`会出现关键字大小写敏感问题
 
 编译语法分析源文件`yacc.y`，生成文件`y.tab.cpp`和`y.tab.hpp`
 
