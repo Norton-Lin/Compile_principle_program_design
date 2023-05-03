@@ -667,6 +667,7 @@ public:
         }
         else
         {
+            cout<<this->children.size()<<endl;
             cout << "error" << endl;
         }
 
@@ -1270,7 +1271,7 @@ public:
         }
 
         //const
-        file << "#include <stdio.h>" << endl;
+        file << "#include <stdio.h>" << endl<<"#include <stdbool.h>"<<endl;
         for (int i = 0; i < s_const_declarations->s_pair_list.size(); ++i) {
             string sentence = "";
             string identifier = s_const_declarations->s_pair_list[i].first;
@@ -1308,12 +1309,12 @@ public:
                 {
                     array_item = symbol_table.get(id_list[j]);
                     for (int k = 0; k < array_item->value.array_val->size.size(); ++k) {
-                        index += "[" + std::to_string(array_item->value.array_val->size[k]) +"]";
+                        index += "[" + std::to_string(array_item->value.array_val->size[k]+1) +"]";
                     }
                 }
                 if(type=="integer")
                 {
-                    sentence += "int " + id_list[j] + index + ";";
+                    sentence += "int " +id_list[j] + index + ";";
                 }
                 else if(type=="real")
                 {
@@ -2165,7 +2166,7 @@ public:
         // 从符号表获得类型
         this->item = symbol_table.get(this->s_identifier);
         if (this->item == nullptr)
-            cout << "error" << endl;
+            cout << "error1" << endl;
         symbol_type t = symbol_type::unknown;
         if (this->s_isarray == true)
         {
@@ -3358,9 +3359,9 @@ llvm::Value *var_declarations_AST::code_generation()
                     int len = 0;
                     symbol_table_item = symbol_table.get(id);
                     type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type); // 获取基本类型
-                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->size[0]);
+                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->end[0]+1);
                     for (int i = 1; i < symbol_table_item->value.array_val->size.size(); ++i)
-                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->size[i]);
+                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->end[i]+1);
                     context.module->getOrInsertGlobal(id, arrayType);
                     llvm::GlobalVariable *v = context.module->getNamedGlobal(id);
                     int num = 0;
@@ -3379,9 +3380,9 @@ llvm::Value *var_declarations_AST::code_generation()
                     int len = 0;
                     symbol_table_item = symbol_table.get(id);
                     type = context.type_ir.getArrayLLVMType(symbol_table_item);type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type);
-                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->size[0]);
+                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->end[0]+1);
                     for (int i = 0; i < symbol_table_item->value.array_val->size.size(); ++i)
-                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->size[i]);
+                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->end[i]+1);
                     ret = context.builder->CreateAlloca(arrayType);
                     symbol_table_item->value.array_val->llvmvalue = ret;
                 }
@@ -3668,7 +3669,7 @@ llvm::Value *factor_AST::code_generation()
     {
         if (this->s_op == "!") // 取非
             value = context.builder->CreateNot(this->s_operand0, "not");
-        else if (this->s_op == "1") // 取负
+        else if (this->s_op == "-") // 取负
         {
             // 浮点形
             if (this->s_operand0_type == "real")
@@ -4219,10 +4220,12 @@ llvm::Value *get_item(variable_AST *var)
     llvm::Value *i32zero = llvm::ConstantInt::get(context.type_ir.type_int,0);
     llvm::Value *indices[var->item->value.array_val->size.size()+1];
     indices[0] = i32zero;
-    cout<<var->item->value.array_val->size.size()<<endl;
     for(int i = 0;i<var->item->value.array_val->size.size();++i)
     {
+        //llvm::Value* offset = nullptr;
+        //offset = context.builder->CreateGEP(context.type_ir.getLLVMType(var->s_type),llvm::ConstantInt::get(context.type_ir.type_int,item->value.array_val->begin[i]),var->s_value_list[i]);
         indices[i+1] = var->s_value_list[i];
+        //indices[i+1] = offset;
     }
     base = context.builder->CreateInBoundsGEP(base, llvm::ArrayRef<llvm::Value *>(indices,var->item->value.array_val->size.size()+1));
    /*
