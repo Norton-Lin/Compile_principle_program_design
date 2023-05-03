@@ -2737,8 +2737,8 @@ int main(){
         cin >> filename;
     }
     pre.Dispose();
-	yyin = fopen("C://Users/HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test1_out.txt","r");
-	yyout = fopen("D://Resources//out5.txt","w");
+	yyin = fopen("C://Users/HP//Documents//GitHub//Compile_principle_program_design//backend//lexical_analysis//Tests//Test3_out.txt","r");
+	yyout = fopen("D://Resources//out3.txt","w");
 	yylex();
     for (auto c : lexErrorInfo)
         cout << c << endl;
