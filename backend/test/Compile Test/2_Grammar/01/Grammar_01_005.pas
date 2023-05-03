@@ -1,0 +1,4 @@
+program Hello();
+    begin
+
+    end.
