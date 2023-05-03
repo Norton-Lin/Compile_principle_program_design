@@ -24,6 +24,17 @@ bool has_semantic_error =false;
  * 3.
  */
 
+class SematicAnalysis
+{
+public:
+    SematicAnalysis(){};
+    static ASTNode *create_ASTNode(BitNode *bn);
+    static ASTNode *ADT2AST(BitNode *bn);
+
+
+private:
+};
+
 enum ast_type
 {
     // 终结符
@@ -96,6 +107,7 @@ enum ast_type
     expression_list,
     expression
 };
+
 
 class const_value_AST;
 
@@ -1258,6 +1270,7 @@ public:
         }
 
         //const
+        file << "#include <stdio.h>" << endl;
         for (int i = 0; i < s_const_declarations->s_pair_list.size(); ++i) {
             string sentence = "";
             string identifier = s_const_declarations->s_pair_list[i].first;
@@ -1867,7 +1880,11 @@ public:
             this->s_op = ch1->s_value;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
+            if(this->s_value==nullptr)
+                cout<<"s_value is nullptr"<<endl;
             this->s_value = code_generation();
+             if(this->s_value==nullptr)
+                cout<<"s_value is nullptr"<<endl;
         }
         else if (this->children.size() == 1)
         {
@@ -1966,6 +1983,7 @@ public:
     llvm::Value *s_value;
     bool isleftvalue = false;   // 是左值则赋值为true
     llvm::Value *llvmleftValue; // 左值指针，在传引用时使用
+    BitNode* bn;
 
     // 1.二元运算
     string s_op; // 等于，不等于，小于，小于等于，大于，大于等于 =,<>,<,<=,>,>=
@@ -1978,6 +1996,7 @@ public:
     expression_AST(BitNode *bn)
     {
         type = expression;
+        this->bn = bn;
     }
 
     void semantic_action() override
@@ -2755,10 +2774,21 @@ void statement_AST::semantic_action()
         this->while_code_generation_1();
         this->children[3]->semantic_action();
         // 创建隐式赋值语句
+        ASTNode* node = SematicAnalysis::ADT2AST(ch1->bn);
+        expression_AST* exp_ast = (expression_AST*)node;
+
         statement_AST *assign_statement = new statement_AST();
         assign_statement->children.push_back(new ASTNode());     // id
         assign_statement->children.push_back(new ASTNode());     //:=
-        assign_statement->children.push_back(this->children[1]); // expression
+        //assign_statement->children.push_back(ch1); // expression
+        assign_statement->children.push_back(exp_ast); // expression
+        
+        assign_statement->children[2]->semantic_action();
+        assign_statement->s_expression_value = exp_ast->s_value;
+        assign_statement->is_while_assign = true;
+        assign_statement->while_temp_value = this->while_temp_value;
+        assign_statement->assign_code_generation();
+        /*
         ch1->semantic_action();
         this->s_expression_value = ch1->s_value;
         assign_statement->s_expression_value = ch1->s_value;
@@ -2766,6 +2796,7 @@ void statement_AST::semantic_action()
         assign_statement->is_while_assign = true;
         assign_statement->while_temp_value = while_temp_value;
         assign_statement->assign_code_generation();
+        */
         // assign_statement->s_expression_type = this->s_expression_type;
         //
 
@@ -2995,12 +3026,9 @@ void factor_AST::semantic_action()
     this->s_value = code_generation();
 }
 
-class SematicAnalysis
-{
-public:
-    SematicAnalysis(){};
 
-    ASTNode *create_ASTNode(BitNode *bn)
+
+ASTNode * SematicAnalysis::create_ASTNode(BitNode *bn)
     {
         ASTNode *nodeptr = NULL;
 
@@ -3140,7 +3168,7 @@ public:
         return nodeptr;
     }
 
-    ASTNode *ADT2AST(BitNode *bn)
+ASTNode * SematicAnalysis::ADT2AST(BitNode *bn)
     {
         // 父节点动作
         ASTNode *cur_node = create_ASTNode(bn);
@@ -3154,9 +3182,6 @@ public:
         }
         return cur_node;
     }
-
-private:
-};
 /**
 class Type_IR{
 public:
@@ -3661,6 +3686,7 @@ llvm::Value *term_AST::code_generation()
     llvm::Value *value = nullptr;
     // 类型转换,待浮点全部转浮点 /运算好像不用
     bool judge = true;
+    cout<<s_op<<endl;
     if (operand0_type == "real" || operand1_type == "real")
     {
         operand0 = context.builder->CreateSIToFP(operand0, context.type_ir.type_real);
@@ -3698,6 +3724,7 @@ llvm::Value *term_AST::code_generation()
     {           
         value = context.builder->CreateAnd(operand0, operand1, "andtmp");
     }
+    cout<<"and is nullptr"<<endl;
     return value;
 }
 /**
@@ -3960,6 +3987,8 @@ llvm::Value *statement_AST::while_code_generation_1()
     block3 = llvm::BasicBlock::Create(context.llvmContext, "whilecont", function);
 
     while_temp_value = context.builder->CreateAlloca(context.type_ir.type_boolean);
+    if(s_expression_value == nullptr)
+        cout<<"nullptr"<<endl;
     s_expression_value = expressionToBoolean(s_expression_value); // 条件值
     context.builder->CreateStore(s_expression_value, while_temp_value);
     context.builder->CreateCondBr(s_expression_value, block1, block3);
@@ -4001,13 +4030,23 @@ llvm::Value *statement_AST::assign_code_generation()
     cout << "statement_AST::assign_code_generation" << endl;
     // 获取左值 item
     SymbolTableItem *item = nullptr;
+    /**
+     * 为什么这里会出现段错误
+     *
+    cout<<"123456"<<endl;
     if (this->s_variable != nullptr)
+    {
+        cout<<"123"<<endl;
+        if(this->s_variable==nullptr)
+            cout<<"s_variable is null"<<endl;
         item = this->s_variable->item;
+        cout<<"FUCK?"<<endl;
+    }*/
     if (item == nullptr)
         cout << "assign_code_generation: item is null" << endl;
     // 获取左值,左值可以是变量，也可以是数组元素，
-    llvm::Value *value = nullptr; // 左值变量地址
-    if (is_while_assign == true)
+    llvm::Value *value = nullptr; // 左值变量地址    if (is_while_assign == true)
+    if(is_while_assign)
     {
         cout << "is_while_assign" << endl;
         context.builder->CreateStore(s_expression_value, while_temp_value);
@@ -4015,7 +4054,7 @@ llvm::Value *statement_AST::assign_code_generation()
     }
     else
     {
-        cout << "is_while_assign1" << endl;
+        item = this->s_variable->item;
         if (this->s_expression_type == "return") // 函数返回值
         {
             // 记录函数返回值
