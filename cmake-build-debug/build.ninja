@@ -58,15 +58,6 @@ build CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/s
   TARGET_COMPILE_PDB = CMakeFiles\Compile_principle_program_design.dir\
   TARGET_PDB = Compile_principle_program_design.pdb
 
-build CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/main.cpp.obj: CXX_COMPILER__Compile_principle_program_design_Debug C$:/Users/HP/Documents/GitHub/Compile_principle_program_design/backend/lexical_analysis/src/main.cpp || cmake_object_order_depends_target_Compile_principle_program_design
-  DEP_FILE = CMakeFiles\Compile_principle_program_design.dir\backend\lexical_analysis\src\main.cpp.obj.d
-  FLAGS = -g -std=gnu++14
-  INCLUDES = -IC:/Users/HP/Documents/GitHub/Compile_principle_program_design/backend/lexical_analysis/src
-  OBJECT_DIR = CMakeFiles\Compile_principle_program_design.dir
-  OBJECT_FILE_DIR = CMakeFiles\Compile_principle_program_design.dir\backend\lexical_analysis\src
-  TARGET_COMPILE_PDB = CMakeFiles\Compile_principle_program_design.dir\
-  TARGET_PDB = Compile_principle_program_design.pdb
-
 build CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/Disposal.cpp.obj: CXX_COMPILER__Compile_principle_program_design_Debug C$:/Users/HP/Documents/GitHub/Compile_principle_program_design/backend/lexical_analysis/src/Disposal.cpp || cmake_object_order_depends_target_Compile_principle_program_design
   DEP_FILE = CMakeFiles\Compile_principle_program_design.dir\backend\lexical_analysis\src\Disposal.cpp.obj.d
   FLAGS = -g -std=gnu++14
@@ -84,7 +75,7 @@ build CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/s
 #############################################
 # Link the executable Compile_principle_program_design.exe
 
-build Compile_principle_program_design.exe: CXX_EXECUTABLE_LINKER__Compile_principle_program_design_Debug CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/lex.yy.cpp.obj CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/main.cpp.obj CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/Disposal.cpp.obj
+build Compile_principle_program_design.exe: CXX_EXECUTABLE_LINKER__Compile_principle_program_design_Debug CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/lex.yy.cpp.obj CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/Disposal.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Compile_principle_program_design.dir
