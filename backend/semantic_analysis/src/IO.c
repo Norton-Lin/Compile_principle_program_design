@@ -2,28 +2,28 @@
 #include <stdbool.h>
 void write_int(int num)
 {
-    printf("%d", num);
+    printf("%d\n", num);
     fflush(stdout);
     return;
 }
 void write_real(double num)
 {
-    printf("%lf", num);
+    printf("%lf\n", num);
     fflush(stdout);
     return;
 }
 void wirte_char(char ch)
 {
-    printf("%c", ch);
+    printf("%c\n", ch);
     fflush(stdout);
     return;
 }
 void write_boolean(bool num)
 {
     if (num == true)
-        printf("TRUE");
+        printf("TRUE\n");
     else
-        printf("FALSE");
+        printf("FALSE\n");
     fflush(stdout);
     return;
 }

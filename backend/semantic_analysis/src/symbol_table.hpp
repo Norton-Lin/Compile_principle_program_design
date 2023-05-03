@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <llvm/IR/Value.h>
 #include "interface.h"
 
 class SymbolTable;

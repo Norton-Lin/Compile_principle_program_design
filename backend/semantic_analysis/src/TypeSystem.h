@@ -25,7 +25,7 @@ public:
     //TypeSystem(LLVMContext& context): llvmContext(context) {}
     Type_IR(llvm::LLVMContext& context): llvmContext() {}
     llvm::Type* type_int = llvm::Type::getInt32Ty(llvmContext);
-    llvm::Type* type_real = llvm::Type::getFloatTy(llvmContext);
+    llvm::Type* type_real = llvm::Type::getDoubleTy(llvmContext);
     llvm::Type* type_char = llvm::Type::getInt8Ty(llvmContext);
     llvm::Type* type_boolean = llvm::Type::getInt1Ty(llvmContext);
     llvm::Type* type_void = llvm::Type::getVoidTy(llvmContext);

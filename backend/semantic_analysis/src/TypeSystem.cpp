@@ -74,6 +74,7 @@ void Type_IR::addArrayType(const string &name, llvm::ArrayType *type, SymbolTabl
 string Type_IR::getArrayMemberType(const string &name)
 {
     SymbolTableItem *item = symbol_table.get(name);
+    /*
     if (item == nullptr)
     {
         LogErrorV("Unknown array name: " + name);
@@ -84,7 +85,7 @@ string Type_IR::getArrayMemberType(const string &name)
     {
         LogErrorV("Not array name: " + name);
         return "";
-    }
+    }*/
 
     return name;
 }
