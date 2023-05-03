@@ -5,7 +5,7 @@
 
 using namespace std;
 
-//È«¾Ö±äÁ¿
+//È«ï¿½Ö±ï¿½ï¿½ï¿½
 SymbolTable symbol_table;
 SematicAnalysis analysis;
 
@@ -160,7 +160,7 @@ void test03()
     cout<< "finish" <<endl;
 }
 
-//Ö»Éæ¼°Ö÷±íÊ±¶Ô·ûºÅ±í½øÐÐ²âÊÔ
+//Ö»ï¿½æ¼°ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ô·ï¿½ï¿½Å±ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½
 void test04()
 {
     symbol_table.main_function = "main";
@@ -200,6 +200,7 @@ void test05()
 {
     ASTNode* pgstruct;
     pgstruct = analysis.ADT2AST(root);
+	cout<<"programstruct_AST"<<endl;
     pgstruct->semantic_action();
     printErrorList();
     cout<< "finish" <<endl;
@@ -209,6 +210,7 @@ void test05()
 
 int main(int argc,char *argv[])
 {
+	try{
     extern FILE* yyin;
     FILE* fin = NULL;
     fin = fopen(argv[1], "r");
@@ -221,14 +223,25 @@ int main(int argc,char *argv[])
     yyparse();
     fclose(fin);
 
-    //ÓïÒå·ÖÎö²¿·Ö
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     if(if_error!=0)
     {
         cout << "grammatical error" << endl;
         return -1;
     }
+	string output_filename = "output.s";     //é»˜è®¤ç›®æ ‡ä»£ç ç”Ÿæˆæ–‡ä»¶
+    string compilerName = "gcc";             //é»˜è®¤Cç¼–è¯‘å™¨
+	string exeName = (string)argv[1]+".exe";         //é»˜è®¤çš„ç¼–è¯‘Cç¨‹åºåŽèŽ·å¾—çš„å¯æ‰§è¡Œæ–‡ä»¶å
+	string global = "global.c";
+	context.init_funcStack();
     test05();
-    //test04();
-
-    return 0;
+	objectGenerate(output_filename);
+	string cmd= compilerName + " " + output_filename + " global.c IO.c -o " +exeName;
+    system(cmd.c_str());
+	cout << "finish" << endl;
+    exit(0);
+	}catch(std::exception &e){
+		cout << e.what() << endl;
+	}
+	return 0;
 }

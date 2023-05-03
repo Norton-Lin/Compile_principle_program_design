@@ -12,7 +12,7 @@ void write_real(double num)
     fflush(stdout);
     return;
 }
-void wirte_char(char ch)
+void write_char(char ch)
 {
     printf("%c\n", ch);
     fflush(stdout);

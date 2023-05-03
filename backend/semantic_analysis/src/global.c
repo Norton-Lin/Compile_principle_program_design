@@ -1,4 +1,6 @@
 #include <stdio.h>
-int a[5];
-int x;
-int y;
+#include <stdbool.h>
+int x[5][4];
+int i;
+int j;
+int z;

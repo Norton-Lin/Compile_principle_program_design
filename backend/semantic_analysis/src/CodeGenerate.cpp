@@ -181,7 +181,7 @@ llvm::Value *type_AST::code_generation()
  * bug可能出现在 传值传引用 符号表存储
  * @return Value* 函数地址指针
  */
-llvm::Function* subprogram_head_AST::code_generation()
+llvm::Function* subprogram_head_AST::function_generation()
 {
     cout<<"subprogram_head_AST::code_generation"<<endl;
     vector<llvm::Type*> argTypes;
