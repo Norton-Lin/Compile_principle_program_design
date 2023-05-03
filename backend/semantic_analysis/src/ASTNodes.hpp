@@ -3357,13 +3357,20 @@ llvm::Value *var_declarations_AST::code_generation()
                 {
                     int len = 0;
                     symbol_table_item = symbol_table.get(id);
-                    for (int i = 0; i < symbol_table_item->value.array_val->size.size(); ++i)
-                        len += symbol_table_item->value.array_val->size[i];
                     type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type); // 获取基本类型
-                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, len);
+                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->size[0]);
+                    for (int i = 1; i < symbol_table_item->value.array_val->size.size(); ++i)
+                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->size[i]);
                     context.module->getOrInsertGlobal(id, arrayType);
                     llvm::GlobalVariable *v = context.module->getNamedGlobal(id);
-                    v->setAlignment(llvm::MaybeAlign(4));
+                    int num = 0;
+                    if(symbol_table_item->value.array_val->type==1||symbol_table_item->value.array_val->type==5)
+                        num = 4;
+                    else if(symbol_table_item->value.array_val->type==2||symbol_table_item->value.array_val->type==6)
+                        num = 8;
+                    else 
+                        num = 1;
+                    v->setAlignment(llvm::MaybeAlign(num));
                     ret = context.builder->CreateLoad(v);
                     symbol_table_item->value.array_val->llvmvalue = v;
                 }
@@ -3371,10 +3378,10 @@ llvm::Value *var_declarations_AST::code_generation()
                 {
                     int len = 0;
                     symbol_table_item = symbol_table.get(id);
-                    for (int i = 0; i < symbol_table_item->value.array_val->size.size(); ++i)
-                        len += symbol_table_item->value.array_val->size[i];
                     type = context.type_ir.getArrayLLVMType(symbol_table_item);type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type);
-                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, len);
+                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->size[0]);
+                    for (int i = 0; i < symbol_table_item->value.array_val->size.size(); ++i)
+                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->size[i]);
                     ret = context.builder->CreateAlloca(arrayType);
                     symbol_table_item->value.array_val->llvmvalue = ret;
                 }
@@ -3406,7 +3413,14 @@ llvm::Value *var_declarations_AST::code_generation()
                     type = context.type_ir.getLLVMType(item.second->s_type); // 获取基本变量类型
                     context.module->getOrInsertGlobal(id, type);
                     llvm::GlobalVariable *v = context.module->getNamedGlobal(id);
-                    v->setAlignment(llvm::MaybeAlign(4));
+                     int num = 0;
+                    if(symbol_table_item->value.array_val->type==1||symbol_table_item->value.array_val->type==5)
+                        num = 4;
+                    else if(symbol_table_item->value.array_val->type==2||symbol_table_item->value.array_val->type==6)
+                        num = 8;
+                    else 
+                        num = 1;
+                    v->setAlignment(llvm::MaybeAlign(num));
                     ret = context.builder->CreateLoad(v);
                     symbol_table_item->value.basic_val->llvmvalue = v;
                 }
@@ -4202,20 +4216,22 @@ llvm::Value *get_item(variable_AST *var)
     //llvm::Type *arrayType = llvm::ArrayType::get(context.type_ir.getLLVMType(item->value.array_val->type), len);
     llvm::Type *arrayType = llvm::ArrayType::get(context.type_ir.getLLVMType(var->s_type), len);
     llvm::Value *head = nullptr;
-    /**
     llvm::Value *i32zero = llvm::ConstantInt::get(context.type_ir.type_int,0);
-    llvm::Value *indices[var->item->value.array_val->size.size()];
+    llvm::Value *indices[var->item->value.array_val->size.size()+1];
     indices[0] = i32zero;
+    cout<<var->item->value.array_val->size.size()<<endl;
     for(int i = 0;i<var->item->value.array_val->size.size();++i)
+    {
         indices[i+1] = var->s_value_list[i];
-    base = context.builder->CreateInBoundsGEP(base, llvm::ArrayRef<llvm::Value *>(indices, var->item->value.array_val->size.size()));
-    */
+    }
+    base = context.builder->CreateInBoundsGEP(base, llvm::ArrayRef<llvm::Value *>(indices,var->item->value.array_val->size.size()+1));
+   /*
     for (int i = 0; i < var->item->value.array_val->size.size(); ++i)
     {
         head = llvm::ConstantInt::get(context.type_ir.type_int, sum[i], true);
         //base = var->item->value.array_val->llvmvalue;
         base = context.builder->CreateGEP(arrayType, base,{head,var->s_value_list[i]});
-    }
+    }*/
     // base = context.builder->CreateConstGEP2_32(arrayType,base,0,0);
     return base;
 }

@@ -17,7 +17,8 @@ y.tab.cpp: yacc.y
 y.tab.hpp: y.tab.cpp
 
 lex.yy.cpp: lex-link.l y.tab.hpp
-	flex -o $@ $<
+	flex -wincompat -o $@ $<
+test.cpp:ASTNodes.hpp
 
 %.o: %.cpp
 	g++ -c $(CPPFLAGS) -o $@ $<
