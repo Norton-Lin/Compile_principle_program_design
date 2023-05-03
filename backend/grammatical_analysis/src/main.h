@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <list>
+#include <fstream>
 
 using namespace std;
 
@@ -44,6 +45,21 @@ public:
     BitNode(int col_value,int line_value,string data_val, string type_val) : col(col_value),line(line_value),data(data_val), type(type_val) {}
 
     void insertChild(BitNode *child);
+};
+
+class Pre {
+public:
+    explicit Pre(string filename);
+    bool Read_Line();
+    bool Write_Line();
+    void Dispose();
+private:
+    ifstream input;
+    ofstream output;
+    vector<string> lines;
+    string filename;
+    static string Break(const string& String);
+    static char jump_space(int &, string line);
 };
 
 union Nodes {
