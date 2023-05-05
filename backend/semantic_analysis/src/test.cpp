@@ -5,7 +5,7 @@
 
 using namespace std;
 
-//ȫ�ֱ���
+//全局符号表
 SymbolTable symbol_table;
 SematicAnalysis analysis;
 
@@ -160,7 +160,7 @@ void test03()
     cout<< "finish" <<endl;
 }
 
-//ֻ�漰����ʱ�Է��ű����в���
+
 void test04()
 {
     symbol_table.main_function = "main";
@@ -210,7 +210,6 @@ void test05()
 
 int main(int argc,char *argv[])
 {
-	try{
     extern FILE* yyin;
     FILE* fin = NULL;
     fin = fopen(argv[1], "r");
@@ -223,7 +222,7 @@ int main(int argc,char *argv[])
     yyparse();
     fclose(fin);
 
-    //�����������
+    //错误处理
     if(if_error!=0)
     {
         cout << "grammatical error" << endl;
@@ -239,9 +238,7 @@ int main(int argc,char *argv[])
 	string cmd= compilerName + " " + output_filename + " global.c IO.c -o " +exeName;
     system(cmd.c_str());
 	cout << "finish" << endl;
-    exit(0);
-	}catch(std::exception &e){
-		cout << e.what() << endl;
-	}
+	//llvm::outs() << "Object code wrote to " << output_filename.c_str() << "\n";
+	cout<<" "<<endl;
 	return 0;
 }

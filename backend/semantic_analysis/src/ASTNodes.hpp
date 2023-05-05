@@ -2340,7 +2340,7 @@ public:
                             SemanticError *err = new SemanticError(id->line, id->col,
                                                                    "parameter type Error",
                                                                    "in procedure '" + id->identifier + "',parameter " + functionType->arg_name_list[i] + "type must be" + functionType->arg_type_list[i]);
-                            semantic_error_list.push_back(err);
+                            //semantic_error_list.push_back(err);
                         }
                         if (functionType->arg_isvar_list[i]) // 检查引用参数位能否是引用
                         {
@@ -4292,6 +4292,7 @@ void objectGenerate(string &filename)
 
     // 获取目标三元组并设置
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
+    //auto targetTriple = llvm::Triple("x86_64", "pc", "windows-msvc").getTriple();//windows目标机
     context.module->setTargetTriple(targetTriple);
 
     // 获取目标机数据类型并设置
@@ -4337,12 +4338,13 @@ void objectGenerate(string &filename)
         return;
     }
     context.module->print(llvm::outs(), nullptr);
+    
     pass.run(*(context.module));
     dest.flush();
 
     // 打印LLVM IR
 
-    llvm::outs() << "Object code wrote to " << filename.c_str() << "\n";
+    
 }
 
 bool isBasicType(const string &type)
