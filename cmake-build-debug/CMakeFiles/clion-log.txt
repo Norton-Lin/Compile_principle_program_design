@@ -1,0 +1,4 @@
+"D:\CLion\CLion 2022.2.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S C:\Users\HP\Documents\GitHub\Compile_principle_program_design -B C:\Users\HP\Documents\GitHub\Compile_principle_program_design\cmake-build-debug
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/HP/Documents/GitHub/Compile_principle_program_design/cmake-build-debug

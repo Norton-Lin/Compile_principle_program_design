@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="Compile_principle_program_design" targetName="Compile_principle_program_design" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bc91f5a5-a339-453f-bad9-2b239a8f4a5a" name="变更" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/lexical_analysis/docs/预处理模块.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/0_Pre_Disposal/Pre_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/1_Lexical/Lex_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/1_Lexical/Lex_002.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/1_Lexical/Lex_003.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/1_Lexical/Lex_005.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_002.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_003.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_004.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_005.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_006.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_007.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/01/Grammar_01_008.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/02/Grammar_02_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/02/Grammar_02_002.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/02/Grammar_02_003.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/02/Grammar_02_004.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/03/Grammar_03_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/03/Grammar_03_002.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/03/Grammar_03_003.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/03/Grammar_03_004.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/03/Grammar_03_005.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/03/Grammar_03_006.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_002.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_003.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_004.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_005.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_006.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_007.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_008.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_009.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/04/Grammar_04_010.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_001.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_002.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_003.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_004.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_005.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_006.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_007.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_008.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_009.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_010.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_011.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/2_Grammar/05/Grammar_05_012.pas" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test/Compile Test/测试表.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test0" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test/Compile Test/1_Lexical/Lex_004.pas" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test0_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test1_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test2_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test3_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test4_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test5_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/Tests/Test6_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/lexical_analysis/src/main.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.cmake/api/v1/reply/index-2023-04-04T07-47-23-0713.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_deps" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CMakeDetermineCompilerABI_C.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CMakeDetermineCompilerABI_C.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CMakeDetermineCompilerABI_CXX.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CompilerIdC/a.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CompilerIdC/a.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CompilerIdCXX/a.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.23.2/CompilerIdCXX/a.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/Disposal.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/lex.yy.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Compile_principle_program_design.dir/backend/lexical_analysis/src/main.cpp.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2022" />
+    <option name="minorVersion" value="2.2" />
+  </component>
+  <component name="ProjectId" id="2OvBkK9uQOSSnHEQuCtSDSqEUKX" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/HP/Documents/GitHub/Compile_principle_program_design/backend/test&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\HP\Documents\GitHub\Compile_principle_program_design\backend\test" />
+      <recent name="C:\Users\HP\Documents\GitHub\Compile_principle_program_design\backend\lexical_analysis\docs" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\HP\Documents\GitHub\Compile_principle_program_design\backend\lexical_analysis\docs" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Compile_principle_program_design" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Compile_principle_program_design" TARGET_NAME="Compile_principle_program_design" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Compile_principle_program_design" RUN_TARGET_NAME="Compile_principle_program_design">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="bc91f5a5-a339-453f-bad9-2b239a8f4a5a" name="变更" comment="" />
+      <created>1682431318571</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1682431318571</updated>
+      <workItem from="1682431321728" duration="5909000" />
+      <workItem from="1682582007615" duration="11000" />
+      <workItem from="1682582696948" duration="40000" />
+      <workItem from="1682583878055" duration="1355000" />
+      <workItem from="1683120194590" duration="310000" />
+      <workItem from="1683120562094" duration="569000" />
+      <workItem from="1683121152364" duration="232000" />
+      <workItem from="1683121405590" duration="241000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

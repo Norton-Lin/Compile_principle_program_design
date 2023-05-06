@@ -51,3 +51,18 @@ enum yytokentype{
         _CHAR = 285,
         _BOOLEAN = 286
 };
+
+class Pre {
+public:
+    explicit Pre(string filename);
+    bool Read_Line();
+    bool Write_Line();
+    void Dispose();
+private:
+    ifstream input;
+    ofstream output;
+    vector<string> lines;
+    string filename;
+    static string Break(const string& String);
+    static char jump_space(int &, string line);
+};

@@ -565,6 +565,25 @@ separator (\(|\)|\[|\]|:|;|,|\.)
 	}
 }
 
+{identifier} {
+	if(yyleng > 50)//截断处理，防止出现过长的标识符
+	{
+		yytext[50] = 0;
+	}
+	yylval = new Type;
+	yylval->token = yytext;
+	yylval->id = _ID;
+	yylval->lineNumber = yylineno;
+	//TODO 此处需要补充一个插入符号表的函数
+	yycolumn += yyleng;
+#ifdef LEXDEBUG
+	fprintf(yyout,"id:%s\n",yylval->token.c_str());
+#endif
+#ifndef LEXDEBUG
+	return _ID;
+#endif
+}
+
 <CH>. { 
 	charRes += yytext[0];
 }

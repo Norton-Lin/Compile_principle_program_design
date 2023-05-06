@@ -1055,6 +1055,20 @@ YY_DECL
                     fprintf(yyout,"addop:%s\n",yylval->token.c_str());
 #endif
 #ifndef LEXDEBUG
+	return _VARTYPE;
+#endif
+}
+	YY_BREAK
+case 7:
+YY_RULE_SETUP
+#line 106 "lex.l"
+{
+	yylval = new Type;
+	yylval->token = yytext;
+	yylval->id = _ADDOP;
+	yylval->lineNumber = yylineno;
+	yycolumn += yyleng;
+=======
                     return _ADDOP;
 #endif
                 }
@@ -1102,6 +1116,7 @@ YY_DECL
                     yylval->id = _SEPARATOR;
                     yylval->lineNumber = yylineno;
                     yycolumn += yyleng;
+
 #ifdef LEXDEBUG
                     fprintf(yyout,"separator:%s\n",yylval->token.c_str());
 #endif
