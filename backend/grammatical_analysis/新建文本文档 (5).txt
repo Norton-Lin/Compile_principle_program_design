@@ -1,0 +1,17 @@
+		if (this->children.size() == 6)
+		{
+            //有综合属性的节点
+			ID_AST* ch1 = (ID_AST*)this->children[1];
+			idlist_AST* ch3 = (idlist_AST*)this->children[3];
+
+            //父节点继承属性准备
+
+            //获得子节点综合属性
+            for (int i = 0; i < this->children.size(); ++i) {
+                this->children[i]->sematic_action();
+            }
+
+            //设置父节点综合属性
+			this->program_name = ch1->identifier;
+			this->parameters = ch3->list;
+		}

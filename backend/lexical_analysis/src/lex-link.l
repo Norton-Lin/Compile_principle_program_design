@@ -1,6 +1,7 @@
 %{
 #include "main.h"
-#define LEXDEBUG 1
+#include "y.tab.c"
+//#define LEXDEBUG 1
 vector<string> lexErrorInfo;
 void addLexErrorInfo(string info, int lineno, int column);
 
@@ -565,25 +566,6 @@ separator (\(|\)|\[|\]|:|;|,|\.)
 	}
 }
 
-{identifier} {
-	if(yyleng > 50)//截断处理，防止出现过长的标识符
-	{
-		yytext[50] = 0;
-	}
-	yylval = new Type;
-	yylval->token = yytext;
-	yylval->id = _ID;
-	yylval->lineNumber = yylineno;
-	//TODO 此处需要补充一个插入符号表的函数
-	yycolumn += yyleng;
-#ifdef LEXDEBUG
-	fprintf(yyout,"id:%s\n",yylval->token.c_str());
-#endif
-#ifndef LEXDEBUG
-	return _ID;
-#endif
-}
-
 <CH>. { 
 	charRes += yytext[0];
 }
@@ -647,13 +629,4 @@ void addLexErrorInfo(string info, int lineno, int column){
 	string errorInfo = "[" + info + "] 第" + to_string(lineno) + "行,第" + to_string(column) + "列\n"; 
 	lexErrorInfo.push_back(errorInfo);
 
-}
-
-int main(){
-	yyin = fopen("D://homework//test.txt","r");
-	yyout = fopen("D://homework//out.txt","w");
-	yylex();
-	for(auto c : lexErrorInfo)
-		cout << c << endl;
-	return 0;
 }
