@@ -260,8 +260,10 @@ const_declarations: _CONST const_declaration ';' {
 };
 
 const_declaration: const_declaration ';' _ID _RELOP const_value {
-	if($3->token.compare("=") != 0)
+	if($4->token.compare("=") != 0){
+			cout<<$4->token<<"     not   ="<<endl;
         	yyerror("");
+	}
 
 	BitNode *newNode, *Node2, *Node3, *Node4;
 	newNode = getBitNode(yycolumn,yylineno,"", "const_declaration");
@@ -307,8 +309,10 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
 	$$ = newNode; 
 } 
  	| _ID _RELOP const_value {
- 	if($2->token.compare("=")!=0)
+ 	if($2->token.compare("=")!=0){
+			cout<<$2->token<<"     not   ="<<endl;
         	yyerror("");
+	}
 
 	BitNode *newNode, *Node1, *Node2;
 	newNode = getBitNode(yycolumn,yylineno,"", "const_declaration");
@@ -340,8 +344,11 @@ const_declaration: const_declaration ';' _ID _RELOP const_value {
 } ;
 
 const_value: _ADDOP _NUM {
-	if($1->token.compare("+") != 0) // 修改终结符判断逻辑，因为对终结符 ADDOP的内容为 + or
+	if($1->token.compare("+") != 0){
+		// 修改终结符判断逻辑，因为对终结符 ADDOP的内容为 + or
+		cout<<$1->token<<"     not   +"<<endl; 
 		yyerror("");
+	}
 
 	BitNode *newNode, *Node1, *Node2;
 	newNode = getBitNode(yycolumn, yylineno, "", "const_value");
@@ -417,8 +424,11 @@ const_value: _ADDOP _NUM {
 }
 
 	| _ADDOP _DIGITS { // 增加处理 digits 关联的生成式
-	if($1->token.compare("+") != 0) // ADDOP包括两种运算：+ or
+	if($1->token.compare("+") != 0) {
+		// ADDOP包括两种运算：+ or
+		cout<<$1->token<<"     not    +"<<endl;
 		yyerror("");
+	}
 
 	BitNode *newNode, *Node1, *Node2;
 	newNode = getBitNode(yycolumn, yylineno,"", "const_value");
@@ -957,9 +967,6 @@ var_parameter: _VAR value_parameter{
 };
 
 value_parameter: idlist ':' basic_type {
-	// if($2->token.compare(":") != 0)
-	//	yyerror("");
-
 	BitNode *newNode, *Node2;
 	newNode = getBitNode(yycolumn,yylineno,"", "value_parameter");
 	Node2 = getBitNode(yycolumn,yylineno,":", "SEPARATOR");
@@ -1808,9 +1815,6 @@ factor: _NUM {
 }
 
  	| '(' expression ')' {
-	// if($1->token.compare("(") != 0 || $3->token.compare(")") != 0)
-	//	yyerror("");
-
 	BitNode *newNode, *Node1, *Node3;
 	newNode = getBitNode(yycolumn,yylineno,"", "factor");
 	Node1 = getBitNode(yycolumn,yylineno,"(", "SEPARATOR");
@@ -1876,7 +1880,7 @@ factor: _NUM {
 } | _UMINUS factor {
 	BitNode *newNode, *Node1;
         newNode = getBitNode(yycolumn,yylineno,"", "factor");
-        Node1 = getBitNode(yycolumn,yylineno,$1->token, "_UMINUS");
+        Node1 = getBitNode(yycolumn,yylineno,$1->token, "UMINUS");
 
         newNode->insertChild(Node1);
         newNode->insertChild($2);
