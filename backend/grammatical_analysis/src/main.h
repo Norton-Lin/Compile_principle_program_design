@@ -50,6 +50,21 @@ public:
     void insertChild(BitNode *child); // 插入文法产生式的右部文法符号
 };
 
+class Pre {
+public:
+    explicit Pre(string filename);
+    bool Read_Line();
+    bool Write_Line();
+    void Dispose();
+private:
+    ifstream input;
+    ofstream output;
+    vector<string> lines;
+    string filename;
+    static string Break(const string& String);
+    static char jump_space(int &, string line);
+};
+
 union Nodes
 {
     Type *TYPE;
