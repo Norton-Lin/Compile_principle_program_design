@@ -1,3 +1,12 @@
+/**
+ * @file CodeGenerate.cpp
+ * @author Linzhi 2020211472
+ * @brief
+        LLVM IR目标代码生成实现模块
+* @version 0.1
+* @date 2023-04-29
+* @copyright(cpp) 2023
+"*/
 #include "CodeGenerate.h"
 #include "ASTNodes.hpp"
 extern SymbolTable symbolTable;

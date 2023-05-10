@@ -5,7 +5,7 @@
         Pascal_S compiler 客户端
         基于python、QT、QML实现
 * @version 0.1
-* @data 2023-05-05
+* @date 2023-05-05
 * @copyright(python) 2023
 """
 # -*- coding: utf-8 -*-

@@ -1,3 +1,12 @@
+/**
+ * @file ASTNodes.hpp
+ * @author ZhangLei 2020211481 Linzhi 2020211472
+ * @brief
+        语义分析模块的AST节点定义
+* @version 0.1
+* @date 2023-05-01
+* @copyright(cpp) 2023
+*/
 #include "interface.h"
 #include "symbol_table.hpp"
 #include "CodeGenerate.h"
@@ -3795,6 +3804,7 @@ llvm::Value *const_declarations_AST::code_generation()
             symbol_table_item->value.basic_val->llvmvalue = ret;
         }
     }
+    return nullptr;
 }
 // 元素 常量 变量 类型
 

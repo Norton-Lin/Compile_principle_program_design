@@ -1,3 +1,12 @@
+/**
+ * @file CodeGenerate.h
+ * @author Linzhi 2020211472
+ * @brief
+        LLVM IR目标代码生成声明模块
+* @version 0.1
+* @date 2023-04-29
+* @copyright(cpp) 2023
+"*/
 #ifndef __CODEGENERATE_H_
 #define __CODEGENERATE_H_
 
