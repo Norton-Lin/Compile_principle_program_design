@@ -80,18 +80,27 @@ extern "C"{
 }
 extern int yylineno,yycolumn;
 
+BitNode* root;
+vector<Error*> errorInfo;
+int if_error=0;
+
 void BitNode::insertChild(BitNode* child) {
     children.push_back(child);
 	child->father=this;
 	cout<<"\t\t"<<this->type<<"\t"<<child->type<<"\t"<<child->data<<"\t"<<endl;
 }
 
-BitNode* root;
-vector<Error*> errorInfo;
-int if_error=0;
+BitNode* getBitNode(int yylineno,int yycolumn,string data, string type_val){
+	if(type_val.compare("error")==0){
+		if_error=1;
+		// yyerror(data);
+	}
+	BitNode* ans=new BitNode(yylineno,yycolumn,data, type_val);
+	return ans;
+} 
 
 
-#line 95 "y.tab.cpp"
+#line 104 "y.tab.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -585,31 +594,31 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    30,    30,    42,    48,    54,    59,    72,    78,    84,
-      88,   107,   113,   119,   125,   131,   137,   142,   153,   159,
-     165,   171,   176,   189,   195,   201,   205,   214,   219,   232,
-     238,   244,   248,   255,   274,   280,   286,   292,   298,   302,
-     318,   324,   330,   335,   351,   364,   369,   374,   385,   396,
-     401,   412,   427,   439,   450,   463,   469,   475,   479,   486,
-     502,   508,   514,   520,   526,   530,   542,   548,   554,   559,
-     568,   572,   591,   597,   603,   609,   615,   621,   626,   636,
-     641,   658,   671,   676,   682,   688,   694,   697,   703,   709,
-     714,   726,   731,   737,   743,   748,   761,   773,   779,   785,
-     789,   804,   810,   816,   822,   828,   834,   846,   852,   858,
-     862,   869,   880,   886,   892,   896,   904,   909,   918,   926,
-     931,   941,   947,   952,   966,   972,   978,   983,   993,   999,
-    1005,  1010,  1023,  1029,  1035,  1040,  1051,  1057,  1063,  1067,
-    1074,  1079,  1090,  1096,  1102,  1106,  1114,  1121,  1125,  1139,
-    1145,  1151,  1157,  1163,  1167,  1187,  1193,  1199,  1205,  1211,
-    1217,  1223,  1229,  1233,  1248,  1254,  1260,  1266,  1271,  1277,
-    1283,  1289,  1293,  1308,  1314,  1327,  1333,  1339,  1345,  1350,
-    1362,  1368,  1374,  1378,  1387,  1392,  1404,  1410,  1415,  1428,
-    1434,  1440,  1444,  1451,  1462,  1468,  1474,  1480,  1486,  1490,
-    1506,  1519,  1525,  1529,  1536,  1550,  1556,  1562,  1566,  1575,
-    1580,  1592,  1602,  1608,  1614,  1620,  1625,  1636,  1648,  1658,
-    1664,  1670,  1676,  1681,  1693,  1699,  1705,  1709,  1718,  1724,
-    1734,  1743,  1753,  1762,  1766,  1770,  1776,  1782,  1786,  1803,
-    1819,  1831,  1837,  1843,  1849,  1855,  1859,  1869
+       0,    39,    39,    51,    57,    63,    69,    82,    88,    94,
+      99,   118,   124,   130,   137,   143,   150,   156,   167,   173,
+     179,   185,   190,   203,   209,   216,   220,   229,   235,   248,
+     254,   260,   265,   272,   293,   299,   306,   312,   318,   322,
+     340,   346,   352,   357,   376,   389,   394,   399,   410,   421,
+     426,   437,   455,   467,   478,   491,   497,   503,   508,   515,
+     531,   537,   544,   550,   557,   561,   573,   579,   586,   591,
+     600,   604,   623,   629,   636,   642,   649,   655,   660,   670,
+     675,   692,   705,   710,   717,   723,   729,   732,   738,   745,
+     750,   762,   767,   773,   779,   785,   798,   810,   816,   822,
+     826,   841,   847,   853,   859,   866,   872,   884,   891,   897,
+     902,   909,   920,   926,   933,   937,   945,   950,   959,   967,
+     972,   982,   989,   994,  1005,  1011,  1018,  1023,  1033,  1039,
+    1045,  1050,  1063,  1070,  1076,  1082,  1093,  1099,  1106,  1110,
+    1117,  1122,  1133,  1139,  1145,  1149,  1157,  1164,  1168,  1182,
+    1189,  1195,  1202,  1208,  1212,  1232,  1239,  1245,  1251,  1257,
+    1264,  1270,  1277,  1281,  1296,  1302,  1309,  1315,  1321,  1328,
+    1335,  1341,  1346,  1361,  1367,  1380,  1387,  1393,  1400,  1405,
+    1417,  1423,  1430,  1434,  1443,  1448,  1460,  1466,  1471,  1484,
+    1491,  1497,  1502,  1509,  1520,  1526,  1532,  1539,  1545,  1550,
+    1566,  1579,  1586,  1590,  1597,  1611,  1617,  1624,  1628,  1637,
+    1642,  1654,  1664,  1670,  1676,  1682,  1687,  1698,  1710,  1720,
+    1726,  1732,  1738,  1743,  1755,  1761,  1767,  1771,  1780,  1786,
+    1796,  1805,  1815,  1824,  1828,  1832,  1839,  1845,  1850,  1867,
+    1880,  1892,  1899,  1905,  1912,  1918,  1922,  1932
 };
 #endif
 
@@ -1951,11 +1960,11 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* programstruct: program_head program_body '.'  */
-#line 30 "yacc.y"
+#line 39 "yacc.y"
                                              {
-	BitNode *Node3 = new BitNode(yycolumn,yylineno,".", "SEPARATOR");
+	BitNode *Node3 = getBitNode(yylineno,yycolumn,".", "SEPARATOR");
 
-	root = new BitNode(yycolumn,yylineno,"","programstruct");
+	root = getBitNode(yylineno,yycolumn,"","programstruct");
 	root->insertChild((yyvsp[-2].BITNODE));
         root->insertChild((yyvsp[-1].BITNODE));
         root->insertChild(Node3);
@@ -1964,44 +1973,45 @@ yyreduce:
 	cout << "Parse OK!" << endl;
         (yyval.BITNODE) = root;
 }
-#line 1968 "y.tab.cpp"
-    break;
-
-  case 3: /* programstruct: error program_body '.'  */
-#line 42 "yacc.y"
-                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
-	(yyval.BITNODE) = newNode; 
-}
 #line 1977 "y.tab.cpp"
     break;
 
-  case 4: /* programstruct: program_head error '.'  */
-#line 48 "yacc.y"
-                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+  case 3: /* programstruct: error program_body '.'  */
+#line 51 "yacc.y"
+                         { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
 #line 1986 "y.tab.cpp"
     break;
 
-  case 5: /* programstruct: program_head program_body error  */
-#line 54 "yacc.y"
-                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+  case 4: /* programstruct: program_head error '.'  */
+#line 57 "yacc.y"
+                          { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
 #line 1995 "y.tab.cpp"
     break;
 
+  case 5: /* programstruct: program_head program_body error  */
+#line 63 "yacc.y"
+                                   { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '.'");
+	(yyval.BITNODE) = newNode; 
+}
+#line 2005 "y.tab.cpp"
+    break;
+
   case 6: /* program_head: _PROGRAM _ID ';'  */
-#line 59 "yacc.y"
+#line 69 "yacc.y"
                                {
 	BitNode *newNode, *Node1, *Node2, *Node3;
-       	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "PROGRAM");
-       	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ID");
-       	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
-       	newNode = new BitNode(yycolumn,yylineno,"", "program_head");
+       	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "PROGRAM");
+       	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ID");
+       	Node3 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
+       	newNode = getBitNode(yylineno,yycolumn,"", "program_head");
 
        	newNode->insertChild(Node1);
        	newNode->insertChild(Node2);
@@ -2010,46 +2020,47 @@ yyreduce:
        	cout<<"program_head -> program id ; [OK]"<<endl;
        	(yyval.BITNODE) = newNode;
 }
-#line 2014 "y.tab.cpp"
+#line 2024 "y.tab.cpp"
     break;
 
   case 7: /* program_head: error _ID ';'  */
-#line 72 "yacc.y"
+#line 82 "yacc.y"
                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2023 "y.tab.cpp"
+#line 2033 "y.tab.cpp"
     break;
 
   case 8: /* program_head: _PROGRAM error ';'  */
-#line 78 "yacc.y"
+#line 88 "yacc.y"
                       { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2032 "y.tab.cpp"
+#line 2042 "y.tab.cpp"
     break;
 
   case 9: /* program_head: _PROGRAM _ID error  */
-#line 84 "yacc.y"
+#line 94 "yacc.y"
                       { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2041 "y.tab.cpp"
+#line 2052 "y.tab.cpp"
     break;
 
   case 10: /* program_head: _PROGRAM _ID '(' idlist ')' ';'  */
-#line 88 "yacc.y"
+#line 99 "yacc.y"
                                          {
         BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node6;
-        newNode = new BitNode(yycolumn,yylineno,"", "program_head");
-        Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-5].TYPE)->token, "PROGRAM");
-        Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-4].TYPE)->token, "ID");
-        Node3 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-        Node5 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
-        Node6 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+        newNode = getBitNode(yylineno,yycolumn,"", "program_head");
+        Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-5].TYPE)->token, "PROGRAM");
+        Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-4].TYPE)->token, "ID");
+        Node3 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+        Node5 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
+        Node6 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2061,67 +2072,70 @@ yyreduce:
         cout<<"program_head -> program id ( idlist ) ; [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2065 "y.tab.cpp"
+#line 2076 "y.tab.cpp"
     break;
 
   case 11: /* program_head: error _ID '(' idlist ')' ';'  */
-#line 107 "yacc.y"
+#line 118 "yacc.y"
                                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2074 "y.tab.cpp"
+#line 2085 "y.tab.cpp"
     break;
 
   case 12: /* program_head: _PROGRAM error '(' idlist ')' ';'  */
-#line 113 "yacc.y"
+#line 124 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2083 "y.tab.cpp"
+#line 2094 "y.tab.cpp"
     break;
 
   case 13: /* program_head: _PROGRAM _ID error idlist ')' ';'  */
-#line 119 "yacc.y"
+#line 130 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2092 "y.tab.cpp"
+#line 2104 "y.tab.cpp"
     break;
 
   case 14: /* program_head: _PROGRAM _ID '(' error ')' ';'  */
-#line 125 "yacc.y"
+#line 137 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2101 "y.tab.cpp"
+#line 2113 "y.tab.cpp"
     break;
 
   case 15: /* program_head: _PROGRAM _ID '(' idlist error ';'  */
-#line 131 "yacc.y"
+#line 143 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2110 "y.tab.cpp"
+#line 2123 "y.tab.cpp"
     break;
 
   case 16: /* program_head: _PROGRAM _ID '(' idlist ')' error  */
-#line 137 "yacc.y"
+#line 150 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2119 "y.tab.cpp"
+#line 2133 "y.tab.cpp"
     break;
 
   case 17: /* program_body: const_declarations var_declarations subprogram_declarations compound_statement  */
-#line 142 "yacc.y"
+#line 156 "yacc.y"
                                                                                              {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "program_body");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "program_body");
 
 	newNode->insertChild((yyvsp[-3].BITNODE));
 	newNode->insertChild((yyvsp[-2].BITNODE));
@@ -2131,52 +2145,52 @@ yyreduce:
 	cout<<"program_body -> const_declarations var_declarationssubprogram_declarations compound_statement [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2135 "y.tab.cpp"
+#line 2149 "y.tab.cpp"
     break;
 
   case 18: /* program_body: error var_declarations subprogram_declarations compound_statement  */
-#line 153 "yacc.y"
+#line 167 "yacc.y"
                                                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2144 "y.tab.cpp"
+#line 2158 "y.tab.cpp"
     break;
 
   case 19: /* program_body: const_declarations error subprogram_declarations compound_statement  */
-#line 159 "yacc.y"
+#line 173 "yacc.y"
                                                                        { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2153 "y.tab.cpp"
+#line 2167 "y.tab.cpp"
     break;
 
   case 20: /* program_body: const_declarations var_declarations error compound_statement  */
-#line 165 "yacc.y"
+#line 179 "yacc.y"
                                                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2162 "y.tab.cpp"
+#line 2176 "y.tab.cpp"
     break;
 
   case 21: /* program_body: const_declarations var_declarations subprogram_declarations error  */
-#line 171 "yacc.y"
+#line 185 "yacc.y"
                                                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2171 "y.tab.cpp"
+#line 2185 "y.tab.cpp"
     break;
 
   case 22: /* idlist: idlist ',' _ID  */
-#line 176 "yacc.y"
+#line 190 "yacc.y"
                        {
 	BitNode *newNode, *Node2, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "idlist");
-	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "ID");
+	newNode = getBitNode(yylineno,yycolumn,"", "idlist");
+	Node2 = getBitNode(yylineno,yycolumn,",", "SEPARATOR");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "ID");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -2185,66 +2199,68 @@ yyreduce:
 	cout<<"idlist -> idlist , id [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2189 "y.tab.cpp"
+#line 2203 "y.tab.cpp"
     break;
 
   case 23: /* idlist: error ',' _ID  */
-#line 189 "yacc.y"
+#line 203 "yacc.y"
                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2198 "y.tab.cpp"
+#line 2212 "y.tab.cpp"
     break;
 
   case 24: /* idlist: idlist error _ID  */
-#line 195 "yacc.y"
+#line 209 "yacc.y"
                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ','");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2207 "y.tab.cpp"
+#line 2222 "y.tab.cpp"
     break;
 
   case 25: /* idlist: idlist ',' error  */
-#line 201 "yacc.y"
+#line 216 "yacc.y"
                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2216 "y.tab.cpp"
+#line 2231 "y.tab.cpp"
     break;
 
   case 26: /* idlist: _ID  */
-#line 205 "yacc.y"
+#line 220 "yacc.y"
               {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "idlist");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "ID");
+	newNode = getBitNode(yylineno,yycolumn,"", "idlist");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "ID");
 	newNode->insertChild(Node1);
 
 	cout<<"idlist -> id [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2230 "y.tab.cpp"
+#line 2245 "y.tab.cpp"
     break;
 
   case 27: /* idlist: error  */
-#line 214 "yacc.y"
+#line 229 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing id");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2239 "y.tab.cpp"
+#line 2255 "y.tab.cpp"
     break;
 
   case 28: /* const_declarations: _CONST const_declaration ';'  */
-#line 219 "yacc.y"
+#line 235 "yacc.y"
                                                  {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_declarations");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "CONST");
-	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_declarations");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "CONST");
+	Node3 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -2253,58 +2269,61 @@ yyreduce:
 	cout<<"const_declarations -> const const_declaration ; [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2257 "y.tab.cpp"
+#line 2273 "y.tab.cpp"
     break;
 
   case 29: /* const_declarations: error const_declaration ';'  */
-#line 232 "yacc.y"
+#line 248 "yacc.y"
                               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2266 "y.tab.cpp"
+#line 2282 "y.tab.cpp"
     break;
 
   case 30: /* const_declarations: _CONST error ';'  */
-#line 238 "yacc.y"
+#line 254 "yacc.y"
                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2275 "y.tab.cpp"
+#line 2291 "y.tab.cpp"
     break;
 
   case 31: /* const_declarations: _CONST const_declaration error  */
-#line 244 "yacc.y"
+#line 260 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2284 "y.tab.cpp"
+#line 2301 "y.tab.cpp"
     break;
 
   case 32: /* const_declarations: %empty  */
-#line 248 "yacc.y"
+#line 265 "yacc.y"
           {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "const_declarations");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "const_declarations");
 
 	cout<<"const_declarations -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2295 "y.tab.cpp"
+#line 2312 "y.tab.cpp"
     break;
 
   case 33: /* const_declaration: const_declaration ';' _ID _RELOP const_value  */
-#line 255 "yacc.y"
+#line 272 "yacc.y"
                                                                 {
-	if((yyvsp[-2].TYPE)->token.compare("=") != 0)
+	if((yyvsp[-1].TYPE)->token.compare("=") != 0){
+			cout<<(yyvsp[-1].TYPE)->token<<"     not   ="<<endl;
         	yyerror("");
+	}
 
 	BitNode *newNode, *Node2, *Node3, *Node4;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_declaration");
-	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "ID");
-	Node4 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "RELOP");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_declaration");
+	Node2 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "ID");
+	Node4 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "RELOP");
 
 	newNode->insertChild((yyvsp[-4].BITNODE));
 	newNode->insertChild(Node2);
@@ -2315,64 +2334,67 @@ yyreduce:
 	cout<<"const_declaration -> const_declaration ; id = const_value [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2319 "y.tab.cpp"
+#line 2338 "y.tab.cpp"
     break;
 
   case 34: /* const_declaration: error ';' _ID _RELOP const_value  */
-#line 274 "yacc.y"
+#line 293 "yacc.y"
                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2328 "y.tab.cpp"
+#line 2347 "y.tab.cpp"
     break;
 
   case 35: /* const_declaration: const_declaration error _ID _RELOP const_value  */
-#line 280 "yacc.y"
+#line 299 "yacc.y"
                                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2337 "y.tab.cpp"
+#line 2357 "y.tab.cpp"
     break;
 
   case 36: /* const_declaration: const_declaration ';' error _RELOP const_value  */
-#line 286 "yacc.y"
+#line 306 "yacc.y"
                                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2346 "y.tab.cpp"
+#line 2366 "y.tab.cpp"
     break;
 
   case 37: /* const_declaration: const_declaration ';' _ID error const_value  */
-#line 292 "yacc.y"
+#line 312 "yacc.y"
                                                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2355 "y.tab.cpp"
+#line 2375 "y.tab.cpp"
     break;
 
   case 38: /* const_declaration: const_declaration ';' _ID _RELOP error  */
-#line 298 "yacc.y"
+#line 318 "yacc.y"
                                           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2364 "y.tab.cpp"
+#line 2384 "y.tab.cpp"
     break;
 
   case 39: /* const_declaration: _ID _RELOP const_value  */
-#line 302 "yacc.y"
+#line 322 "yacc.y"
                                  {
- 	if((yyvsp[-1].TYPE)->token.compare("=")!=0)
+ 	if((yyvsp[-1].TYPE)->token.compare("=")!=0){
+			cout<<(yyvsp[-1].TYPE)->token<<"     not   ="<<endl;
         	yyerror("");
+	}
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_declaration");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "ID");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "RELOP");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_declaration");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "ID");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "RELOP");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2381,46 +2403,49 @@ yyreduce:
 	cout<<"const_declaration -> id = const_value [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2385 "y.tab.cpp"
+#line 2407 "y.tab.cpp"
     break;
 
   case 40: /* const_declaration: error _RELOP const_value  */
-#line 318 "yacc.y"
+#line 340 "yacc.y"
                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2394 "y.tab.cpp"
+#line 2416 "y.tab.cpp"
     break;
 
   case 41: /* const_declaration: _ID error const_value  */
-#line 324 "yacc.y"
+#line 346 "yacc.y"
                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2403 "y.tab.cpp"
+#line 2425 "y.tab.cpp"
     break;
 
   case 42: /* const_declaration: _ID _RELOP error  */
-#line 330 "yacc.y"
+#line 352 "yacc.y"
                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2412 "y.tab.cpp"
+#line 2434 "y.tab.cpp"
     break;
 
   case 43: /* const_value: _ADDOP _NUM  */
-#line 335 "yacc.y"
+#line 357 "yacc.y"
                          {
-	if((yyvsp[-1].TYPE)->token.compare("+") != 0) // 修改终结符判断逻辑，因为对终结符 ADDOP的内容为 + or
+	if((yyvsp[-1].TYPE)->token.compare("+") != 0){
+		// 修改终结符判断逻辑，因为对终结符 ADDOP的内容为 + or
+		cout<<(yyvsp[-1].TYPE)->token<<"     not   +"<<endl; 
 		yyerror("");
+	}
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
-	Node1 = new BitNode(yycolumn, yylineno, (yyvsp[-1].TYPE)->token, "ADDOP");
-	Node2 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "NUM");
+	newNode = getBitNode(yylineno,yycolumn, "", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn, (yyvsp[-1].TYPE)->token, "ADDOP");
+	Node2 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "NUM");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2428,16 +2453,16 @@ yyreduce:
 	cout<<"const_value -> + num [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2432 "y.tab.cpp"
+#line 2457 "y.tab.cpp"
     break;
 
   case 44: /* const_value: _UMINUS _NUM  */
-#line 351 "yacc.y"
+#line 376 "yacc.y"
                        { // 增加 UMINUS 的关联生成式
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
-	Node1 = new BitNode(yycolumn, yylineno, (yyvsp[-1].TYPE)->token, "UMINUS");
-	Node2 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "NUM");
+	newNode = getBitNode(yylineno,yycolumn, "", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn, (yyvsp[-1].TYPE)->token, "UMINUS");
+	Node2 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "NUM");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2445,91 +2470,94 @@ yyreduce:
 	cout<<"const_value -> - num [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2449 "y.tab.cpp"
+#line 2474 "y.tab.cpp"
     break;
 
   case 45: /* const_value: error _NUM  */
-#line 364 "yacc.y"
+#line 389 "yacc.y"
                      {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2458 "y.tab.cpp"
+#line 2483 "y.tab.cpp"
     break;
 
   case 46: /* const_value: _ADDOP error  */
-#line 369 "yacc.y"
+#line 394 "yacc.y"
                        {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2467 "y.tab.cpp"
+#line 2492 "y.tab.cpp"
     break;
 
   case 47: /* const_value: _NUM  */
-#line 374 "yacc.y"
+#line 399 "yacc.y"
                {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "NUM");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "NUM");
 
 	newNode->insertChild(Node1);
 
 	cout<<"const_value -> num [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2482 "y.tab.cpp"
+#line 2507 "y.tab.cpp"
     break;
 
   case 48: /* const_value: _CHAR  */
-#line 385 "yacc.y"
+#line 410 "yacc.y"
                   { // 处理单个字符
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "const_value");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "CHAR");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "CHAR");
 
 	newNode->insertChild(Node1);
 
 	cout<<"const_value -> char [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2497 "y.tab.cpp"
+#line 2522 "y.tab.cpp"
     break;
 
   case 49: /* const_value: error  */
-#line 396 "yacc.y"
+#line 421 "yacc.y"
                 {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2506 "y.tab.cpp"
+#line 2531 "y.tab.cpp"
     break;
 
   case 50: /* const_value: _DIGITS  */
-#line 401 "yacc.y"
+#line 426 "yacc.y"
                   { // 增加处理 digits 的生成式
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
-	Node1 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "DIGITS");
+	newNode = getBitNode(yylineno,yycolumn, "", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "DIGITS");
 
 	newNode->insertChild(Node1);
 
 	cout<<"const_value -> digits [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 2521 "y.tab.cpp"
+#line 2546 "y.tab.cpp"
     break;
 
   case 51: /* const_value: _ADDOP _DIGITS  */
-#line 412 "yacc.y"
+#line 437 "yacc.y"
                          { // 增加处理 digits 关联的生成式
-	if((yyvsp[-1].TYPE)->token.compare("+") != 0) // ADDOP包括两种运算：+ or
+	if((yyvsp[-1].TYPE)->token.compare("+") != 0) {
+		// ADDOP包括两种运算：+ or
+		cout<<(yyvsp[-1].TYPE)->token<<"     not    +"<<endl;
 		yyerror("");
+	}
 
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn, yylineno,"", "const_value");
-	Node1 = new BitNode(yycolumn, yylineno, (yyvsp[-1].TYPE)->token, "ADDOP");
-	Node2 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "DIGITS");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn, (yyvsp[-1].TYPE)->token, "ADDOP");
+	Node2 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "DIGITS");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2537,16 +2565,16 @@ yyreduce:
 	cout<<"const_value -> + digits [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2541 "y.tab.cpp"
+#line 2569 "y.tab.cpp"
     break;
 
   case 52: /* const_value: _UMINUS _DIGITS  */
-#line 427 "yacc.y"
+#line 455 "yacc.y"
                           { // 增加处理 digits 关联的生成式
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn, yylineno,"", "const_value");
-	Node1 = new BitNode(yycolumn, yylineno, (yyvsp[-1].TYPE)->token, "UMINUS");
-	Node2 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "DIGITS");
+	newNode = getBitNode(yylineno,yycolumn,"", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn, (yyvsp[-1].TYPE)->token, "UMINUS");
+	Node2 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "DIGITS");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2554,31 +2582,31 @@ yyreduce:
 	cout<<"const_value -> - digits [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2558 "y.tab.cpp"
+#line 2586 "y.tab.cpp"
     break;
 
   case 53: /* const_value: _BOOLEAN  */
-#line 439 "yacc.y"
+#line 467 "yacc.y"
                   { // 增加处理 boolean 的生成式
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn, yylineno, "", "const_value");
-	Node1 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "BOOLEAN");
+	newNode = getBitNode(yylineno,yycolumn, "", "const_value");
+	Node1 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "BOOLEAN");
 
 	newNode->insertChild(Node1);
 
 	cout<<"const_value -> boolean [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 2573 "y.tab.cpp"
+#line 2601 "y.tab.cpp"
     break;
 
   case 54: /* var_declarations: _VAR var_declaration ';'  */
-#line 450 "yacc.y"
+#line 478 "yacc.y"
                                            {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "var_declarations");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "VAR");
-	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "var_declarations");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "VAR");
+	Node3 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -2587,54 +2615,55 @@ yyreduce:
 	cout<<"var_declarations -> var var_declaration ; [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2591 "y.tab.cpp"
+#line 2619 "y.tab.cpp"
     break;
 
   case 55: /* var_declarations: error var_declaration ';'  */
-#line 463 "yacc.y"
+#line 491 "yacc.y"
                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2600 "y.tab.cpp"
+#line 2628 "y.tab.cpp"
     break;
 
   case 56: /* var_declarations: _VAR error ';'  */
-#line 469 "yacc.y"
+#line 497 "yacc.y"
                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2609 "y.tab.cpp"
+#line 2637 "y.tab.cpp"
     break;
 
   case 57: /* var_declarations: _VAR var_declaration error  */
-#line 475 "yacc.y"
+#line 503 "yacc.y"
                               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2618 "y.tab.cpp"
+#line 2647 "y.tab.cpp"
     break;
 
   case 58: /* var_declarations: %empty  */
-#line 479 "yacc.y"
+#line 508 "yacc.y"
           {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "var_declarations");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "var_declarations");
 
 	cout<<"var_declarations -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2629 "y.tab.cpp"
+#line 2658 "y.tab.cpp"
     break;
 
   case 59: /* var_declaration: var_declaration ';' idlist ':' type  */
-#line 486 "yacc.y"
+#line 515 "yacc.y"
                                                      {
 	BitNode *newNode, *Node2, *Node4;
-	newNode = new BitNode(yycolumn,yylineno,"", "var_declaration");
-	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
-	Node4 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "var_declaration");
+	Node2 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
+	Node4 = getBitNode(yylineno,yycolumn,":", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-4].BITNODE));
 	newNode->insertChild(Node2);
@@ -2645,60 +2674,62 @@ yyreduce:
 	cout<<"var_declaration -> var_declaration ; idlist : type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2649 "y.tab.cpp"
+#line 2678 "y.tab.cpp"
     break;
 
   case 60: /* var_declaration: error ';' idlist ':' type  */
-#line 502 "yacc.y"
+#line 531 "yacc.y"
                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2658 "y.tab.cpp"
+#line 2687 "y.tab.cpp"
     break;
 
   case 61: /* var_declaration: var_declaration error idlist ':' type  */
-#line 508 "yacc.y"
+#line 537 "yacc.y"
                                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2667 "y.tab.cpp"
+#line 2697 "y.tab.cpp"
     break;
 
   case 62: /* var_declaration: var_declaration ';' error ':' type  */
-#line 514 "yacc.y"
+#line 544 "yacc.y"
                                       { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2676 "y.tab.cpp"
+#line 2706 "y.tab.cpp"
     break;
 
   case 63: /* var_declaration: var_declaration ';' idlist error type  */
-#line 520 "yacc.y"
+#line 550 "yacc.y"
                                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ':'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2685 "y.tab.cpp"
+#line 2716 "y.tab.cpp"
     break;
 
   case 64: /* var_declaration: var_declaration ';' idlist ':' error  */
-#line 526 "yacc.y"
+#line 557 "yacc.y"
                                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2694 "y.tab.cpp"
+#line 2725 "y.tab.cpp"
     break;
 
   case 65: /* var_declaration: idlist ':' type  */
-#line 530 "yacc.y"
+#line 561 "yacc.y"
                           {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "var_declaration");
-	Node2 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "var_declaration");
+	Node2 = getBitNode(yylineno,yycolumn,":", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -2707,68 +2738,69 @@ yyreduce:
 	cout<<"var_declaration -> idlist : type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2711 "y.tab.cpp"
+#line 2742 "y.tab.cpp"
     break;
 
   case 66: /* var_declaration: error ':' type  */
-#line 542 "yacc.y"
+#line 573 "yacc.y"
                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2720 "y.tab.cpp"
+#line 2751 "y.tab.cpp"
     break;
 
   case 67: /* var_declaration: idlist error type  */
-#line 548 "yacc.y"
+#line 579 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ':'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2729 "y.tab.cpp"
+#line 2761 "y.tab.cpp"
     break;
 
   case 68: /* var_declaration: idlist ':' error  */
-#line 554 "yacc.y"
+#line 586 "yacc.y"
                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2738 "y.tab.cpp"
+#line 2770 "y.tab.cpp"
     break;
 
   case 69: /* type: basic_type  */
-#line 559 "yacc.y"
+#line 591 "yacc.y"
                  {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "type");
+	newNode = getBitNode(yylineno,yycolumn,"", "type");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"type -> basic_type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2752 "y.tab.cpp"
+#line 2784 "y.tab.cpp"
     break;
 
   case 70: /* type: error  */
-#line 568 "yacc.y"
+#line 600 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2761 "y.tab.cpp"
+#line 2793 "y.tab.cpp"
     break;
 
   case 71: /* type: _ARRAY '[' period ']' _OF basic_type  */
-#line 572 "yacc.y"
+#line 604 "yacc.y"
                                                {
 	BitNode *newNode, *Node1, *Node2, *Node4, *Node5;
-	newNode = new BitNode(yycolumn,yylineno,"", "type");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-5].TYPE)->token, "ARRAY");
-	Node2 = new BitNode(yycolumn,yylineno,"[", "SEPARATOR");
-	Node4 = new BitNode(yycolumn,yylineno,"]", "SEPARATOR");
-	Node5 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "OF");
+	newNode = getBitNode(yylineno,yycolumn,"", "type");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-5].TYPE)->token, "ARRAY");
+	Node2 = getBitNode(yylineno,yycolumn,"[", "SEPARATOR");
+	Node4 = getBitNode(yylineno,yycolumn,"]", "SEPARATOR");
+	Node5 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "OF");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2780,96 +2812,98 @@ yyreduce:
 	cout<<"type -> array [ period ] of basic_type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2784 "y.tab.cpp"
+#line 2816 "y.tab.cpp"
     break;
 
   case 72: /* type: error '[' period ']' _OF basic_type  */
-#line 591 "yacc.y"
+#line 623 "yacc.y"
                                        { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2793 "y.tab.cpp"
+#line 2825 "y.tab.cpp"
     break;
 
   case 73: /* type: _ARRAY error period ']' _OF basic_type  */
-#line 597 "yacc.y"
+#line 629 "yacc.y"
                                           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '['");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2802 "y.tab.cpp"
+#line 2835 "y.tab.cpp"
     break;
 
   case 74: /* type: _ARRAY '[' error ']' _OF basic_type  */
-#line 603 "yacc.y"
+#line 636 "yacc.y"
                                        { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2811 "y.tab.cpp"
+#line 2844 "y.tab.cpp"
     break;
 
   case 75: /* type: _ARRAY '[' period error _OF basic_type  */
-#line 609 "yacc.y"
+#line 642 "yacc.y"
                                           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ']'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2820 "y.tab.cpp"
+#line 2854 "y.tab.cpp"
     break;
 
   case 76: /* type: _ARRAY '[' period ']' error basic_type  */
-#line 615 "yacc.y"
+#line 649 "yacc.y"
                                           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2829 "y.tab.cpp"
+#line 2863 "y.tab.cpp"
     break;
 
   case 77: /* type: _ARRAY '[' period ']' _OF error  */
-#line 621 "yacc.y"
+#line 655 "yacc.y"
                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2838 "y.tab.cpp"
+#line 2872 "y.tab.cpp"
     break;
 
   case 78: /* basic_type: _VARTYPE  */
-#line 626 "yacc.y"
+#line 660 "yacc.y"
                      {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "basic_type");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "VARTYPE");
+	newNode = getBitNode(yylineno,yycolumn,"", "basic_type");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "VARTYPE");
 
 	newNode->insertChild(Node1);
 
 	cout<<"type -> basic_type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2853 "y.tab.cpp"
+#line 2887 "y.tab.cpp"
     break;
 
   case 79: /* basic_type: error  */
-#line 636 "yacc.y"
+#line 670 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2862 "y.tab.cpp"
+#line 2896 "y.tab.cpp"
     break;
 
   case 80: /* period: period ',' _DIGITS _RANGE _DIGITS  */
-#line 641 "yacc.y"
+#line 675 "yacc.y"
                                          {
 	BitNode *newNode, *Node2, *Node3, *Node4, *Node5;
-	newNode = new BitNode(yycolumn,yylineno,"", "period");
-	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "DIGITS");
-	Node4 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "RANGE");
-	Node5 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "DIGITS");
+	newNode = getBitNode(yylineno,yycolumn,"", "period");
+	Node2 = getBitNode(yylineno,yycolumn,",", "SEPARATOR");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "DIGITS");
+	Node4 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "RANGE");
+	Node5 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "DIGITS");
 
 	newNode->insertChild((yyvsp[-4].BITNODE));
 	newNode->insertChild(Node2);
@@ -2880,17 +2914,17 @@ yyreduce:
 	cout<<"period -> period , digits .. digits [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2884 "y.tab.cpp"
+#line 2918 "y.tab.cpp"
     break;
 
   case 81: /* period: _DIGITS _RANGE _DIGITS  */
-#line 658 "yacc.y"
+#line 692 "yacc.y"
                                  {
 	BitNode *newNode, *Node1, *Node2, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "period");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "DIGITS");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "RANGE");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "DIGITS");
+	newNode = getBitNode(yylineno,yycolumn,"", "period");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "DIGITS");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "RANGE");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "DIGITS");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -2899,87 +2933,89 @@ yyreduce:
 	cout<<"period -> digits .. digits [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2903 "y.tab.cpp"
+#line 2937 "y.tab.cpp"
     break;
 
   case 82: /* period: error ',' _DIGITS _RANGE _DIGITS  */
-#line 671 "yacc.y"
+#line 705 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2912 "y.tab.cpp"
+#line 2946 "y.tab.cpp"
     break;
 
   case 83: /* period: period error _DIGITS _RANGE _DIGITS  */
-#line 676 "yacc.y"
+#line 710 "yacc.y"
                                        { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ','");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2921 "y.tab.cpp"
+#line 2956 "y.tab.cpp"
     break;
 
   case 84: /* period: period ',' error _RANGE _DIGITS  */
-#line 682 "yacc.y"
+#line 717 "yacc.y"
                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2930 "y.tab.cpp"
+#line 2965 "y.tab.cpp"
     break;
 
   case 85: /* period: period ',' _DIGITS error _DIGITS  */
-#line 688 "yacc.y"
+#line 723 "yacc.y"
                                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2939 "y.tab.cpp"
+#line 2974 "y.tab.cpp"
     break;
 
   case 86: /* period: period ',' _DIGITS _RANGE error  */
-#line 694 "yacc.y"
+#line 729 "yacc.y"
                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2948 "y.tab.cpp"
+#line 2983 "y.tab.cpp"
     break;
 
   case 87: /* period: error _RANGE _DIGITS  */
-#line 697 "yacc.y"
+#line 732 "yacc.y"
                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2957 "y.tab.cpp"
+#line 2992 "y.tab.cpp"
     break;
 
   case 88: /* period: _DIGITS error _DIGITS  */
-#line 703 "yacc.y"
+#line 738 "yacc.y"
                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '..'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 2966 "y.tab.cpp"
+#line 3002 "y.tab.cpp"
     break;
 
   case 89: /* period: _DIGITS _RANGE error  */
-#line 709 "yacc.y"
+#line 745 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 2975 "y.tab.cpp"
+#line 3011 "y.tab.cpp"
     break;
 
   case 90: /* subprogram_declarations: subprogram_declarations subprogram ';'  */
-#line 714 "yacc.y"
+#line 750 "yacc.y"
                                                                 {
 	BitNode *newNode, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_declarations");
-	Node3 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "subprogram_declarations");
+	Node3 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -2988,53 +3024,54 @@ yyreduce:
 	cout<<"subprogram_declarations -> subprogram_declarations subprogram ; [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 2992 "y.tab.cpp"
+#line 3028 "y.tab.cpp"
     break;
 
   case 91: /* subprogram_declarations: %empty  */
-#line 726 "yacc.y"
+#line 762 "yacc.y"
           {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "subprogram_declarations");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "subprogram_declarations");
 
 	cout<<"subprogram_declarations -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3003 "y.tab.cpp"
+#line 3039 "y.tab.cpp"
     break;
 
   case 92: /* subprogram_declarations: error subprogram ';'  */
-#line 731 "yacc.y"
+#line 767 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3012 "y.tab.cpp"
+#line 3048 "y.tab.cpp"
     break;
 
   case 93: /* subprogram_declarations: subprogram_declarations error ';'  */
-#line 737 "yacc.y"
+#line 773 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3021 "y.tab.cpp"
+#line 3057 "y.tab.cpp"
     break;
 
   case 94: /* subprogram_declarations: subprogram_declarations subprogram error  */
-#line 743 "yacc.y"
+#line 779 "yacc.y"
                                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3030 "y.tab.cpp"
+#line 3067 "y.tab.cpp"
     break;
 
   case 95: /* subprogram: subprogram_head ';' subprogram_body  */
-#line 748 "yacc.y"
+#line 785 "yacc.y"
                                                 {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "subprogram");
-	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "subprogram");
+	Node2 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -3043,16 +3080,16 @@ yyreduce:
 	cout<<"subprogram -> subprogram_head _SEPARATOR subprogram_body [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3047 "y.tab.cpp"
+#line 3084 "y.tab.cpp"
     break;
 
   case 96: /* subprogram_head: _PROCEDURE _ID formal_parameter  */
-#line 761 "yacc.y"
+#line 798 "yacc.y"
                                                  {
 	BitNode *newNode, *Node1, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_head");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "PROCEDURE");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ID");
+	newNode = getBitNode(yylineno,yycolumn,"", "subprogram_head");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "PROCEDURE");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ID");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -3061,44 +3098,44 @@ yyreduce:
 	cout<<"subprogram_head -> procedure id formal_parameter [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3065 "y.tab.cpp"
+#line 3102 "y.tab.cpp"
     break;
 
   case 97: /* subprogram_head: error _ID formal_parameter  */
-#line 773 "yacc.y"
+#line 810 "yacc.y"
                                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3074 "y.tab.cpp"
+#line 3111 "y.tab.cpp"
     break;
 
   case 98: /* subprogram_head: _PROCEDURE error formal_parameter  */
-#line 779 "yacc.y"
+#line 816 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3083 "y.tab.cpp"
+#line 3120 "y.tab.cpp"
     break;
 
   case 99: /* subprogram_head: _PROCEDURE _ID error  */
-#line 785 "yacc.y"
+#line 822 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3092 "y.tab.cpp"
+#line 3129 "y.tab.cpp"
     break;
 
   case 100: /* subprogram_head: _FUNCTION _ID formal_parameter ':' basic_type  */
-#line 789 "yacc.y"
+#line 826 "yacc.y"
                                                         {
 	BitNode *newNode,*Node1, *Node2, *Node4;
-	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_head");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-4].TYPE)->token, "FUNCTION");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "ID");
-	Node4 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "subprogram_head");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-4].TYPE)->token, "FUNCTION");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "ID");
+	Node4 = getBitNode(yylineno,yycolumn,":", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -3109,61 +3146,62 @@ yyreduce:
 	cout<<"subprogram_head -> function id formal_parameter : basic_type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3113 "y.tab.cpp"
+#line 3150 "y.tab.cpp"
     break;
 
   case 101: /* subprogram_head: error _ID formal_parameter ':' basic_type  */
-#line 804 "yacc.y"
+#line 841 "yacc.y"
                                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3122 "y.tab.cpp"
+#line 3159 "y.tab.cpp"
     break;
 
   case 102: /* subprogram_head: _FUNCTION error formal_parameter ':' basic_type  */
-#line 810 "yacc.y"
+#line 847 "yacc.y"
                                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3131 "y.tab.cpp"
+#line 3168 "y.tab.cpp"
     break;
 
   case 103: /* subprogram_head: _FUNCTION _ID error ':' basic_type  */
-#line 816 "yacc.y"
+#line 853 "yacc.y"
                                       { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3140 "y.tab.cpp"
+#line 3177 "y.tab.cpp"
     break;
 
   case 104: /* subprogram_head: _FUNCTION _ID formal_parameter error basic_type  */
-#line 822 "yacc.y"
+#line 859 "yacc.y"
                                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ':'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3149 "y.tab.cpp"
+#line 3187 "y.tab.cpp"
     break;
 
   case 105: /* subprogram_head: _FUNCTION _ID formal_parameter ':' error  */
-#line 828 "yacc.y"
+#line 866 "yacc.y"
                                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3158 "y.tab.cpp"
+#line 3196 "y.tab.cpp"
     break;
 
   case 106: /* formal_parameter: '(' parameter_list ')'  */
-#line 834 "yacc.y"
+#line 872 "yacc.y"
                                          {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "formal_parameter");
-	Node1 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-	Node3 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "formal_parameter");
+	Node1 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+	Node3 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -3172,53 +3210,55 @@ yyreduce:
 	cout<<" formal_parameter -> ( parameter_list ) [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3176 "y.tab.cpp"
+#line 3214 "y.tab.cpp"
     break;
 
   case 107: /* formal_parameter: error parameter_list ')'  */
-#line 846 "yacc.y"
+#line 884 "yacc.y"
                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3185 "y.tab.cpp"
+#line 3224 "y.tab.cpp"
     break;
 
   case 108: /* formal_parameter: '(' error ')'  */
-#line 852 "yacc.y"
+#line 891 "yacc.y"
                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3194 "y.tab.cpp"
+#line 3233 "y.tab.cpp"
     break;
 
   case 109: /* formal_parameter: '(' parameter_list error  */
-#line 858 "yacc.y"
+#line 897 "yacc.y"
                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3203 "y.tab.cpp"
+#line 3243 "y.tab.cpp"
     break;
 
   case 110: /* formal_parameter: %empty  */
-#line 862 "yacc.y"
+#line 902 "yacc.y"
          {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "formal_parameter");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "formal_parameter");
 
 	cout<<"formal_parameter -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3214 "y.tab.cpp"
+#line 3254 "y.tab.cpp"
     break;
 
   case 111: /* parameter_list: parameter_list ';' parameter  */
-#line 869 "yacc.y"
+#line 909 "yacc.y"
                                              {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "parameter_list");
-	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "parameter_list");
+	Node2 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -3227,102 +3267,103 @@ yyreduce:
 	cout<<"parameter_list -> parameter_list _SEPARATOR parameter [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3231 "y.tab.cpp"
+#line 3271 "y.tab.cpp"
     break;
 
   case 112: /* parameter_list: error ';' parameter  */
-#line 880 "yacc.y"
+#line 920 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3240 "y.tab.cpp"
+#line 3280 "y.tab.cpp"
     break;
 
   case 113: /* parameter_list: parameter_list error parameter  */
-#line 886 "yacc.y"
+#line 926 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3249 "y.tab.cpp"
+#line 3290 "y.tab.cpp"
     break;
 
   case 114: /* parameter_list: parameter_list ';' error  */
-#line 892 "yacc.y"
+#line 933 "yacc.y"
                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3258 "y.tab.cpp"
+#line 3299 "y.tab.cpp"
     break;
 
   case 115: /* parameter_list: parameter  */
-#line 896 "yacc.y"
+#line 937 "yacc.y"
                     {
 	BitNode * newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "parameter_list");
+	newNode = getBitNode(yylineno,yycolumn,"", "parameter_list");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"parameter_list -> parameter [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3272 "y.tab.cpp"
+#line 3313 "y.tab.cpp"
     break;
 
   case 116: /* parameter_list: error  */
-#line 904 "yacc.y"
+#line 945 "yacc.y"
           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3281 "y.tab.cpp"
+#line 3322 "y.tab.cpp"
     break;
 
   case 117: /* parameter: var_parameter  */
-#line 909 "yacc.y"
+#line 950 "yacc.y"
                          {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "parameter");
+	newNode = getBitNode(yylineno,yycolumn,"", "parameter");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"parameter -> var_parameter [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3295 "y.tab.cpp"
+#line 3336 "y.tab.cpp"
     break;
 
   case 118: /* parameter: value_parameter  */
-#line 918 "yacc.y"
+#line 959 "yacc.y"
                           {
 	BitNode *newNode;
-        newNode = new BitNode(yycolumn,yylineno,"", "parameter");
+        newNode = getBitNode(yylineno,yycolumn,"", "parameter");
 
         newNode->insertChild((yyvsp[0].BITNODE));
 
         cout<<"parameter -> value_parameter [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 3309 "y.tab.cpp"
+#line 3350 "y.tab.cpp"
     break;
 
   case 119: /* parameter: error  */
-#line 926 "yacc.y"
+#line 967 "yacc.y"
           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3318 "y.tab.cpp"
+#line 3359 "y.tab.cpp"
     break;
 
   case 120: /* var_parameter: _VAR value_parameter  */
-#line 931 "yacc.y"
+#line 972 "yacc.y"
                                    {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "var_parameter");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "VAR");
+	newNode = getBitNode(yylineno,yycolumn,"", "var_parameter");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "VAR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[0].BITNODE));
@@ -3330,36 +3371,34 @@ yyreduce:
 	cout<<"var_parameter -> var value_parameter [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3334 "y.tab.cpp"
+#line 3375 "y.tab.cpp"
     break;
 
   case 121: /* var_parameter: error value_parameter  */
-#line 941 "yacc.y"
+#line 982 "yacc.y"
                           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing var");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3343 "y.tab.cpp"
+#line 3385 "y.tab.cpp"
     break;
 
   case 122: /* var_parameter: _VAR error  */
-#line 947 "yacc.y"
+#line 989 "yacc.y"
               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3352 "y.tab.cpp"
+#line 3394 "y.tab.cpp"
     break;
 
   case 123: /* value_parameter: idlist ':' basic_type  */
-#line 952 "yacc.y"
+#line 994 "yacc.y"
                                        {
-	// if($2->token.compare(":") != 0)
-	//	yyerror("");
-
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "value_parameter");
-	Node2 = new BitNode(yycolumn,yylineno,":", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "value_parameter");
+	Node2 = getBitNode(yylineno,yycolumn,":", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -3368,41 +3407,42 @@ yyreduce:
 	cout<<"value_parameter -> idlist : simple_type [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3372 "y.tab.cpp"
+#line 3411 "y.tab.cpp"
     break;
 
   case 124: /* value_parameter: error ':' basic_type  */
-#line 966 "yacc.y"
+#line 1005 "yacc.y"
                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3381 "y.tab.cpp"
+#line 3420 "y.tab.cpp"
     break;
 
   case 125: /* value_parameter: idlist error basic_type  */
-#line 972 "yacc.y"
+#line 1011 "yacc.y"
                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ':'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3390 "y.tab.cpp"
+#line 3430 "y.tab.cpp"
     break;
 
   case 126: /* value_parameter: idlist ':' error  */
-#line 978 "yacc.y"
+#line 1018 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3399 "y.tab.cpp"
+#line 3439 "y.tab.cpp"
     break;
 
   case 127: /* subprogram_body: const_declarations var_declarations compound_statement  */
-#line 983 "yacc.y"
+#line 1023 "yacc.y"
                                                                         {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "subprogram_body");
+	newNode = getBitNode(yylineno,yycolumn,"", "subprogram_body");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -3411,43 +3451,43 @@ yyreduce:
 	cout<<"subprogram_body -> const_declarations var_declarations compound_statement [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3415 "y.tab.cpp"
+#line 3455 "y.tab.cpp"
     break;
 
   case 128: /* subprogram_body: error var_declarations compound_statement  */
-#line 993 "yacc.y"
+#line 1033 "yacc.y"
                                               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3424 "y.tab.cpp"
+#line 3464 "y.tab.cpp"
     break;
 
   case 129: /* subprogram_body: const_declarations error compound_statement  */
-#line 999 "yacc.y"
+#line 1039 "yacc.y"
                                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3433 "y.tab.cpp"
+#line 3473 "y.tab.cpp"
     break;
 
   case 130: /* subprogram_body: const_declarations var_declarations error  */
-#line 1005 "yacc.y"
+#line 1045 "yacc.y"
                                               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3442 "y.tab.cpp"
+#line 3482 "y.tab.cpp"
     break;
 
   case 131: /* compound_statement: _BEGIN statement_list _END  */
-#line 1010 "yacc.y"
+#line 1050 "yacc.y"
                                                {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "compound_statement");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "BEGIN");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "END");
+	newNode = getBitNode(yylineno,yycolumn,"", "compound_statement");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "BEGIN");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "END");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -3456,42 +3496,44 @@ yyreduce:
 	cout<<"compound_statement -> begin statement_list end [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3460 "y.tab.cpp"
+#line 3500 "y.tab.cpp"
     break;
 
   case 132: /* compound_statement: error statement_list _END  */
-#line 1023 "yacc.y"
+#line 1063 "yacc.y"
                               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing begin");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3469 "y.tab.cpp"
+#line 3510 "y.tab.cpp"
     break;
 
   case 133: /* compound_statement: _BEGIN error _END  */
-#line 1029 "yacc.y"
+#line 1070 "yacc.y"
                       { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3478 "y.tab.cpp"
+#line 3519 "y.tab.cpp"
     break;
 
   case 134: /* compound_statement: _BEGIN statement_list error  */
-#line 1035 "yacc.y"
+#line 1076 "yacc.y"
                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing end");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3487 "y.tab.cpp"
+#line 3529 "y.tab.cpp"
     break;
 
   case 135: /* statement_list: statement_list ';' statement  */
-#line 1040 "yacc.y"
+#line 1082 "yacc.y"
                                              {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement_list");
-	Node2 = new BitNode(yycolumn,yylineno,";", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement_list");
+	Node2 = getBitNode(yylineno,yycolumn,";", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -3500,64 +3542,65 @@ yyreduce:
 	cout<<"statement_list -> statement_list ; statement [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3504 "y.tab.cpp"
+#line 3546 "y.tab.cpp"
     break;
 
   case 136: /* statement_list: error ';' statement  */
-#line 1051 "yacc.y"
+#line 1093 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3513 "y.tab.cpp"
+#line 3555 "y.tab.cpp"
     break;
 
   case 137: /* statement_list: statement_list error statement  */
-#line 1057 "yacc.y"
+#line 1099 "yacc.y"
                                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ';'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3522 "y.tab.cpp"
+#line 3565 "y.tab.cpp"
     break;
 
   case 138: /* statement_list: statement_list ';' error  */
-#line 1063 "yacc.y"
+#line 1106 "yacc.y"
                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3531 "y.tab.cpp"
+#line 3574 "y.tab.cpp"
     break;
 
   case 139: /* statement_list: statement  */
-#line 1067 "yacc.y"
+#line 1110 "yacc.y"
                     {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement_list");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement_list");
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"statement_list -> statement [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3544 "y.tab.cpp"
+#line 3587 "y.tab.cpp"
     break;
 
   case 140: /* statement_list: error  */
-#line 1074 "yacc.y"
+#line 1117 "yacc.y"
            { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3553 "y.tab.cpp"
+#line 3596 "y.tab.cpp"
     break;
 
   case 141: /* statement: variable _ASSIGNOP expression  */
-#line 1079 "yacc.y"
+#line 1122 "yacc.y"
                                          {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ASSIGNOP");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ASSIGNOP");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -3566,78 +3609,78 @@ yyreduce:
 	cout<<"statement -> variable _ASSIGNOP expression [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3570 "y.tab.cpp"
+#line 3613 "y.tab.cpp"
     break;
 
   case 142: /* statement: error _ASSIGNOP expression  */
-#line 1090 "yacc.y"
+#line 1133 "yacc.y"
                                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3579 "y.tab.cpp"
+#line 3622 "y.tab.cpp"
     break;
 
   case 143: /* statement: variable error expression  */
-#line 1096 "yacc.y"
+#line 1139 "yacc.y"
                               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3588 "y.tab.cpp"
+#line 3631 "y.tab.cpp"
     break;
 
   case 144: /* statement: variable _ASSIGNOP error  */
-#line 1102 "yacc.y"
+#line 1145 "yacc.y"
                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3597 "y.tab.cpp"
+#line 3640 "y.tab.cpp"
     break;
 
   case 145: /* statement: procedure_call  */
-#line 1106 "yacc.y"
+#line 1149 "yacc.y"
                          {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement");
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"statement -> procedure_call [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3610 "y.tab.cpp"
+#line 3653 "y.tab.cpp"
     break;
 
   case 146: /* statement: compound_statement  */
-#line 1114 "yacc.y"
+#line 1157 "yacc.y"
                              {
 	BitNode *newNode;
-        newNode = new BitNode(yycolumn,yylineno,"", "statement");
+        newNode = getBitNode(yylineno,yycolumn,"", "statement");
         newNode->insertChild((yyvsp[0].BITNODE));
 
         cout<<"statement -> compound_statement [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 3623 "y.tab.cpp"
+#line 3666 "y.tab.cpp"
     break;
 
   case 147: /* statement: error  */
-#line 1121 "yacc.y"
+#line 1164 "yacc.y"
             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3632 "y.tab.cpp"
+#line 3675 "y.tab.cpp"
     break;
 
   case 148: /* statement: _IF expression _THEN statement else_part  */
-#line 1125 "yacc.y"
+#line 1168 "yacc.y"
                                                    {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-4].TYPE)->token, "IF");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[-2].TYPE)->token, "THEN");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-4].TYPE)->token, "IF");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[-2].TYPE)->token, "THEN");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-3].BITNODE));
@@ -3648,64 +3691,66 @@ yyreduce:
 	cout<<"statement -> if expression then statement else_part [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3652 "y.tab.cpp"
+#line 3695 "y.tab.cpp"
     break;
 
   case 149: /* statement: error expression _THEN statement else_part  */
-#line 1139 "yacc.y"
+#line 1182 "yacc.y"
                                                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing if");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3661 "y.tab.cpp"
+#line 3705 "y.tab.cpp"
     break;
 
   case 150: /* statement: _IF error _THEN statement else_part  */
-#line 1145 "yacc.y"
+#line 1189 "yacc.y"
                                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3670 "y.tab.cpp"
+#line 3714 "y.tab.cpp"
     break;
 
   case 151: /* statement: _IF expression error statement else_part  */
-#line 1151 "yacc.y"
+#line 1195 "yacc.y"
                                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing then");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3679 "y.tab.cpp"
+#line 3724 "y.tab.cpp"
     break;
 
   case 152: /* statement: _IF expression _THEN error else_part  */
-#line 1157 "yacc.y"
+#line 1202 "yacc.y"
                                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3688 "y.tab.cpp"
+#line 3733 "y.tab.cpp"
     break;
 
   case 153: /* statement: _IF expression _THEN statement error  */
-#line 1163 "yacc.y"
+#line 1208 "yacc.y"
                                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3697 "y.tab.cpp"
+#line 3742 "y.tab.cpp"
     break;
 
   case 154: /* statement: _FOR _ID _ASSIGNOP expression _TO expression _DO statement  */
-#line 1167 "yacc.y"
+#line 1212 "yacc.y"
                                                                      {
 	BitNode *newNode, *Node1, *Node2, *Node3, *Node5, *Node7;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-7].TYPE)->token, "FOR");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-6].TYPE)->token, "ID");
-	Node3 = new BitNode(yycolumn,yylineno,(yyvsp[-5].TYPE)->token, "ASSIGNOP");
-	Node5 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "TO");
-	Node7 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "DO");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-7].TYPE)->token, "FOR");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-6].TYPE)->token, "ID");
+	Node3 = getBitNode(yylineno,yycolumn,(yyvsp[-5].TYPE)->token, "ASSIGNOP");
+	Node5 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "TO");
+	Node7 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "DO");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -3719,89 +3764,92 @@ yyreduce:
 	cout<<"statement -> for id assignop expression to expression do statement [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3723 "y.tab.cpp"
-    break;
-
-  case 155: /* statement: error _ID _ASSIGNOP expression _TO expression _DO statement  */
-#line 1187 "yacc.y"
-                                                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
-	(yyval.BITNODE) = newNode; 
-}
-#line 3732 "y.tab.cpp"
-    break;
-
-  case 156: /* statement: _FOR error _ASSIGNOP expression _TO expression _DO statement  */
-#line 1193 "yacc.y"
-                                                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
-	(yyval.BITNODE) = newNode; 
-}
-#line 3741 "y.tab.cpp"
-    break;
-
-  case 157: /* statement: _FOR _ID error expression _TO expression _DO statement  */
-#line 1199 "yacc.y"
-                                                           { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
-	(yyval.BITNODE) = newNode; 
-}
-#line 3750 "y.tab.cpp"
-    break;
-
-  case 158: /* statement: _FOR _ID _ASSIGNOP error _TO expression _DO statement  */
-#line 1205 "yacc.y"
-                                                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
-	(yyval.BITNODE) = newNode; 
-}
-#line 3759 "y.tab.cpp"
-    break;
-
-  case 159: /* statement: _FOR _ID _ASSIGNOP expression error expression _DO statement  */
-#line 1211 "yacc.y"
-                                                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
-	(yyval.BITNODE) = newNode; 
-}
 #line 3768 "y.tab.cpp"
     break;
 
-  case 160: /* statement: _FOR _ID _ASSIGNOP expression _TO error _DO statement  */
-#line 1217 "yacc.y"
-                                                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+  case 155: /* statement: error _ID _ASSIGNOP expression _TO expression _DO statement  */
+#line 1232 "yacc.y"
+                                                                 { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing for");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3777 "y.tab.cpp"
+#line 3778 "y.tab.cpp"
+    break;
+
+  case 156: /* statement: _FOR error _ASSIGNOP expression _TO expression _DO statement  */
+#line 1239 "yacc.y"
+                                                                 { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	(yyval.BITNODE) = newNode; 
+}
+#line 3787 "y.tab.cpp"
+    break;
+
+  case 157: /* statement: _FOR _ID error expression _TO expression _DO statement  */
+#line 1245 "yacc.y"
+                                                           { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	(yyval.BITNODE) = newNode; 
+}
+#line 3796 "y.tab.cpp"
+    break;
+
+  case 158: /* statement: _FOR _ID _ASSIGNOP error _TO expression _DO statement  */
+#line 1251 "yacc.y"
+                                                          { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	(yyval.BITNODE) = newNode; 
+}
+#line 3805 "y.tab.cpp"
+    break;
+
+  case 159: /* statement: _FOR _ID _ASSIGNOP expression error expression _DO statement  */
+#line 1257 "yacc.y"
+                                                                 { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing to");
+	(yyval.BITNODE) = newNode; 
+}
+#line 3815 "y.tab.cpp"
+    break;
+
+  case 160: /* statement: _FOR _ID _ASSIGNOP expression _TO error _DO statement  */
+#line 1264 "yacc.y"
+                                                          { 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	(yyval.BITNODE) = newNode; 
+}
+#line 3824 "y.tab.cpp"
     break;
 
   case 161: /* statement: _FOR _ID _ASSIGNOP expression _TO expression error statement  */
-#line 1223 "yacc.y"
+#line 1270 "yacc.y"
                                                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing do");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3786 "y.tab.cpp"
+#line 3834 "y.tab.cpp"
     break;
 
   case 162: /* statement: _FOR _ID _ASSIGNOP expression _TO expression _DO error  */
-#line 1229 "yacc.y"
+#line 1277 "yacc.y"
                                                            { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3795 "y.tab.cpp"
+#line 3843 "y.tab.cpp"
     break;
 
   case 163: /* statement: _READ '(' variable_list ')'  */
-#line 1233 "yacc.y"
+#line 1281 "yacc.y"
                                       {
 	BitNode *newNode, *Node1, *Node2, *Node4;
-	newNode = new BitNode(yycolumn,yylineno,"", "statement");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "READ");
-	Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-	Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "statement");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "READ");
+	Node2 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+	Node4 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -3811,89 +3859,94 @@ yyreduce:
 	cout<<"statement -> read ( variable_list ) [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3815 "y.tab.cpp"
+#line 3863 "y.tab.cpp"
     break;
 
   case 164: /* statement: error '(' variable_list ')'  */
-#line 1248 "yacc.y"
+#line 1296 "yacc.y"
                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3824 "y.tab.cpp"
+#line 3872 "y.tab.cpp"
     break;
 
   case 165: /* statement: _READ error variable_list ')'  */
-#line 1254 "yacc.y"
+#line 1302 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3833 "y.tab.cpp"
+#line 3882 "y.tab.cpp"
     break;
 
   case 166: /* statement: _READ '(' error ')'  */
-#line 1260 "yacc.y"
+#line 1309 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3842 "y.tab.cpp"
+#line 3891 "y.tab.cpp"
     break;
 
   case 167: /* statement: _READ '(' variable_list error  */
-#line 1266 "yacc.y"
+#line 1315 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3851 "y.tab.cpp"
+#line 3901 "y.tab.cpp"
     break;
 
   case 168: /* statement: error '(' expression_list ')'  */
-#line 1271 "yacc.y"
+#line 1321 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing write");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3860 "y.tab.cpp"
+#line 3911 "y.tab.cpp"
     break;
 
   case 169: /* statement: _WRITE error expression_list ')'  */
-#line 1277 "yacc.y"
+#line 1328 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3869 "y.tab.cpp"
+#line 3921 "y.tab.cpp"
     break;
 
   case 170: /* statement: _WRITE '(' error ')'  */
-#line 1283 "yacc.y"
+#line 1335 "yacc.y"
                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3878 "y.tab.cpp"
+#line 3930 "y.tab.cpp"
     break;
 
   case 171: /* statement: _WRITE '(' expression_list error  */
-#line 1289 "yacc.y"
+#line 1341 "yacc.y"
                                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode;
 }
-#line 3887 "y.tab.cpp"
+#line 3940 "y.tab.cpp"
     break;
 
   case 172: /* statement: _WRITE '(' expression_list ')'  */
-#line 1293 "yacc.y"
+#line 1346 "yacc.y"
                                          {
         BitNode *newNode, *Node1, *Node2, *Node4;
-        newNode = new BitNode(yycolumn,yylineno,"", "statement");
-        Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "WRITE");
-        Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-        Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+        newNode = getBitNode(yylineno,yycolumn,"", "statement");
+        Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "WRITE");
+        Node2 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+        Node4 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
 
         newNode->insertChild(Node1);
         newNode->insertChild(Node2);
@@ -3903,27 +3956,27 @@ yyreduce:
         cout<<"statement -> write ( variable_list ) [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 3907 "y.tab.cpp"
+#line 3960 "y.tab.cpp"
     break;
 
   case 173: /* statement: %empty  */
-#line 1308 "yacc.y"
+#line 1361 "yacc.y"
           {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "statement");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "statement");
 
 	cout<<"statement -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3918 "y.tab.cpp"
+#line 3971 "y.tab.cpp"
     break;
 
   case 174: /* statement: _WHILE expression _DO statement  */
-#line 1314 "yacc.y"
+#line 1367 "yacc.y"
                                   { // 增加while循环
 	BitNode *newNode, *Node1, *Node3;
-        newNode = new BitNode(yycolumn,yylineno,"", "statement");
-        Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "WHILE");
-        Node3 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "DO");
+        newNode = getBitNode(yylineno,yycolumn,"", "statement");
+        Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "WHILE");
+        Node3 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "DO");
 
         newNode->insertChild(Node1);
         newNode->insertChild((yyvsp[-2].BITNODE));
@@ -3933,51 +3986,53 @@ yyreduce:
         cout<<"statement -> _WHILE expression _DO statement [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 3937 "y.tab.cpp"
+#line 3990 "y.tab.cpp"
     break;
 
   case 175: /* statement: error expression _DO statement  */
-#line 1327 "yacc.y"
+#line 1380 "yacc.y"
                                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing while");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3946 "y.tab.cpp"
+#line 4000 "y.tab.cpp"
     break;
 
   case 176: /* statement: _WHILE error _DO statement  */
-#line 1333 "yacc.y"
+#line 1387 "yacc.y"
                                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3955 "y.tab.cpp"
+#line 4009 "y.tab.cpp"
     break;
 
   case 177: /* statement: _WHILE expression error statement  */
-#line 1339 "yacc.y"
+#line 1393 "yacc.y"
                                       { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing do");
 	(yyval.BITNODE) = newNode; 
 }
-#line 3964 "y.tab.cpp"
+#line 4019 "y.tab.cpp"
     break;
 
   case 178: /* statement: _WHILE expression _DO error  */
-#line 1345 "yacc.y"
+#line 1400 "yacc.y"
                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3973 "y.tab.cpp"
+#line 4028 "y.tab.cpp"
     break;
 
   case 179: /* variable_list: variable_list ',' variable  */
-#line 1350 "yacc.y"
+#line 1405 "yacc.y"
                                          {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "variable_list");
-	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "variable_list");
+	Node2 = getBitNode(yylineno,yycolumn,",", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -3986,65 +4041,66 @@ yyreduce:
 	cout<<"variable_list -> variable_list _SEPARATOR variable [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 3990 "y.tab.cpp"
+#line 4045 "y.tab.cpp"
     break;
 
   case 180: /* variable_list: error ',' variable  */
-#line 1362 "yacc.y"
+#line 1417 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 3999 "y.tab.cpp"
+#line 4054 "y.tab.cpp"
     break;
 
   case 181: /* variable_list: variable_list error variable  */
-#line 1368 "yacc.y"
+#line 1423 "yacc.y"
                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ','");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4008 "y.tab.cpp"
+#line 4064 "y.tab.cpp"
     break;
 
   case 182: /* variable_list: variable_list ',' error  */
-#line 1374 "yacc.y"
+#line 1430 "yacc.y"
                            { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4017 "y.tab.cpp"
+#line 4073 "y.tab.cpp"
     break;
 
   case 183: /* variable_list: variable  */
-#line 1378 "yacc.y"
+#line 1434 "yacc.y"
                    {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "variable_list");
+	newNode = getBitNode(yylineno,yycolumn,"", "variable_list");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"statement -> variable [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4031 "y.tab.cpp"
+#line 4087 "y.tab.cpp"
     break;
 
   case 184: /* variable_list: error  */
-#line 1387 "yacc.y"
+#line 1443 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4040 "y.tab.cpp"
+#line 4096 "y.tab.cpp"
     break;
 
   case 185: /* variable: _ID id_varpart  */
-#line 1392 "yacc.y"
+#line 1448 "yacc.y"
                          {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "variable");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ID");
+	newNode = getBitNode(yylineno,yycolumn,"", "variable");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ID");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[0].BITNODE));
@@ -4052,34 +4108,34 @@ yyreduce:
 	cout<<"variable -> id id_varpart [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4056 "y.tab.cpp"
+#line 4112 "y.tab.cpp"
     break;
 
   case 186: /* variable: error id_varpart  */
-#line 1404 "yacc.y"
+#line 1460 "yacc.y"
                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4065 "y.tab.cpp"
+#line 4121 "y.tab.cpp"
     break;
 
   case 187: /* variable: _ID error  */
-#line 1410 "yacc.y"
+#line 1466 "yacc.y"
              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4074 "y.tab.cpp"
+#line 4130 "y.tab.cpp"
     break;
 
   case 188: /* id_varpart: '[' expression_list ']'  */
-#line 1415 "yacc.y"
+#line 1471 "yacc.y"
                                     {
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "id_varpart");
-	Node1 = new BitNode(yycolumn,yylineno,"[", "SEPARATOR");
-	Node3 = new BitNode(yycolumn,yylineno,"]", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "id_varpart");
+	Node1 = getBitNode(yylineno,yycolumn,"[", "SEPARATOR");
+	Node3 = getBitNode(yylineno,yycolumn,"]", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -4088,115 +4144,119 @@ yyreduce:
 	cout<<"id_varpart -> [ expression_list ] [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4092 "y.tab.cpp"
+#line 4148 "y.tab.cpp"
     break;
 
   case 189: /* id_varpart: error expression_list ']'  */
-#line 1428 "yacc.y"
+#line 1484 "yacc.y"
                             { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '['");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4101 "y.tab.cpp"
+#line 4158 "y.tab.cpp"
     break;
 
   case 190: /* id_varpart: '[' error ']'  */
-#line 1434 "yacc.y"
+#line 1491 "yacc.y"
                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4110 "y.tab.cpp"
+#line 4167 "y.tab.cpp"
     break;
 
   case 191: /* id_varpart: '[' expression_list error  */
-#line 1440 "yacc.y"
+#line 1497 "yacc.y"
                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ']'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4119 "y.tab.cpp"
+#line 4177 "y.tab.cpp"
     break;
 
   case 192: /* id_varpart: %empty  */
-#line 1444 "yacc.y"
+#line 1502 "yacc.y"
           {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "id_varpart");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "id_varpart");
 
 	cout<<"id_varpart -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4130 "y.tab.cpp"
+#line 4188 "y.tab.cpp"
     break;
 
   case 193: /* procedure_call: _ID  */
-#line 1451 "yacc.y"
+#line 1509 "yacc.y"
                     {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "procedure_call");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "ID");
+	newNode = getBitNode(yylineno,yycolumn,"", "procedure_call");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "ID");
 
 	newNode->insertChild(Node1);
 
 	cout<<"procedure_call -> id [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4145 "y.tab.cpp"
+#line 4203 "y.tab.cpp"
     break;
 
   case 194: /* procedure_call: error  */
-#line 1462 "yacc.y"
+#line 1520 "yacc.y"
          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4154 "y.tab.cpp"
+#line 4212 "y.tab.cpp"
     break;
 
   case 195: /* procedure_call: error '(' expression_list ')'  */
-#line 1468 "yacc.y"
+#line 1526 "yacc.y"
                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4163 "y.tab.cpp"
+#line 4221 "y.tab.cpp"
     break;
 
   case 196: /* procedure_call: _ID error expression_list ')'  */
-#line 1474 "yacc.y"
+#line 1532 "yacc.y"
                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4172 "y.tab.cpp"
+#line 4231 "y.tab.cpp"
     break;
 
   case 197: /* procedure_call: _ID '(' error ')'  */
-#line 1480 "yacc.y"
+#line 1539 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4181 "y.tab.cpp"
+#line 4240 "y.tab.cpp"
     break;
 
   case 198: /* procedure_call: _ID '(' expression_list error  */
-#line 1486 "yacc.y"
+#line 1545 "yacc.y"
                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4190 "y.tab.cpp"
+#line 4250 "y.tab.cpp"
     break;
 
   case 199: /* procedure_call: _ID '(' expression_list ')'  */
-#line 1490 "yacc.y"
+#line 1550 "yacc.y"
                                       {
 	BitNode *newNode, *Node1, *Node2, *Node4;
-	newNode = new BitNode(yycolumn,yylineno,"", "procedure_call");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "ID");
-	Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-	Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "procedure_call");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "ID");
+	Node2 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+	Node4 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -4206,15 +4266,15 @@ yyreduce:
 	cout<<"procedure_call -> id ( expression_list ) [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4210 "y.tab.cpp"
+#line 4270 "y.tab.cpp"
     break;
 
   case 200: /* else_part: _ELSE statement  */
-#line 1506 "yacc.y"
+#line 1566 "yacc.y"
                            {
 	BitNode *newNode, *Node1;
-	newNode=new BitNode(yycolumn,yylineno,"", "else_part");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ELSE");
+	newNode=getBitNode(yylineno,yycolumn,"", "else_part");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ELSE");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[0].BITNODE));
@@ -4222,45 +4282,46 @@ yyreduce:
 	cout<<"else_part -> else statement [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4226 "y.tab.cpp"
+#line 4286 "y.tab.cpp"
     break;
 
   case 201: /* else_part: error statement  */
-#line 1519 "yacc.y"
+#line 1579 "yacc.y"
                    { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing else");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4235 "y.tab.cpp"
+#line 4296 "y.tab.cpp"
     break;
 
   case 202: /* else_part: _ELSE error  */
-#line 1525 "yacc.y"
+#line 1586 "yacc.y"
                { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4244 "y.tab.cpp"
+#line 4305 "y.tab.cpp"
     break;
 
   case 203: /* else_part: %empty  */
-#line 1529 "yacc.y"
+#line 1590 "yacc.y"
           {
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "else_part");
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "else_part");
 
 	cout<<"else_part -> empty [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4255 "y.tab.cpp"
+#line 4316 "y.tab.cpp"
     break;
 
   case 204: /* expression_list: expression_list ',' expression  */
-#line 1536 "yacc.y"
+#line 1597 "yacc.y"
                                                 {
 
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "expression_list");
-	Node2 = new BitNode(yycolumn,yylineno,",", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "expression_list");
+	Node2 = getBitNode(yylineno,yycolumn,",", "SEPARATOR");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -4269,65 +4330,66 @@ yyreduce:
 	cout<<"expression_list -> expression_list , expression [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4273 "y.tab.cpp"
+#line 4334 "y.tab.cpp"
     break;
 
   case 205: /* expression_list: error ',' expression  */
-#line 1550 "yacc.y"
+#line 1611 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4282 "y.tab.cpp"
+#line 4343 "y.tab.cpp"
     break;
 
   case 206: /* expression_list: expression_list error expression  */
-#line 1556 "yacc.y"
+#line 1617 "yacc.y"
                                     { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ','");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4291 "y.tab.cpp"
+#line 4353 "y.tab.cpp"
     break;
 
   case 207: /* expression_list: expression_list ',' error  */
-#line 1562 "yacc.y"
+#line 1624 "yacc.y"
                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4300 "y.tab.cpp"
+#line 4362 "y.tab.cpp"
     break;
 
   case 208: /* expression_list: expression  */
-#line 1566 "yacc.y"
+#line 1628 "yacc.y"
                      {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "expression_list");
+	newNode = getBitNode(yylineno,yycolumn,"", "expression_list");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"expression_list -> expression [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4314 "y.tab.cpp"
+#line 4376 "y.tab.cpp"
     break;
 
   case 209: /* expression_list: error  */
-#line 1575 "yacc.y"
+#line 1637 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4323 "y.tab.cpp"
+#line 4385 "y.tab.cpp"
     break;
 
   case 210: /* expression: simple_expression _RELOP simple_expression  */
-#line 1580 "yacc.y"
+#line 1642 "yacc.y"
                                                        {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "expression");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "RELOP");
+	newNode = getBitNode(yylineno,yycolumn,"", "expression");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "RELOP");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -4336,65 +4398,65 @@ yyreduce:
 	cout<<"expression -> simple_expression relop simple_expression [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4340 "y.tab.cpp"
+#line 4402 "y.tab.cpp"
     break;
 
   case 211: /* expression: simple_expression  */
-#line 1592 "yacc.y"
+#line 1654 "yacc.y"
                             {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "expression");
+	newNode = getBitNode(yylineno,yycolumn,"", "expression");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"expression -> simple_expression [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4354 "y.tab.cpp"
+#line 4416 "y.tab.cpp"
     break;
 
   case 212: /* expression: error _RELOP simple_expression  */
-#line 1602 "yacc.y"
+#line 1664 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4363 "y.tab.cpp"
+#line 4425 "y.tab.cpp"
     break;
 
   case 213: /* expression: simple_expression error simple_expression  */
-#line 1608 "yacc.y"
+#line 1670 "yacc.y"
                                              { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4372 "y.tab.cpp"
+#line 4434 "y.tab.cpp"
     break;
 
   case 214: /* expression: simple_expression _RELOP error  */
-#line 1614 "yacc.y"
+#line 1676 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4381 "y.tab.cpp"
+#line 4443 "y.tab.cpp"
     break;
 
   case 215: /* expression: error  */
-#line 1620 "yacc.y"
+#line 1682 "yacc.y"
          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4390 "y.tab.cpp"
+#line 4452 "y.tab.cpp"
     break;
 
   case 216: /* simple_expression: simple_expression _ADDOP term  */
-#line 1625 "yacc.y"
+#line 1687 "yacc.y"
                                                  {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "simple_expression");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ADDOP");
+	newNode = getBitNode(yylineno,yycolumn,"", "simple_expression");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ADDOP");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -4403,15 +4465,15 @@ yyreduce:
 	cout<<"simple_expression -> simple_expression addop term [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4407 "y.tab.cpp"
+#line 4469 "y.tab.cpp"
     break;
 
   case 217: /* simple_expression: simple_expression _UMINUS term  */
-#line 1636 "yacc.y"
+#line 1698 "yacc.y"
                                  { // 增加 uminus 关联生成式
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn, yylineno, "", "simple_expression");
-	Node2 = new BitNode(yycolumn, yylineno, (yyvsp[-1].TYPE)->token, "UMINUS");
+	newNode = getBitNode(yylineno,yycolumn, "", "simple_expression");
+	Node2 = getBitNode(yylineno,yycolumn, (yyvsp[-1].TYPE)->token, "UMINUS");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -4420,65 +4482,65 @@ yyreduce:
 	cout<<"simple_expression -> simple_expression uminus term [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4424 "y.tab.cpp"
+#line 4486 "y.tab.cpp"
     break;
 
   case 218: /* simple_expression: term  */
-#line 1648 "yacc.y"
+#line 1710 "yacc.y"
                {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "simple_expression");
+	newNode = getBitNode(yylineno,yycolumn,"", "simple_expression");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"simple_expression -> term [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4438 "y.tab.cpp"
+#line 4500 "y.tab.cpp"
     break;
 
   case 219: /* simple_expression: error _ADDOP term  */
-#line 1658 "yacc.y"
+#line 1720 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4447 "y.tab.cpp"
+#line 4509 "y.tab.cpp"
     break;
 
   case 220: /* simple_expression: simple_expression error term  */
-#line 1664 "yacc.y"
+#line 1726 "yacc.y"
                                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4456 "y.tab.cpp"
+#line 4518 "y.tab.cpp"
     break;
 
   case 221: /* simple_expression: simple_expression _ADDOP error  */
-#line 1670 "yacc.y"
+#line 1732 "yacc.y"
                                   { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4465 "y.tab.cpp"
+#line 4527 "y.tab.cpp"
     break;
 
   case 222: /* simple_expression: error  */
-#line 1676 "yacc.y"
+#line 1738 "yacc.y"
          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4474 "y.tab.cpp"
+#line 4536 "y.tab.cpp"
     break;
 
   case 223: /* term: term _MULOP factor  */
-#line 1681 "yacc.y"
+#line 1743 "yacc.y"
                          {
 	BitNode *newNode, *Node2;
-	newNode = new BitNode(yycolumn,yylineno,"", "term");
-	Node2 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "MULOP");
+	newNode = getBitNode(yylineno,yycolumn,"", "term");
+	Node2 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "MULOP");
 
 	newNode->insertChild((yyvsp[-2].BITNODE));
 	newNode->insertChild(Node2);
@@ -4487,172 +4549,174 @@ yyreduce:
 	cout<<"term -> term mulop factor [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4491 "y.tab.cpp"
+#line 4553 "y.tab.cpp"
     break;
 
   case 224: /* term: error _MULOP factor  */
-#line 1693 "yacc.y"
+#line 1755 "yacc.y"
                        { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4500 "y.tab.cpp"
+#line 4562 "y.tab.cpp"
     break;
 
   case 225: /* term: term error factor  */
-#line 1699 "yacc.y"
+#line 1761 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4509 "y.tab.cpp"
+#line 4571 "y.tab.cpp"
     break;
 
   case 226: /* term: term _MULOP error  */
-#line 1705 "yacc.y"
+#line 1767 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4518 "y.tab.cpp"
+#line 4580 "y.tab.cpp"
     break;
 
   case 227: /* term: factor  */
-#line 1709 "yacc.y"
+#line 1771 "yacc.y"
                  {
 	BitNode *newNode;
-	newNode = new BitNode(yycolumn,yylineno,"", "term");
+	newNode = getBitNode(yylineno,yycolumn,"", "term");
 
 	newNode->insertChild((yyvsp[0].BITNODE));
 
 	cout<<"term -> factor [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4532 "y.tab.cpp"
+#line 4594 "y.tab.cpp"
     break;
 
   case 228: /* term: error  */
-#line 1718 "yacc.y"
+#line 1780 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4541 "y.tab.cpp"
+#line 4603 "y.tab.cpp"
     break;
 
   case 229: /* factor: _NUM  */
-#line 1724 "yacc.y"
+#line 1786 "yacc.y"
              {
         BitNode *newNode, *Node1;
-        newNode = new BitNode(yycolumn,yylineno,"", "factor");
-        Node1 = new BitNode(yycolumn,yylineno,(yyvsp[0].TYPE)->token, "NUM");
+        newNode = getBitNode(yylineno,yycolumn,"", "factor");
+        Node1 = getBitNode(yylineno,yycolumn,(yyvsp[0].TYPE)->token, "NUM");
 
         newNode->insertChild(Node1);
 
         cout<<" factor -> num [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 4556 "y.tab.cpp"
+#line 4618 "y.tab.cpp"
     break;
 
   case 230: /* factor: _DIGITS  */
-#line 1734 "yacc.y"
+#line 1796 "yacc.y"
           { // 增加整型
         BitNode *newNode, *Node1;
-        newNode = new BitNode(yycolumn, yylineno, "", "factor");
-        Node1 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "DIGITS");
+        newNode = getBitNode(yylineno,yycolumn, "", "factor");
+        Node1 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "DIGITS");
 
         newNode->insertChild(Node1);
 
         cout<<" factor -> num [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 4571 "y.tab.cpp"
+#line 4633 "y.tab.cpp"
     break;
 
   case 231: /* factor: _BOOLEAN  */
-#line 1743 "yacc.y"
+#line 1805 "yacc.y"
             { // 增加布尔型
  	BitNode *newNode, *Node1;
-        newNode = new BitNode(yycolumn, yylineno, "", "factor");
-        Node1 = new BitNode(yycolumn, yylineno, (yyvsp[0].TYPE)->token, "BOOLEAN");
+        newNode = getBitNode(yylineno,yycolumn, "", "factor");
+        Node1 = getBitNode(yylineno,yycolumn, (yyvsp[0].TYPE)->token, "BOOLEAN");
 
         newNode->insertChild(Node1);
 
         cout<<" factor -> boolean [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 4586 "y.tab.cpp"
+#line 4648 "y.tab.cpp"
     break;
 
   case 232: /* factor: variable  */
-#line 1753 "yacc.y"
+#line 1815 "yacc.y"
                    {
         BitNode *newNode;
-        newNode = new BitNode(yycolumn,yylineno,"", "factor");
+        newNode = getBitNode(yylineno,yycolumn,"", "factor");
 
         newNode->insertChild((yyvsp[0].BITNODE));
 
         cout<<" factor -> variable [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 4600 "y.tab.cpp"
+#line 4662 "y.tab.cpp"
     break;
 
   case 233: /* factor: error  */
-#line 1762 "yacc.y"
+#line 1824 "yacc.y"
         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4609 "y.tab.cpp"
+#line 4671 "y.tab.cpp"
     break;
 
   case 234: /* factor: error '(' expression_list ')'  */
-#line 1766 "yacc.y"
+#line 1828 "yacc.y"
                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4618 "y.tab.cpp"
+#line 4680 "y.tab.cpp"
     break;
 
   case 235: /* factor: _ID error expression_list ')'  */
-#line 1770 "yacc.y"
+#line 1832 "yacc.y"
                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4627 "y.tab.cpp"
+#line 4690 "y.tab.cpp"
     break;
 
   case 236: /* factor: _ID '(' error ')'  */
-#line 1776 "yacc.y"
+#line 1839 "yacc.y"
                      { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4636 "y.tab.cpp"
+#line 4699 "y.tab.cpp"
     break;
 
   case 237: /* factor: _ID '(' expression_list error  */
-#line 1782 "yacc.y"
+#line 1845 "yacc.y"
                                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4645 "y.tab.cpp"
+#line 4709 "y.tab.cpp"
     break;
 
   case 238: /* factor: _ID '(' expression_list ')'  */
-#line 1786 "yacc.y"
+#line 1850 "yacc.y"
                                       {
 
 	BitNode *newNode, *Node1, *Node2, *Node4;
-	newNode =  new BitNode(yycolumn,yylineno,"", "factor");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-3].TYPE)->token, "ID");
-	Node2 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-	Node4 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+	newNode =  getBitNode(yylineno,yycolumn,"", "factor");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-3].TYPE)->token, "ID");
+	Node2 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+	Node4 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild(Node2);
@@ -4662,19 +4726,16 @@ yyreduce:
 	cout<<"factor -> id ( expression_list ) [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4666 "y.tab.cpp"
+#line 4730 "y.tab.cpp"
     break;
 
   case 239: /* factor: '(' expression ')'  */
-#line 1803 "yacc.y"
+#line 1867 "yacc.y"
                              {
-	// if($1->token.compare("(") != 0 || $3->token.compare(")") != 0)
-	//	yyerror("");
-
 	BitNode *newNode, *Node1, *Node3;
-	newNode = new BitNode(yycolumn,yylineno,"", "factor");
-	Node1 = new BitNode(yycolumn,yylineno,"(", "SEPARATOR");
-	Node3 = new BitNode(yycolumn,yylineno,")", "SEPARATOR");
+	newNode = getBitNode(yylineno,yycolumn,"", "factor");
+	Node1 = getBitNode(yylineno,yycolumn,"(", "SEPARATOR");
+	Node3 = getBitNode(yylineno,yycolumn,")", "SEPARATOR");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[-1].BITNODE));
@@ -4683,15 +4744,15 @@ yyreduce:
 	cout<<"factor -> ( expression ) [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4687 "y.tab.cpp"
+#line 4748 "y.tab.cpp"
     break;
 
   case 240: /* factor: _NOT factor  */
-#line 1819 "yacc.y"
+#line 1880 "yacc.y"
                       {
 	BitNode *newNode, *Node1;
-	newNode = new BitNode(yycolumn,yylineno,"", "factor");
-	Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "NOT");
+	newNode = getBitNode(yylineno,yycolumn,"", "factor");
+	Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "NOT");
 
 	newNode->insertChild(Node1);
 	newNode->insertChild((yyvsp[0].BITNODE));
@@ -4699,60 +4760,62 @@ yyreduce:
 	cout<<"factor -> not factor [OK]"<<endl;
 	(yyval.BITNODE) = newNode;
 }
-#line 4703 "y.tab.cpp"
+#line 4764 "y.tab.cpp"
     break;
 
   case 241: /* factor: error expression ')'  */
-#line 1831 "yacc.y"
+#line 1892 "yacc.y"
                          { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing '('");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4712 "y.tab.cpp"
+#line 4774 "y.tab.cpp"
     break;
 
   case 242: /* factor: '(' error ')'  */
-#line 1837 "yacc.y"
+#line 1899 "yacc.y"
                  { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4721 "y.tab.cpp"
+#line 4783 "y.tab.cpp"
     break;
 
   case 243: /* factor: '(' expression error  */
-#line 1843 "yacc.y"
+#line 1905 "yacc.y"
                         { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
+	yyerror("missing ')'");
 	(yyval.BITNODE) = newNode; 
 }
-#line 4730 "y.tab.cpp"
+#line 4793 "y.tab.cpp"
     break;
 
   case 244: /* factor: error factor  */
-#line 1849 "yacc.y"
+#line 1912 "yacc.y"
                 { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4739 "y.tab.cpp"
+#line 4802 "y.tab.cpp"
     break;
 
   case 245: /* factor: _NOT error  */
-#line 1855 "yacc.y"
+#line 1918 "yacc.y"
               { 
-	BitNode *newNode = new BitNode(yycolumn,yylineno,"", "error"); 
+	BitNode *newNode = getBitNode(yylineno,yycolumn,"", "error"); 
 	(yyval.BITNODE) = newNode; 
 }
-#line 4748 "y.tab.cpp"
+#line 4811 "y.tab.cpp"
     break;
 
   case 246: /* factor: _ADDOP factor  */
-#line 1859 "yacc.y"
+#line 1922 "yacc.y"
                         {
 	BitNode *newNode, *Node1;
-        newNode = new BitNode(yycolumn,yylineno,"", "factor");
-        Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "ADDOP");
+        newNode = getBitNode(yylineno,yycolumn,"", "factor");
+        Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "ADDOP");
 
         newNode->insertChild(Node1);
         newNode->insertChild((yyvsp[0].BITNODE));
@@ -4760,15 +4823,15 @@ yyreduce:
         cout<<"factor -> add factor [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 4764 "y.tab.cpp"
+#line 4827 "y.tab.cpp"
     break;
 
   case 247: /* factor: _UMINUS factor  */
-#line 1869 "yacc.y"
+#line 1932 "yacc.y"
                    {
 	BitNode *newNode, *Node1;
-        newNode = new BitNode(yycolumn,yylineno,"", "factor");
-        Node1 = new BitNode(yycolumn,yylineno,(yyvsp[-1].TYPE)->token, "_UMINUS");
+        newNode = getBitNode(yylineno,yycolumn,"", "factor");
+        Node1 = getBitNode(yylineno,yycolumn,(yyvsp[-1].TYPE)->token, "UMINUS");
 
         newNode->insertChild(Node1);
         newNode->insertChild((yyvsp[0].BITNODE));
@@ -4776,11 +4839,11 @@ yyreduce:
         cout<<"factor -> uminus factor [OK]"<<endl;
         (yyval.BITNODE) = newNode;
 }
-#line 4780 "y.tab.cpp"
+#line 4843 "y.tab.cpp"
     break;
 
 
-#line 4784 "y.tab.cpp"
+#line 4847 "y.tab.cpp"
 
       default: break;
     }
@@ -4973,7 +5036,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1881 "yacc.y"
+#line 1944 "yacc.y"
 
 
 void yyerror(const char *s)
@@ -4981,8 +5044,9 @@ void yyerror(const char *s)
 	extern char *yytext;
 	extern YYSTYPE yylval;
 	string error_type(s);
-	Error* cur=new Error(error_type,yycolumn,yylineno);
+	Error* cur=new Error(error_type,yylineno,yycolumn);
 	errorInfo.push_back(cur);
-    if_error=1;
-	cout<<error_type<<"\tat line:"<<yycolumn<<"\tat:"<<yylineno<<endl;
+    	if_error=1;
+	cout<<error_type<<"\tat line: "<<yylineno<<"\tcol: "<<yycolumn<<endl;
 }
+

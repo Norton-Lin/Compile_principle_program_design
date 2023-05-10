@@ -25,12 +25,12 @@ Begin
     Begin
       While i<j Do
         Begin
-          While (a[j]>=k) and (i<j) Do
+          While (a[j]>=k) And (i<j) Do
             Begin
               j := j-1
             End;
           a[i] := a[j];
-          While (a[i]<=k) and (i<j) Do
+          While (a[i]<=k) And (i<j) Do
             Begin
               i := i+1
             End;

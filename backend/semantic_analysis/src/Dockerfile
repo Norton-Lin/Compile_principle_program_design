@@ -1,6 +1,6 @@
 FROM python:3.10.6
 
-MAINTAINER "Lin <norton@bupt.edu.cn>"
+MAINTAINER "Norton_Lin <norton@bupt.edu.cn>"
 WORKDIR /usr/src/compiler
 #   基本环境搭建
 RUN apt-get update
