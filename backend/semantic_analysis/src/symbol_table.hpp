@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <llvm/IR/Value.h>
 #include "interface.h"
 
 class SymbolTable;
@@ -13,8 +14,8 @@ class MyFunctionType;
 
 using namespace std;
 
-/*ËùÓĞ·½·¨·µ»ØµÄ¶ÔÏó¶¼ÊÇÒıÓÃ£¬¿ÉÖ±½ÓĞŞ¸Ä
-  ²»Ê¹ÓÃset·½·¨£¬Ö±½Ó¶Ô³ÉÔ±±äÁ¿ĞŞ¸Ä
+/*æ‰€æœ‰æ–¹æ³•è¿”å›çš„å¯¹è±¡éƒ½æ˜¯å¼•ç”¨ï¼Œå¯ç›´æ¥ä¿®æ”¹
+  ä¸ä½¿ç”¨setæ–¹æ³•ï¼Œç›´æ¥å¯¹æˆå‘˜å˜é‡ä¿®æ”¹
 */
 
 //
@@ -52,9 +53,7 @@ public:
     vector<int> size;
     vector<basic_type_type> value;
     llvm::Value* llvmvalue;
-
     //MyArrayType() {};
-
 
     MyArrayType(vector<int> begin, vector<int> end, symbol_type type)
     {
@@ -128,18 +127,18 @@ public:
     MyFunctionType() {};
     MyFunctionType(SymbolTable* main_table);
 
-    //²»ÒªÊ¹ÓÃÕâ¸öÖ¸Õë·ÃÎÊ·ûºÅ±í£¬Ö±½ÓÊ¹ÓÃexternµÄsymbol_tableµÄget·½·¨¿ÉÒÔ×Ô¶¯´¦Àí×÷ÓÃÓò
+    //ä¸è¦ä½¿ç”¨è¿™ä¸ªæŒ‡é’ˆè®¿é—®ç¬¦å·è¡¨ï¼Œç›´æ¥ä½¿ç”¨externçš„symbol_tableçš„getæ–¹æ³•å¯ä»¥è‡ªåŠ¨å¤„ç†ä½œç”¨åŸŸ
     SymbolTable* main_table;
     SymbolTable* child_table;
 
-    vector<string> arg_name_list;//²ÎÊıÁĞ±íÃû£¬´Ó×óµ½ÓÒ°´Ë³Ğò
-    vector<string> arg_type_list;//±êÊ¶²ÎÊıµÄÀàĞÍ£¬´Ó×óµ½ÓÒÅÅĞò
-    vector<bool> arg_isvar_list;//±êÊ¶²ÎÊıÊÇ·ñÊÇÒıÓÃÀàĞÍ
-    //vector<string> var_name_list;//×Ó±íÒıÓÃÃû¶ÔÓ¦µÄ¸¸±íÃû³Æ//ÕâÒ»ĞĞÓ¦¸ÃÃ»ÓÃ
-    llvm::function* llvmfunction;
+    vector<string> arg_name_list;//å‚æ•°åˆ—è¡¨åï¼Œä»å·¦åˆ°å³æŒ‰é¡ºåº
+    vector<string> arg_type_list;//æ ‡è¯†å‚æ•°çš„ç±»å‹ï¼Œä»å·¦åˆ°å³æ’åº
+    vector<bool> arg_isvar_list;//æ ‡è¯†å‚æ•°æ˜¯å¦æ˜¯å¼•ç”¨ç±»å‹
+    //vector<string> var_name_list;//å­è¡¨å¼•ç”¨åå¯¹åº”çš„çˆ¶è¡¨åç§°//è¿™ä¸€è¡Œåº”è¯¥æ²¡ç”¨
+    llvm::Function* llvmfunction;
 
     bool isfunction;
-    string ret_type;//Ö»ÔÚÊÇº¯ÊıÊ±²ÅÓĞÒâÒå
+    string ret_type;//åªåœ¨æ˜¯å‡½æ•°æ—¶æ‰æœ‰æ„ä¹‰
     llvm::Value* ret_llvmval;
 };
 
@@ -197,39 +196,16 @@ private:
         this->value.function_val = NULL;
         this->value.array_val = NULL;
         this->value.basic_val = NULL;
-//        switch (type)
-//        {
-//        case const_int:
-//        case var_int:this->value.int_val = 0;
-//            break;
-//        case const_real:
-//        case var_real:this->value.real_val = 0.0;
-//            break;
-//        case const_bool:
-//        case var_bool:this->value.bool_val = false;
-//            break;
-//        case const_char:
-//        case var_char:this->value.char_val = '\0';
-//            break;
-//        case unknown:
-//            break;
-//
-//        case array_type:this->value.array_val = new MyArrayType();
-//            break;
-//        case function:this->value.function_val = new MyFunctionType();
-//            break;
-//        default:;//todo:µ÷ÊÔĞÅÏ¢.Êı×é£¬º¯ÊıÀàĞÍÔÚ¶¨ÒåÊ±±ØĞë¸³Öµ
-//        }
     }
 
 };
 
-//todo:¶Ô·ûºÅ±í¾Ö²¿×÷ÓÃÓò¹¦ÄÜ½øĞĞ²âÊÔ
+//todo:å¯¹ç¬¦å·è¡¨å±€éƒ¨ä½œç”¨åŸŸåŠŸèƒ½è¿›è¡Œæµ‹è¯•
 class SymbolTable
 {
 public:
     string main_function;
-    //subprogram_bodyÊ±£¬Ö´ĞĞÉú³É×ÛºÏÊôĞÔÇ°ĞŞ¸ÄÖÁµ±Ç°º¯ÊıÃû£¬½áÊøÊ±ÖÃÎªmain_function
+    //subprogram_bodyæ—¶ï¼Œæ‰§è¡Œç”Ÿæˆç»¼åˆå±æ€§å‰ä¿®æ”¹è‡³å½“å‰å‡½æ•°åï¼Œç»“æŸæ—¶ç½®ä¸ºmain_function
     string cur_function;
 private:
 private:
@@ -241,16 +217,27 @@ public:
         ;
     }
 
-    //ÔöÉ¾²é¸Ä·½·¨
+    void set_main_function(string str)
+    {
+        this->main_function = str;
+        this->cur_function = str;
+    }
 
-    //Ä¬ÈÏµÄ²åÈë·½·¨£¬²åÈëÄ¬ÈÏµÄ²»°üº¬ÀàĞÍºÍÖµµÄ·ûºÅ±í¶ÔÏó
+    void set_cur_function(string str)
+    {
+        this->cur_function = str;
+    }
+
+    //å¢åˆ æŸ¥æ”¹æ–¹æ³•
+
+    //é»˜è®¤çš„æ’å…¥æ–¹æ³•ï¼Œæ’å…¥é»˜è®¤çš„ä¸åŒ…å«ç±»å‹å’Œå€¼çš„ç¬¦å·è¡¨å¯¹è±¡
     bool insert(string id)
     {
         SymbolTableItem* item = new SymbolTableItem(id);
         return insert(item);
     }
 
-    //²åÈë·ûºÅ±íÏî¶ÔÏó,ÔÚ×Ó±íÖĞ²»»áÔËĞĞ¸Ãº¯Êı
+    //æ’å…¥ç¬¦å·è¡¨é¡¹å¯¹è±¡,åœ¨å­è¡¨ä¸­ä¸ä¼šè¿è¡Œè¯¥å‡½æ•°
     bool insert(SymbolTableItem* item)
     {
         if (item == NULL)
@@ -277,7 +264,7 @@ public:
 
     }
 
-    //ËÆºõ²»»á±»µ÷ÓÃ
+    //ä¼¼ä¹ä¸ä¼šè¢«è°ƒç”¨
     bool remove(string id)
     {
         SymbolTable* table_ptr;
@@ -292,36 +279,36 @@ public:
 
         return table_ptr->table.erase(id);
     }
-    //·µ»Ø±íÏîÖ¸Õë£¬ÊµÏÖ²éÑ¯ºÍĞŞ¸Ä¹¦ÄÜ
+    //è¿”å›è¡¨é¡¹æŒ‡é’ˆï¼Œå®ç°æŸ¥è¯¢å’Œä¿®æ”¹åŠŸèƒ½
 
     SymbolTableItem* get(string id)
     {
-        //ÖØ¶¨Î»·ûºÅ±í
-        if(this->cur_function == this->main_function)//ÔÚÖ÷±í²éÑ¯
+        //é‡å®šä½ç¬¦å·è¡¨
+        if(this->cur_function == this->main_function)//åœ¨ä¸»è¡¨æŸ¥è¯¢
         {
-            //¼ìÑéÊÇ·ñ´æÔÚ±íÏî
+            //æ£€éªŒæ˜¯å¦å­˜åœ¨è¡¨é¡¹
             auto it = this->table.find(id);
-            if(it == this->table.end())//²»´æÔÚ
+            if(it == this->table.end())//ä¸å­˜åœ¨
                 return NULL;
             else
                 return this->table[id];
-        } else//ÔÚ×Ó±í²éÑ¯
+        } else//åœ¨å­è¡¨æŸ¥è¯¢
         {
-            //ÖØ¶¨Î»·ûºÅ±í
+            //é‡å®šä½ç¬¦å·è¡¨
             SymbolTableItem* func_item = this->table[cur_function];
             MyFunctionType* func = func_item->value.function_val;
             SymbolTable* table_ptr = func->child_table;
 
             auto it = table_ptr->table.find(id);
-            //×Ó±íÃ»ÓĞ¶ÔÓ¦µÄ±êÊ¶·û
+            //å­è¡¨æ²¡æœ‰å¯¹åº”çš„æ ‡è¯†ç¬¦
             if(it == table_ptr->table.end())
             {
-                table_ptr = this;//ÔÚ¸¸±í²éÑ¯
+                table_ptr = this;//åœ¨çˆ¶è¡¨æŸ¥è¯¢
             }
 
-            //¼ì²éÊÇ·ñ´æÔÚ
+            //æ£€æŸ¥æ˜¯å¦å­˜åœ¨
             auto it1 = table_ptr->table.find(id);
-            if(it1 == table_ptr->table.end())//²»´æÔÚ
+            if(it1 == table_ptr->table.end())//ä¸å­˜åœ¨
                 return NULL;
             else
                 return table_ptr->table[id];
@@ -335,4 +322,5 @@ MyFunctionType:: MyFunctionType(SymbolTable* main_table){
     this->main_table = main_table;
     this->child_table = new SymbolTable();
 }
+
 

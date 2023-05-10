@@ -4,41 +4,17 @@
 #include "main.h"
 #include "y.tab.hpp"
 
-
-class llvm
-{
-public:
-     typedef struct
-     {
-        int a;
-     }Value;
-
-     typedef struct
-     {
-         int b;
-     }function;
-};
-
 using namespace std;
 //class BitNode
 //{
 //public:
-//    string data; // Ò²¾ÍÊÇ´Ê·¨·ÖÎö½ØÈ¡µÄ×Ö·û´®£¬·ÇÒ¶×Ó½Úµã£¨·ÇÖÕ½á·û£©µÄÖµÎª¿Õ×Ö·û´®
-//    string type; // ÀàÐÍ
+//    string data; // Ò²ï¿½ï¿½ï¿½Ç´Ê·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¶ï¿½Ó½Úµã£¨ï¿½ï¿½ï¿½Õ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÖµÎªï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
+//    string type; // ï¿½ï¿½ï¿½ï¿½
 //    BitNode* father;
-//    vector<BitNode*> children; //×Ó½Úµã
+//    vector<BitNode*> children; //ï¿½Ó½Úµï¿½
 //
 //    void set(string data, string type);
 //    void insertChild(BitNode* child);
 //};
 
 class ASTNode;
-class CodeGenContext
-{
-    ;
-};
-
-class BasicBlock
-{
-
-};
