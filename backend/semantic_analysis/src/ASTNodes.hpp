@@ -3,7 +3,7 @@
 #include "CodeGenerate.h"
 #include <vector>
 #include <iostream>
-#include<fstream>
+#include <fstream>
 
 class SematicAnalysis;
 class const_declaration_AST;
@@ -15,14 +15,42 @@ extern SymbolTable symbol_table;
 extern SematicAnalysis analysis;
 extern CodeGenContext context;
 using namespace std;
-bool has_semantic_error =false;
 
-// 4.26更新：
-/*
- * 1.新增终结符WHILE
- * 2.新增语法结构WHILE语句
- * 3.
- */
+class SemanticError
+{
+public:
+    SemanticError(){};
+
+    SemanticError(int line, int col, string error_type = "", string info = "")
+    {
+        this->line = line;
+        this->col = col;
+        this->error_type = error_type;
+        this->error_info = info;
+    }
+
+public:
+    int line;
+    int col;
+    string error_type;
+    string error_info;
+};
+
+vector<SemanticError *> semantic_error_list;
+bool has_semantic_error = false; // 5.2
+void printErrorList()
+{
+    // todo:sort
+    for (int i = 0; i < semantic_error_list.size(); ++i)
+    {
+        int line = semantic_error_list[i]->line;
+        int col = semantic_error_list[i]->col;
+        string error_type = semantic_error_list[i]->error_type;
+        string error_info = semantic_error_list[i]->error_info;
+        cout << "Semantic Error! line:" << line << " "
+             << "col:" << col << " " << error_type << ":" << error_info << ";" << endl;
+    }
+}
 
 class SematicAnalysis
 {
@@ -30,7 +58,6 @@ public:
     SematicAnalysis(){};
     static ASTNode *create_ASTNode(BitNode *bn);
     static ASTNode *ADT2AST(BitNode *bn);
-
 
 private:
 };
@@ -108,48 +135,11 @@ enum ast_type
     expression
 };
 
-
 class const_value_AST;
 
 void sematic_error()
 {
     ;
-}
-
-class SemanticError
-{
-public:
-    SemanticError(){};
-
-    SemanticError(int line, int col, string error_type = "", string info = "")
-    {
-        this->line = line;
-        this->col = col;
-        this->error_type = error_type;
-        this->error_info = info;
-    }
-
-public:
-    int line;
-    int col;
-    string error_type;
-    string error_info;
-};
-
-vector<SemanticError *> semantic_error_list;
-
-void printErrorList()
-{
-    // todo:sort
-    for (int i = 0; i < semantic_error_list.size(); ++i)
-    {
-        int line = semantic_error_list[i]->line;
-        int col = semantic_error_list[i]->col;
-        string error_type = semantic_error_list[i]->error_type;
-        string error_info = semantic_error_list[i]->error_info;
-        cout << "Semantic Error! line:" << line << " "
-             << "col:" << col << " " << error_type << ":" << error_info << ";" << endl;
-    }
 }
 
 class ASTNode
@@ -169,7 +159,6 @@ public:
         {
             this->pascal_info += this->children[i]->pascal_info + " ";
         }
-        cout << "pascal_info:" << this->pascal_info << endl;
     }
 
 public:
@@ -198,6 +187,7 @@ public:
     {
         type = WHILE;
         pascal_info = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -208,6 +198,7 @@ public:
     {
         type = PROGRAM;
         pascal_info = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -220,6 +211,7 @@ public:
         pascal_info = bn->data;
         this->s_value = bn->data;
         type = CONST;
+        get_line_col(bn);
     }
 };
 
@@ -232,6 +224,7 @@ public:
         pascal_info = bn->data;
         type = VAR;
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -244,6 +237,7 @@ public:
         pascal_info = bn->data;
         type = PROCEDURE;
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -256,6 +250,7 @@ public:
         pascal_info = bn->data;
         type = FUNCTION;
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -281,6 +276,7 @@ public:
         pascal_info = bn->data;
         type = END;
         this->value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -293,6 +289,7 @@ public:
         pascal_info = bn->data;
         type = ARRAY;
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -305,6 +302,7 @@ public:
         pascal_info = bn->data;
         type = OF;
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -326,6 +324,7 @@ public:
     {
         pascal_info = bn->data;
         type = THEN;
+        get_line_col(bn);
     }
 };
 
@@ -347,6 +346,7 @@ public:
     {
         pascal_info = bn->data;
         type = TO;
+        get_line_col(bn);
     }
 };
 
@@ -357,6 +357,7 @@ public:
     {
         pascal_info = bn->data;
         type = DO;
+        get_line_col(bn);
     }
 };
 
@@ -389,6 +390,7 @@ public:
     {
         pascal_info = bn->data;
         type = NOT;
+        get_line_col(bn);
     }
 };
 
@@ -399,6 +401,7 @@ public:
     {
         pascal_info = bn->data;
         type = ELSE;
+        get_line_col(bn);
     }
 };
 
@@ -411,6 +414,7 @@ public:
         pascal_info = bn->data;
         type = RANGE; //..
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -421,8 +425,9 @@ public:
     UMINUS_AST(BitNode *bn)
     {
         pascal_info = bn->data;
-        type = UMINUS;            //-
-        this->s_value = bn->data; // todo:检查类型是否一致
+        type = UMINUS;
+        this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -435,6 +440,7 @@ public:
         pascal_info = bn->data;
         type = RELOP;             // 关系运算符
         this->s_value = bn->data; // todo:检查是否相符s
+        get_line_col(bn);
     }
 };
 
@@ -449,6 +455,7 @@ public:
         type = DIGITS;
         this->s_type = "integer";
         this->s_int = stoi(bn->data);
+        get_line_col(bn);
     }
 };
 
@@ -464,6 +471,7 @@ public:
         type = NUM;
         this->s_type = "real";
         this->s_real = stod(bn->data);
+        get_line_col(bn);
     }
 };
 
@@ -476,6 +484,7 @@ public:
         pascal_info = bn->data;
         type = VARTYPE; // todo:integer real boolean char
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -501,6 +510,7 @@ public:
         pascal_info = bn->data;
         type = MULOP;
         this->s_value = bn->data; // todo：检查语法分析给出的字符串是否与语义分析定义相同，不相同则在此修改
+        get_line_col(bn);
     }
 };
 
@@ -513,6 +523,7 @@ public:
         pascal_info = bn->data;
         type = ASSIGNOP;
         this->s_value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -525,6 +536,7 @@ public:
         pascal_info = bn->data;
         type = SEPARATOR;
         this->value = bn->data;
+        get_line_col(bn);
     }
 };
 
@@ -539,6 +551,7 @@ public:
         type = CHAR;
         s_type = "char";
         this->s_char = bn->data[0];
+        get_line_col(bn);
     }
 };
 
@@ -556,6 +569,7 @@ public:
             this->s_bool = true;
         else
             this->s_bool = false;
+        get_line_col(bn);
     }
 };
 
@@ -619,7 +633,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -667,8 +682,7 @@ public:
         }
         else
         {
-            cout<<this->children.size()<<endl;
-            cout << "error" << endl;
+            sematic_error();
         }
 
         // 设置符号表父表名称
@@ -678,14 +692,17 @@ public:
         // 插入参数
         for (int i = 0; i < parameters.size(); ++i)
         {
+            // 检查参数是否重名
             if (false == symbol_table.insert(parameters[i]))
             {
                 // 进入循环即不为空
                 ID_AST *id = ((idlist_AST *)this->children[3])->s_id_ast_list[i];
                 SemanticError *err = new SemanticError(id->line, id->col,
                                                        "Duplicate definition",
-                                                       "identifier '" + id->identifier + "' used more than once");
+                                                       "identifier '" + id->identifier + "' redefined");
                 semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                // return;允许继续插入
             }
         }
         // 插入函数名
@@ -693,18 +710,22 @@ public:
         value.function_val = new MyFunctionType();
         value.function_val->arg_name_list = parameters;
         SymbolTableItem *item = new SymbolTableItem(this->program_name, procedure, value);
+        // 检查主函数是否重名
         if (false == symbol_table.insert(item))
         {
             // 进入循环即不为空
             ID_AST *id = (ID_AST *)this->children[1];
             SemanticError *err = new SemanticError(id->line, id->col,
                                                    "Duplicate definition",
-                                                   "identifier '" + id->identifier + "' used more than once");
+                                                   "identifier '" + id->identifier + "' redefined");
             semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            // return;
         }
 
         pascal_info_cat();
-        this->code_generation();
+        if (!has_semantic_error)
+            this->code_generation();
     }
 };
 
@@ -756,7 +777,8 @@ public:
             sematic_error();
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -764,6 +786,7 @@ class const_value_AST : public ASTNode
 {
 public:
     string s_type;
+    bool l_isglobal;
     int s_int;
     char s_char;
     double s_real;
@@ -858,11 +881,13 @@ public:
         sematic_error();
         pascal_info_cat();
         semantic_checking();
-        s_value = code_generation();
+        if (!has_semantic_error)
+            s_value = code_generation();
     }
 
     void semantic_checking() override
     {
+        // 检查常量定义是否使用错误的符号标识正负
         if (this->children[0]->type == ADDOP)
         {
             ADDOP_AST *ch0 = (ADDOP_AST *)this->children[0];
@@ -871,6 +896,8 @@ public:
                 semantic_error_list.push_back(new SemanticError(ch0->line, ch0->col,
                                                                 "operator type error",
                                                                 "only '+' or '-' can be used in const declaration"));
+                has_semantic_error = true;
+                return;
             }
         }
     }
@@ -879,9 +906,10 @@ public:
 class const_declarations_AST : public ASTNode
 {
 public:
+    bool l_isglobal;
     vector<pair<string, const_value_AST *>> s_pair_list;
     vector<ID_AST *> s_id_AST_list;
-
+    llvm::Value *code_generation() override;
     const_declarations_AST(BitNode *bn)
     {
         type = const_declarations;
@@ -931,14 +959,17 @@ public:
                     value->value.char_val = s_pair_list[i].second->s_char;
                 }
 
+                // 检查常量名是否重名
                 if (false == symbol_table.insert(item))
                 {
                     // 进入循环即不为空
                     ID_AST *id = s_id_AST_list[i];
                     SemanticError *err = new SemanticError(id->line, id->col,
                                                            "Duplicate definition",
-                                                           "identifier '" + id->identifier + "' used more than once");
+                                                           "identifier '" + id->identifier + "' redefined");
                     semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    // return;允许继续定义
                 }
             }
         }
@@ -949,7 +980,8 @@ public:
 
         pascal_info_cat();
         // semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -975,7 +1007,8 @@ public:
         this->s_type = ch0->s_value;
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1020,7 +1053,8 @@ public:
             sematic_error();
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1070,7 +1104,8 @@ public:
             sematic_error();
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1115,7 +1150,8 @@ public:
             sematic_error();
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1172,6 +1208,7 @@ public:
                             int b = s_id_type_list[i].second->s_index_list[k].second;
                             begin.push_back(a);
                             end.push_back(b);
+                            // 检查变量数组定义下标是否合法
                             if (a > b)
                             {
                                 begin[k] = 0;
@@ -1181,7 +1218,8 @@ public:
                                                                        "Array range error",
                                                                        "identifier '" + id->identifier + "' array[a..b],a>b");
                                 semantic_error_list.push_back(err);
-                                return;
+                                has_semantic_error = true;
+                                // return;
                             }
                         }
                         MyArrayType *value = new MyArrayType(begin, end, idtype);
@@ -1195,19 +1233,22 @@ public:
                         item->type = idtype;
                     }
 
+                    // 检查变量名是否重复
                     if (false == symbol_table.insert(item))
                     {
                         // 进入循环即不为空
                         ID_AST *id = s_id_type_list[i].first->s_id_ast_list[j];
                         SemanticError *err = new SemanticError(id->line, id->col,
                                                                "Duplicate definition",
-                                                               "identifier '" + id->identifier + "' used more than once");
+                                                               "identifier '" + id->identifier + "' redefined");
                         semantic_error_list.push_back(err);
-                        return;
+                        has_semantic_error = true;
+                        // return;
                     }
                 }
             }
-            this->code_generation();
+            if (!has_semantic_error)
+                this->code_generation();
         }
         else if (this->children.size() == 0)
             ; // do nothing
@@ -1221,8 +1262,8 @@ public:
 class program_body_AST : public ASTNode
 {
 public:
-    const_declarations_AST* s_const_declarations;
-    var_declarations_AST* s_var_declarations;
+    const_declarations_AST *s_const_declarations;
+    var_declarations_AST *s_var_declarations;
     llvm::Value *code_generation() override;
     llvm::IRBuilderBase::InsertPoint IP;
     program_body_AST(BitNode *bn)
@@ -1232,10 +1273,10 @@ public:
 
     void semantic_action() override
     {
-        if(this->children.size()==4)
+        if (this->children.size() == 4)
         {
-            const_declarations_AST* ch0 = (const_declarations_AST*) this->children[0];
-            var_declarations_AST* ch1 = (var_declarations_AST*)this->children[1];
+            const_declarations_AST *ch0 = (const_declarations_AST *)this->children[0];
+            var_declarations_AST *ch1 = (var_declarations_AST *)this->children[1];
             this->s_const_declarations = ch0;
             this->s_var_declarations = ch1;
 
@@ -1243,9 +1284,9 @@ public:
 
             this->children[0]->semantic_action();
             this->children[1]->semantic_action();
-            if(!has_semantic_error)
+            if (!has_semantic_error)
             {
-                this->global_declaration();//声明全局变量
+                this->global_declaration(); // 声明全局变量
             }
             this->children[2]->semantic_action();
             context.builder->restoreIP(IP);
@@ -1260,75 +1301,92 @@ public:
         // code_generation();
     }
 
-        void global_declaration()
+    void global_declaration()
     {
         ofstream file;
         file.open("global.c");
         if (!file.is_open())
         {
-            cout << "Unable to open file global.c"<<endl;
+            cout << "Unable to open file global.c" << endl;
             return;
         }
 
-        //const
-        file << "#include <stdio.h>" << endl<<"#include <stdbool.h>"<<endl;
-        for (int i = 0; i < s_const_declarations->s_pair_list.size(); ++i) {
+        // const
+        file << "#include <stdio.h>" << endl
+             << "#include <stdbool.h>" << endl;
+        for (int i = 0; i < s_const_declarations->s_pair_list.size(); ++i)
+        {
             string sentence = "";
             string identifier = s_const_declarations->s_pair_list[i].first;
-            const_value_AST* const_value = s_const_declarations->s_pair_list[i].second;
-            if (const_value->s_type=="integer")
+            const_value_AST *const_value = s_const_declarations->s_pair_list[i].second;
+            if (const_value->s_type == "integer")
             {
                 sentence = "const int " + identifier + "=" + std::to_string(const_value->s_int) + ";";
             }
-            else if(const_value->s_type=="real")
+            else if (const_value->s_type == "real")
             {
                 sentence += "const double " + identifier + "=" + std::to_string(const_value->s_real) + ";";
             }
-            else if(const_value->s_type=="char")
+            else if (const_value->s_type == "char")
             {
-                sentence += "const char " + identifier +  "=" + std::to_string(const_value->s_char) + ";";
+                sentence += "const char " + identifier + "=" + std::to_string(const_value->s_char) + ";";
             }
             else
             {
-                sentence += "const bool " + identifier + "=" +  std::to_string(const_value->s_bool) + ";";
+                sentence += "const bool " + identifier + "=" + std::to_string(const_value->s_bool) + ";";
             }
             file << sentence << endl;
         }
-        //var
-        for (int i = 0; i < s_var_declarations->s_id_type_list.size(); ++i) {
+        // var
+        for (int i = 0; i < s_var_declarations->s_id_type_list.size(); ++i)
+        {
             vector<string> id_list = s_var_declarations->s_id_type_list[i].first->list;
             string type = s_var_declarations->s_id_type_list[i].second->s_type;
             bool isarray = s_var_declarations->s_id_type_list[i].second->l_isarray;
 
-            for (int j = 0; j < id_list.size(); ++j) {
-                SymbolTableItem* array_item;
+            for (int j = 0; j < id_list.size(); ++j)
+            {
+                SymbolTableItem *array_item;
                 string sentence = "";
                 string index = "";
 
-                if(isarray)
+                if (isarray)
                 {
                     array_item = symbol_table.get(id_list[j]);
-                    for (int k = 0; k < array_item->value.array_val->size.size(); ++k) {
-                        index += "[" + std::to_string(array_item->value.array_val->size[k]+1) +"]";
+                    // 检查符号表是否存在元素
+                    if (array_item == NULL)
+                    {
+                        ID_AST *id = (ID_AST *)s_var_declarations->s_id_type_list[i].first->s_id_ast_list[j];
+                        SemanticError *err = new SemanticError(id->line, id->col,
+                                                               "unknown identifier",
+                                                               "identifier '" + id->identifier + "' identifier is not declared or there is an error near its declarations declaration");
+                        semantic_error_list.push_back(err);
+                        has_semantic_error = true;
+                        return;
+                    }
+
+                    for (int k = 0; k < array_item->value.array_val->size.size(); ++k)
+                    {
+                        index += "[" + std::to_string(array_item->value.array_val->size[k] + 1) + "]";
                     }
                 }
-                if(type=="integer")
+                if (type == "integer")
                 {
-                    sentence += "int " +id_list[j] + index + ";";
+                    sentence += "int " + id_list[j] + index + ";";
                 }
-                else if(type=="real")
+                else if (type == "real")
                 {
                     sentence += "double " + id_list[j] + index + ";";
                 }
-                else if(type=="char")
+                else if (type == "char")
                 {
                     sentence += "char " + id_list[j] + index + ";";
                 }
-                else if(type=="boolean")
+                else if (type == "boolean")
                 {
                     sentence += "bool " + id_list[j] + index + ";";
                 }
-                file <<sentence<<endl;
+                file << sentence << endl;
             }
         }
     }
@@ -1351,7 +1409,8 @@ public:
             program_head_AST *ch0 = (program_head_AST *)this->children[0];
             program_body_AST *ch1 = (program_body_AST *)this->children[1];
             SEPARATOR_AST *ch2 = (SEPARATOR_AST *)this->children[2];
-            code_generation();
+            if (!has_semantic_error)
+                code_generation();
             for (int i = 0; i < this->children.size(); ++i)
             {
                 if (i == 1)
@@ -1393,7 +1452,8 @@ public:
         this->s_id_ast_list = ch0->s_id_ast_list;
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1424,7 +1484,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1475,7 +1536,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1520,7 +1582,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1556,7 +1619,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1621,14 +1685,17 @@ public:
         {
             functionType->ret_type = this->s_ret_type;
         }
+        // 检查函数、过程名是否重复
         if (false == symbol_table.insert(item))
         {
             // 进入循环即不为空
             ID_AST *id = (ID_AST *)this->children[1];
             SemanticError *err = new SemanticError(id->line, id->col,
                                                    "Duplicate definition",
-                                                   "identifier '" + id->identifier + "' used more than once");
+                                                   "identifier '" + id->identifier + "' redefined");
             semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
         }
 
         // 符号表重定向
@@ -1664,21 +1731,24 @@ public:
                 functionType->arg_type_list.push_back(this->s_list[i]->s_type);
                 functionType->arg_isvar_list.push_back(this->s_list[i]->s_isvar);
 
-                // 插入符号表，检查是否重名
+                // 检查函数、过程参数名是否重复
                 if (false == symbol_table.insert(item))
                 {
                     ID_AST *id = idAst;
                     SemanticError *err = new SemanticError(id->line, id->col,
                                                            "Duplicate definition",
-                                                           "identifier '" + id->identifier + "' used more than once");
+                                                           "identifier '" + id->identifier + "' redefined");
                     semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    // return;
                 }
             }
         }
 
         pascal_info_cat();
         semantic_checking();
-        functionType->llvmfunction = function_generation();
+        if (!has_semantic_error)
+            functionType->llvmfunction = function_generation();
     }
 };
 
@@ -1708,8 +1778,8 @@ public:
         semantic_checking();
         // l_item空指针时
         isfunction = l_item->type == symbol_type::function;
-        cout << "isfunction:" << isfunction << endl;
-        ret_generation(this->l_item->value.function_val->ret_llvmval); // 5.1
+        if (!has_semantic_error)
+            ret_generation(this->l_item->value.function_val->ret_llvmval); // 5.1
         // code_generation();//todo 改成ret_generation(Value* ret)插入符号表
     }
 };
@@ -1733,7 +1803,6 @@ public:
 
         for (int i = 0; i < this->children.size(); ++i)
         {
-            cout << i << endl;
             if (i == 2)
                 ch2->l_item = ch0->s_item;
             this->children[i]->semantic_action();
@@ -1748,7 +1817,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1784,7 +1854,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -1806,7 +1877,7 @@ public:
     bool s_bool;   // 仅在字面量时有意义
 
     // 2.是一个变量或常量变量
-    bool s_isconst;              // 是否是const变量
+    bool s_isconst = false;              // 是否是const变量
     string s_identifier;         // 变量或数组的符号表标识符
     SymbolTableItem *s_var_item; // 符号表表项
     bool s_isarray;              // 是否是数组
@@ -1874,18 +1945,59 @@ public:
             this->operand0_type = ch0->s_type;
             this->operand1 = ch2->s_value;
             this->operand1_type = ch2->s_type;
-            if(this->operand0==nullptr)
-                cout<<"operand0 is nullptr"<<endl;
-            if(this->operand1==nullptr)
-                cout<<"operand1 is nullptr"<<endl;
             this->s_op = ch1->s_value;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
-            if(this->s_value==nullptr)
-                cout<<"s_value is nullptr"<<endl;
-            this->s_value = code_generation();
-             if(this->s_value==nullptr)
-                cout<<"s_value is nullptr"<<endl;
+            this->s_type = ch0->s_type;
+
+            // 语义检查
+            // 操作数类型是否相同
+            if (operand1_type != operand0_type)
+            {
+                MULOP_AST *id = (MULOP_AST *)this->children[1];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "operand type Error",
+                                                       "The two operands of '" + id->s_value + "' must be of the same type");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+            // 乘除必须是整数和浮点
+            if ((ch1->s_value == "*" || ch1->s_value == "/") && (this->s_type != "integer" && this->s_type != "real"))
+            {
+                MULOP_AST *id = (MULOP_AST *)this->children[1];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "operand type Error",
+                                                       "The two operands of '" + id->s_value + "' must be integer or real type");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+            // 整除和模必须是整数
+            if ((ch1->s_value == "div" || ch1->s_value == "mod") && (this->s_type != "integer"))
+            {
+                MULOP_AST *id = (MULOP_AST *)this->children[1];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "operand type Error",
+                                                       "The two operands of '" + id->s_value + "' must be integer type");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+            // and必须是Boolean或整数
+            if (ch1->s_value == "and" && this->s_type != "boolean" && this->s_type != "integer")
+            {
+                MULOP_AST *id = (MULOP_AST *)this->children[1];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "operand type Error",
+                                                       "The two operands of '" + id->s_value + "'must be boolean or integer type");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+
+            if (!has_semantic_error)
+                this->s_value = code_generation();
         }
         else if (this->children.size() == 1)
         {
@@ -1901,7 +2013,6 @@ public:
 
         pascal_info_cat();
         semantic_checking(); // todo:设置s_type
-        cout << this->s_value << endl;
     }
 };
 
@@ -1955,7 +2066,81 @@ public:
             this->operand1_type = ch2->s_type;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
-            this->s_value = code_generation();
+            this->s_type = ch0->s_type;
+
+            // 语义检查
+            // 操作数类型是否相同
+            if (operand1_type != operand0_type)
+            {
+                if (this->children[1]->type == ADDOP)
+                {
+                    ADDOP_AST *id = (ADDOP_AST *)this->children[1];
+                    SemanticError *err = new SemanticError(id->line, id->col,
+                                                           "operand type Error",
+                                                           "The two operands of '" + id->s_value + "' must be of the same type");
+                    semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
+                }
+                else
+                {
+                    UMINUS_AST *id = (UMINUS_AST *)this->children[1];
+                    SemanticError *err = new SemanticError(id->line, id->col,
+                                                           "operand type Error",
+                                                           "The two operands of '" + id->s_value + "' must be of the same type");
+                    semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
+                }
+            }
+            // 加必须是整数和浮点
+            if (this->children[1]->type == ADDOP)
+            {
+                ADDOP_AST *ch1 = (ADDOP_AST *)this->children[1];
+                if ((ch1->s_value == "+") && (this->s_type != "integer" && this->s_type != "real"))
+                {
+                    ADDOP_AST *id = (ADDOP_AST *)this->children[1];
+                    SemanticError *err = new SemanticError(id->line, id->col,
+                                                           "operand type Error",
+                                                           "The two operands of '" + id->s_value + "' must be integer or real type");
+                    semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
+                }
+            }
+            // 减必须是整数和浮点
+            if (this->children[1]->type == UMINUS)
+            {
+                UMINUS_AST *ch1 = (UMINUS_AST *)this->children[1];
+                if ((ch1->s_value == "-") && (this->s_type != "integer" && this->s_type != "real"))
+                {
+                    UMINUS_AST *id = (UMINUS_AST *)this->children[1];
+                    SemanticError *err = new SemanticError(id->line, id->col,
+                                                           "operand type Error",
+                                                           "The two operands of '" + id->s_value + "' must be integer or real type");
+                    semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
+                }
+            }
+            // or必须是bool或integer
+            if (this->children[1]->type == ADDOP)
+            {
+                ADDOP_AST *ch1 = (ADDOP_AST *)this->children[1];
+                if ((ch1->s_value == "or") && (this->s_type != "boolean") && (this->s_type != "integer"))
+                {
+                    ADDOP_AST *id = (ADDOP_AST *)this->children[1];
+                    SemanticError *err = new SemanticError(id->line, id->col,
+                                                           "operand type Error",
+                                                           "The two operands of '" + id->s_value + "'must be boolean or integer type");
+                    semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
+                }
+            }
+
+            if (!has_semantic_error)
+                this->s_value = code_generation();
         }
         else if (this->children.size() == 1)
         {
@@ -1972,7 +2157,6 @@ public:
 
         pascal_info_cat();
         semantic_checking(); // todo:设置s_type
-        cout << this->s_value << endl;
     }
 };
 
@@ -1984,7 +2168,7 @@ public:
     llvm::Value *s_value;
     bool isleftvalue = false;   // 是左值则赋值为true
     llvm::Value *llvmleftValue; // 左值指针，在传引用时使用
-    BitNode* bn;
+    BitNode *bn;
 
     // 1.二元运算
     string s_op; // 等于，不等于，小于，小于等于，大于，大于等于 =,<>,<,<=,>,>=
@@ -2019,8 +2203,22 @@ public:
             this->s_op = ch1->s_value;
             this->isleftvalue = false;
             this->llvmleftValue = NULL;
-            this->s_value = code_generation();
             this->s_type = "boolean";
+
+            // 两个操作数类型是否相同
+            if (operand1_type != operand0_type)
+            {
+                RELOP_AST *id = (RELOP_AST *)this->children[1];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "operand type Error",
+                                                       "The two operands of '" + id->s_value + "' must be of the same type");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+
+            if (!has_semantic_error)
+                this->s_value = code_generation();
         }
         else if (this->children.size() == 1)
         {
@@ -2037,7 +2235,6 @@ public:
 
         pascal_info_cat();
         semantic_checking(); // todo:设置s_type
-        cout << this->s_value << endl;
     }
 };
 
@@ -2085,10 +2282,10 @@ public:
         }
         else
             sematic_error();
-        cout << 3 << endl;
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -2127,7 +2324,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -2165,17 +2363,58 @@ public:
         this->s_value_list = ch1->s_value_list;
         // 从符号表获得类型
         this->item = symbol_table.get(this->s_identifier);
-        if (this->item == nullptr)
-            cout << "error1" << endl;
+        // 检查符号表是否存在元素
+        if (this->item == NULL)
+        {
+            ID_AST *id = (ID_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "unknown identifier",
+                                                   "identifier '" + id->identifier + "' identifier is not declared or there is an error near its declaration");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
         symbol_type t = symbol_type::unknown;
         if (this->s_isarray == true)
         {
+            // 检查标识符是否是array类型
             if (this->item->type != array_type)
-                sematic_error(); // todo
-            else
             {
-                t = item->value.array_val->type;
+                ID_AST *id = (ID_AST *)this->children[0];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "type error",
+                                                       "identifier '" + id->identifier + "' identifier is not array type");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
             }
+            // 检查index数量与数组维度是否匹配
+            if (this->s_type_list.size() != item->value.array_val->size.size())
+            {
+                ID_AST *id = (ID_AST *)this->children[0];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "index error",
+                                                       "identifier '" + id->identifier + "' the number of index mismatch");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+            // 检查index类型
+            for (int i = 0; i < this->s_type_list.size(); ++i)
+            {
+                if (this->s_type_list[i] != "integer")
+                {
+                    ID_AST *id = (ID_AST *)this->children[0];
+                    SemanticError *err = new SemanticError(id->line, id->col,
+                                                           "index type error",
+                                                           "index " + std::to_string(i) + " is not integer type");
+                    semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
+                }
+            }
+
+            t = item->value.array_val->type;
         }
         else
         {
@@ -2183,45 +2422,48 @@ public:
         }
         switch (t)
         {
-        case var_int:
-            this->s_type = "integer";
-            this->s_isconst = false;
-            break;
-        case var_bool:
-            this->s_type = "boolean";
-            this->s_isconst = false;
-            break;
-        case var_char:
-            this->s_type = "char";
-            this->s_isconst = false;
-            break;
-        case var_real:
-            this->s_type = "real";
-            this->s_isconst = false;
-            break;
-        case const_int:
-            this->s_type = "integer";
-            this->s_isconst = true;
-            break;
-        case const_bool:
-            this->s_type = "boolean";
-            this->s_isconst = true;
-            break;
-        case const_char:
-            this->s_type = "char";
-            this->s_isconst = true;
-            break;
-        case const_real:
-            this->s_type = "real";
-            this->s_isconst = true;
-        default:
-            sematic_error();
+            case var_int:
+                this->s_type = "integer";
+                this->s_isconst = false;
+                break;
+            case var_bool:
+                this->s_type = "boolean";
+                this->s_isconst = false;
+                break;
+            case var_char:
+                this->s_type = "char";
+                this->s_isconst = false;
+                break;
+            case var_real:
+                this->s_type = "real";
+                this->s_isconst = false;
+                break;
+            case const_int:
+                this->s_type = "integer";
+                this->s_isconst = true;
+                break;
+            case const_bool:
+                this->s_type = "boolean";
+                this->s_isconst = true;
+                break;
+            case const_char:
+                this->s_type = "char";
+                this->s_isconst = true;
+                break;
+            case const_real:
+                this->s_type = "real";
+                this->s_isconst = true;
+            default:
+                sematic_error();
         }
 
         pascal_info_cat();
         get_line_col(ch0);
         semantic_checking();
-        s_value = code_generation();
+        if (!has_semantic_error)
+        {
+            s_value = code_generation();
+        }
     }
 };
 
@@ -2240,7 +2482,6 @@ public:
 
         if (this->children.size() == 3)
         {
-            cout << this->children.size() << endl;
             variable_list_AST *ch0 = (variable_list_AST *)this->children[0];
             variable_AST *ch2 = (variable_AST *)this->children[2];
             for (int i = 0; i < this->children.size(); ++i)
@@ -2261,7 +2502,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -2287,6 +2529,28 @@ public:
             this->s_identifier = ch0->identifier;
             this->s_item = symbol_table.get(this->s_identifier);
 
+            if (this->s_item == NULL)
+            {
+                ID_AST *id = (ID_AST *)this->children[0]->children[0];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "id Error",
+                                                       "The identifier '" + id->identifier + "' doesnt exist");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+            // 语义检查，id必须是过程
+            if (this->s_item->type != symbol_type::procedure)
+            {
+                ID_AST *id = (ID_AST *)this->children[0]->children[0];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "id type Error",
+                                                       "The identifier '" + id->identifier + "'must be procedure for proceduer call statement");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+
             get_line_col(ch0);
         }
         else if (this->children.size() == 4)
@@ -2309,7 +2573,10 @@ public:
                                                        "undefined identifier",
                                                        "identifier '" + id->identifier + "' is undefined");
                 semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
             }
+            // 标识符是否是过程
             if (s_item->type != procedure)
             {
                 ID_AST *id = ch0;
@@ -2317,33 +2584,41 @@ public:
                                                        "identifier type Error",
                                                        "in function '" + id->identifier + "',identifier is not a function");
                 semantic_error_list.push_back(err);
+                has_semantic_error = true;
                 return;
             }
             if (s_item != NULL) // 存在函数名才进行函数调用的语义检查
             {
                 MyFunctionType *functionType = s_item->value.function_val;
-                if (functionType->arg_name_list.size() != ch2->s_value_list.size()) // 检查参数数量是否匹配
+                // 检查参数数量是否匹配
+                if (functionType->arg_name_list.size() != ch2->s_value_list.size())
                 {
                     ID_AST *id = ch0;
                     SemanticError *err = new SemanticError(id->line, id->col,
                                                            "number of parameter Error",
                                                            "in procedure '" + id->identifier + "',The number of parameters does not match the definition");
                     semantic_error_list.push_back(err);
+                    has_semantic_error = true;
+                    return;
                 }
                 else
                 {
                     for (int i = 0; i < functionType->arg_name_list.size(); ++i)
                     {
-                        if (functionType->arg_type_list[i] != s_type_list[i]) // 参数类型错误
+                        // 参数类型是否正确
+                        if (functionType->arg_type_list[i] != s_type_list[i])
                         {
                             ID_AST *id = ch0;
                             SemanticError *err = new SemanticError(id->line, id->col,
                                                                    "parameter type Error",
                                                                    "in procedure '" + id->identifier + "',parameter " + functionType->arg_name_list[i] + "type must be" + functionType->arg_type_list[i]);
-                            //semantic_error_list.push_back(err);
+                            semantic_error_list.push_back(err);
+                            has_semantic_error = true;
+                            return;
                         }
                         if (functionType->arg_isvar_list[i]) // 检查引用参数位能否是引用
                         {
+
                             if (!ch2->s_expression_list[i]->isleftvalue) // 但不是可引用类型
                             {
                                 ID_AST *id = ch0;
@@ -2351,6 +2626,8 @@ public:
                                                                        "parameter type Error",
                                                                        "in procedure '" + id->identifier + "',parameter " + functionType->arg_name_list[i] + "type must be referencable");
                                 semantic_error_list.push_back(err);
+                                has_semantic_error = true;
+                                return;
                             }
                             this->s_value_list.push_back(ch2->s_expression_list[i]->llvmleftValue);
                         }
@@ -2369,7 +2646,8 @@ public:
 
         pascal_info_cat();
         // semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -2490,7 +2768,8 @@ public:
 
         pascal_info_cat();
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -2557,7 +2836,8 @@ public:
         pascal_info_cat();
         get_line_col(this->children[0]);
         semantic_checking();
-        code_generation();
+        if (!has_semantic_error)
+            code_generation();
     }
 };
 
@@ -2565,6 +2845,7 @@ void statement_AST::semantic_action()
 {
     if (this->children.size() == 0)
     {
+        this->s_state = 8;
         return;
     }
     else if (this->children[0]->type == variable)
@@ -2580,7 +2861,78 @@ void statement_AST::semantic_action()
         this->s_expression_type = ch2->s_type;
         this->s_expression_value = ch2->s_value;
         get_line_col(ch0);
-        assign_code_generation();
+
+        // 语义检查，id必须已经定义
+        if (this->s_variable->item == NULL)
+        {
+            ID_AST *id = (ID_AST *)this->s_variable->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "id Error",
+                                                   "The identifier '" + id->identifier + "' doesnt exist");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+        // 语义检查，variable必须不是const
+        if (this->s_variable->s_isconst == true)
+        {
+            ID_AST *id = (ID_AST *)this->s_variable->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "id type Error",
+                                                   "The identifier '" + id->identifier + "' is const type");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+        // 语义检查，variable的id不能是过程
+        if (this->s_variable->item->type == symbol_type::procedure)
+        {
+            ID_AST *id = (ID_AST *)this->s_variable->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "id type Error",
+                                                   "The identifier '" + id->identifier + "' cant be procedure type");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+        // 对返回语句检查作用域
+        if (this->s_variable->item->type == symbol_type::function && this->s_variable->s_identifier != symbol_table.cur_function)
+        {
+            ID_AST *id = (ID_AST *)this->s_variable->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "Scope error",
+                                                   "Cannot assign values to the return values of other functions");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+        // 检查左右类型是否相同
+        if (this->s_variable->item->type == symbol_type::function)
+        {
+            if (this->s_variable->item->value.function_val->ret_type != this->s_expression_type)
+            {
+                ID_AST *id = (ID_AST *)this->s_variable->children[0];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "type Error",
+                                                       "return type mismatch");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+        }
+        else if (this->s_variable->s_type != this->s_expression_type)
+        {
+            ID_AST *id = (ID_AST *)this->s_variable->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "type Error",
+                                                   "The types of variables and expressions do not match");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+
+        if (!has_semantic_error)
+            assign_code_generation();
     }
     else if (this->children[0]->type == procedure_call)
     {
@@ -2601,7 +2953,6 @@ void statement_AST::semantic_action()
         this->s_statement_list = ch0->s_statement_list;
 
         //
-        cout << "this->s_statement_list.size()" << this->s_statement_list.size() << endl;
         for (int i = this->s_statement_list.size() - 1; i >= 0; i--)
         {
             if (this->s_statement_list[i]->children.size() == 0)
@@ -2612,10 +2963,7 @@ void statement_AST::semantic_action()
                 this->s_statement_list[i]->children[0]->type == WHILE ||
                 this->s_statement_list[i]->children[0]->type == FOR)
             {
-                cout << "111111111" << endl;
                 this->block4 = this->s_statement_list[i]->block3;
-                if (this->block4 == nullptr)
-                    cout << "block4 is nullptr" << endl;
                 break;
             }
         }
@@ -2633,6 +2981,19 @@ void statement_AST::semantic_action()
         this->children[1]->semantic_action();
         this->s_expression_type = ch1->s_type;
         this->s_expression_value = ch1->s_value;
+
+        // 语义检查，expression type必须是boolean
+        if (this->s_expression_type != "boolean")
+        {
+            IF_AST *id = (IF_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "expression type Error",
+                                                   "The expression of IF statement must be boolean expression");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+
         this->children[2]->semantic_action();
         if (this->children[4]->children.size() == 0)
         {
@@ -2642,11 +3003,12 @@ void statement_AST::semantic_action()
         {
             this->s_has_else = true;
         }
-        this->if_code_generation_1();
+        if (!has_semantic_error)
+            this->if_code_generation_1();
         this->children[3]->semantic_action();
         this->s_if_statement = ch3;
 
-        if (ch3->children[0]->type == compound_statement)
+        if (ch3->children.size() > 0 && ch3->children[0]->type == compound_statement)
         {
             this->block4 = ch3->block4;
         }
@@ -2654,7 +3016,8 @@ void statement_AST::semantic_action()
         {
             this->block4 = ch3->block3;
         }
-        this->if_code_generation_2();
+        if (!has_semantic_error)
+            this->if_code_generation_2();
         this->children[4]->semantic_action();
         this->s_has_else = ch4->s_has_else;
         this->s_else_statement = ch4->s_statement;
@@ -2669,8 +3032,8 @@ void statement_AST::semantic_action()
                 this->block4 = s_else_statement->block3;
             }
         }
-        this->if_code_generation_3();
-        cout << "test" << endl;
+        if (!has_semantic_error)
+            this->if_code_generation_3();
         get_line_col(this->children[0]);
     }
     else if (this->children[0]->type == FOR)
@@ -2686,6 +3049,17 @@ void statement_AST::semantic_action()
 
         this->s_for_identifier = ch1->identifier;
         this->s_for_item = symbol_table.get(s_for_identifier);
+        // 语义检查，id必须已经定义
+        if (this->s_for_item == NULL)
+        {
+            ID_AST *id = (ID_AST *)this->children[1];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "id Error",
+                                                   "The identifier '" + id->identifier + "' doesnt exist");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
 
         this->children[2]->semantic_action();
         this->children[3]->semantic_action();
@@ -2700,34 +3074,58 @@ void statement_AST::semantic_action()
         this->s_for_expression_value2 = ch5->s_value;
 
         this->children[6]->semantic_action();
-        this->for_code_generation_1();
+
+        if (this->s_for_item->type != symbol_type::var_int)
+        {
+            FOR_AST *id = (FOR_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "identifier type Error",
+                                                   "The identifier must be integer type and can't be const");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+        // 语义检查，expression type必须是integer
+        if (this->s_for_expression_type1 != "integer" || this->s_for_expression_type2 != "integer")
+        {
+            FOR_AST *id = (FOR_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "expression type Error",
+                                                   "The expression of For statement must be integer expression");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+
+        if (!has_semantic_error)
+            this->for_code_generation_1();
         this->children[7]->semantic_action();
         this->s_for_statement = ch7;
 
-        if (ch7->children[0]->type == compound_statement)
+        if (ch7->children.size() > 0 && ch7->children[0]->type == compound_statement)
         {
             this->block4 = ch7->block4;
-            cout << "ch7 11111" << endl;
-            if (this->block4 == nullptr)
-                cout << "ch3 11111" << endl;
         }
         else
         {
             this->block4 = ch7->block3;
         }
-        /*
-        cout<<ch7->children[0]->type<<endl;
-        if(ch7->children[0]->type==IF||
-        ch7->children[0]->type==WHILE||
-        ch7->children[0]->type==FOR)
-        {
-            this->block4 = ch7->block3;
-            cout<<"ch7 22222"<<endl;
-        }
-        */
-        this->for_code_generation_2();
+
+        if (!has_semantic_error)
+            this->for_code_generation_2();
 
         this->s_for_item = symbol_table.get(s_for_identifier);
+        // 检查符号表是否存在元素
+        if (s_for_item == NULL)
+        {
+            ID_AST *id = (ID_AST *)this->children[1];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "unknown identifier",
+                                                   "identifier '" + id->identifier + "' identifier is not declared or there is an error near its declaration");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
         this->s_for_type = "integer";
 
         get_line_col(this->children[0]);
@@ -2741,8 +3139,22 @@ void statement_AST::semantic_action()
             this->children[i]->semantic_action();
         }
         this->s_variable_list = ch2->s_variable_list;
+        for (int i = 0; i < s_variable_list.size(); ++i)
+        {
+            if (s_variable_list[i]->s_isconst)
+            {
+                ID_AST *id = (ID_AST *)s_variable_list[i]->children[0];
+                SemanticError *err = new SemanticError(id->line, id->col,
+                                                       "type error",
+                                                       "identifier '" + id->identifier + "' identifier can't be const");
+                semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
+            }
+        }
         get_line_col(this->children[0]);
-        read();
+        if (!has_semantic_error)
+            read();
     }
     else if (this->children[0]->type == WRITE)
     {
@@ -2755,7 +3167,8 @@ void statement_AST::semantic_action()
         this->s_type_list = ch2->s_type_list;
         this->s_value_list = ch2->s_value_list;
         get_line_col(this->children[0]);
-        write();
+        if (!has_semantic_error)
+            write();
     }
     else if (this->children.size() == 0)
     {
@@ -2771,67 +3184,49 @@ void statement_AST::semantic_action()
         this->children[1]->semantic_action();
         this->s_expression_type = ch1->s_type;
         this->s_expression_value = ch1->s_value;
+        if (this->s_expression_type != "boolean")
+        {
+            WHILE_AST *id = (WHILE_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "expression type Error",
+                                                   "The expression of WHILE statement must be boolean expression");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
+
         this->children[2]->semantic_action();
-        this->while_code_generation_1();
+        if (!has_semantic_error)
+            this->while_code_generation_1();
         this->children[3]->semantic_action();
         // 创建隐式赋值语句
-        ASTNode* node = SematicAnalysis::ADT2AST(ch1->bn);
-        expression_AST* exp_ast = (expression_AST*)node;
+        ASTNode *node = SematicAnalysis::ADT2AST(ch1->bn);
+        expression_AST *exp_ast = (expression_AST *)node;
 
         statement_AST *assign_statement = new statement_AST();
-        assign_statement->children.push_back(new ASTNode());     // id
-        assign_statement->children.push_back(new ASTNode());     //:=
-        //assign_statement->children.push_back(ch1); // expression
+        assign_statement->children.push_back(new ASTNode()); // id
+        assign_statement->children.push_back(new ASTNode()); //:=
+        // assign_statement->children.push_back(ch1); // expression
         assign_statement->children.push_back(exp_ast); // expression
-        
+
         assign_statement->children[2]->semantic_action();
         assign_statement->s_expression_value = exp_ast->s_value;
         assign_statement->is_while_assign = true;
         assign_statement->while_temp_value = this->while_temp_value;
-        assign_statement->assign_code_generation();
-        /*
-        ch1->semantic_action();
-        this->s_expression_value = ch1->s_value;
-        assign_statement->s_expression_value = ch1->s_value;
-        //assign_statement->s_expression_value = this->s_expression_value;
-        assign_statement->is_while_assign = true;
-        assign_statement->while_temp_value = while_temp_value;
-        assign_statement->assign_code_generation();
-        */
-        // assign_statement->s_expression_type = this->s_expression_type;
-        //
+        if (!has_semantic_error)
+            assign_statement->assign_code_generation();
 
-        // assign_statement属性
-        // SymbolTableItem* temp_item = new SymbolTableItem();
-        // temp_item->type = var_bool;
-        // temp_item->value.basic_val->llvmvalue = this->while_temp_value;
-
-        // assign_statement->s_var_item = temp_item;
-
-        //        if (ch3->children[0]->type==compound_statement)
-        //        {
-        //            ch3->s_statement_list.push_back(assign_statement);
-        //            assign_statement.assign_code_generation();
-        //        }
-        //        else
-        //        {
-        //            cout<<"这个好难写啊不会写了"<<endl;
-        //            //cout<<"感觉又会写了这个不用写"
-        //        }
-
-        if (ch3->children[0]->type == compound_statement)
+        if (ch3->children.size() > 0 && ch3->children[0]->type == compound_statement)
         {
             this->block4 = ch3->block4;
-            cout << "ch3 11111" << endl;
-            if (this->block4 == nullptr)
-                cout << "ch3 11111" << endl;
         }
         else
         {
             this->block4 = ch3->block3;
         }
         this->s_for_statement = ch3;
-        this->while_code_generation_2();
+        if (!has_semantic_error)
+            this->while_code_generation_2();
 
         get_line_col(this->children[0]);
     }
@@ -2839,7 +3234,8 @@ void statement_AST::semantic_action()
         sematic_error();
     pascal_info_cat();
     semantic_checking();
-    code_generation();
+    if (!has_semantic_error)
+        code_generation();
 }
 
 void factor_AST::semantic_action()
@@ -2882,9 +3278,10 @@ void factor_AST::semantic_action()
         this->s_index_list = ch0->s_value_list;
         this->s_value = ch0->s_value;
         this->isleftvalue = true;
+        this->s_isconst = ch0->s_isconst;
         this->llvmleftValue = ch0->llvmleftValue;
-        if (this->s_isconst == false)
-            this->isleftvalue = true;
+        if (this->s_isconst == true)
+            this->isleftvalue = false;
     }
     else if (this->children[0]->type == ID)
     {
@@ -2902,6 +3299,7 @@ void factor_AST::semantic_action()
         this->s_parameter_type_list = ch2->s_type_list;
 
         // 语义检查，未定义的id
+        // 语义检查，未定义的id
         if (s_func_item == NULL)
         {
             ID_AST *id = ch0;
@@ -2909,8 +3307,10 @@ void factor_AST::semantic_action()
                                                    "undefined identifier",
                                                    "identifier '" + id->identifier + "' is undefined");
             semantic_error_list.push_back(err);
+            has_semantic_error = true;
             return;
         }
+        // 语义检查，类型不是function
         if (s_func_item->type != symbol_type::function)
         {
             ID_AST *id = ch0;
@@ -2918,6 +3318,7 @@ void factor_AST::semantic_action()
                                                    "identifier type Error",
                                                    "in function '" + id->identifier + "',identifier is not a function");
             semantic_error_list.push_back(err);
+            has_semantic_error = true;
             return;
         }
 
@@ -2931,6 +3332,7 @@ void factor_AST::semantic_action()
                                                        "identifier type Error",
                                                        "in function '" + id->identifier + "',identifier is not a function");
                 semantic_error_list.push_back(err);
+                has_semantic_error = true;
                 return;
             }
             this->s_type = functionType->ret_type;
@@ -2940,8 +3342,10 @@ void factor_AST::semantic_action()
                 ID_AST *id = ch0;
                 SemanticError *err = new SemanticError(id->line, id->col,
                                                        "number of parameter Error",
-                                                       "in procedure '" + id->identifier + "',The number of parameters does not match the definition");
+                                                       "in function '" + id->identifier + "',The number of parameters does not match the definition");
                 semantic_error_list.push_back(err);
+                has_semantic_error = true;
+                return;
             }
             else
             {
@@ -2954,6 +3358,8 @@ void factor_AST::semantic_action()
                                                                "parameter type Error",
                                                                "in function '" + id->identifier + "',parameter " + functionType->arg_name_list[i] + "type must be" + functionType->arg_type_list[i]);
                         semantic_error_list.push_back(err);
+                        has_semantic_error = true;
+                        return;
                     }
                     if (functionType->arg_isvar_list[i]) // 检查引用参数位能否是引用
                     {
@@ -2964,9 +3370,9 @@ void factor_AST::semantic_action()
                                                                    "parameter type Error",
                                                                    "in function '" + id->identifier + "',parameter " + functionType->arg_name_list[i] + "type must be referencable");
                             semantic_error_list.push_back(err);
+                            has_semantic_error = true;
+                            return;
                         }
-                        if (ch2->s_expression_list[i]->llvmleftValue == nullptr)
-                            cout << "error" << endl;
                         this->s_parameter_list.push_back(ch2->s_expression_list[i]->llvmleftValue);
                     }
                     else
@@ -2976,7 +3382,8 @@ void factor_AST::semantic_action()
                 }
             }
         }
-        this->s_value = function_call_generation();
+        if (!has_semantic_error)
+            this->s_value = function_call_generation();
     }
     else if (this->children[0]->type == SEPARATOR)
     {
@@ -3005,6 +3412,16 @@ void factor_AST::semantic_action()
         this->s_operand0 = ch1->s_value;
         this->s_type = ch1->s_type;
         this->s_value = ch1->s_value;
+        if (s_type != "boolean" && s_type != "integer")
+        {
+            NUM_AST *id = (NUM_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "operand type Error",
+                                                   "'not' operator only can be used on boolean or integer type operand");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
     }
     else if (this->children[0]->type == UMINUS)
     {
@@ -3019,170 +3436,180 @@ void factor_AST::semantic_action()
         this->s_operand0 = ch1->s_value;
         this->s_type = ch1->s_type;
         this->s_value = ch1->s_value;
+        // 语义检查
+        if (s_type != "integer" && s_type != "real")
+        {
+            NUM_AST *id = (NUM_AST *)this->children[0];
+            SemanticError *err = new SemanticError(id->line, id->col,
+                                                   "operand type Error",
+                                                   "'-' operator only can be used on integer type or real type");
+            semantic_error_list.push_back(err);
+            has_semantic_error = true;
+            return;
+        }
     }
     else
         sematic_error();
     pascal_info_cat();
     // semantic_checking();
-    this->s_value = code_generation();
+    if (!has_semantic_error)
+        this->s_value = code_generation();
 }
 
+ASTNode *SematicAnalysis::create_ASTNode(BitNode *bn)
+{
+    ASTNode *nodeptr = NULL;
 
+    if (bn->type == "PROGRAM")
+        nodeptr = new PROGRAM_AST(bn);
+    else if (bn->type == "CONST")
+        nodeptr = new CONST_AST(bn);
+    else if (bn->type == "VAR")
+        nodeptr = new VAR_AST(bn);
+    else if (bn->type == "PROCEDURE")
+        nodeptr = new PROCEDURE_AST(bn);
+    else if (bn->type == "FUNCTION")
+        nodeptr = new FUNCTION_AST(bn);
+    else if (bn->type == "BEGIN")
+        nodeptr = new BEGIN_AST(bn);
+    else if (bn->type == "END")
+        nodeptr = new END_AST(bn);
+    else if (bn->type == "ARRAY")
+        nodeptr = new ARRAY_AST(bn);
+    else if (bn->type == "OF")
+        nodeptr = new OF_AST(bn);
+    else if (bn->type == "IF")
+        nodeptr = new IF_AST(bn);
+    else if (bn->type == "THEN")
+        nodeptr = new THEN_AST(bn);
+    else if (bn->type == "FOR")
+        nodeptr = new FOR_AST(bn);
+    else if (bn->type == "TO")
+        nodeptr = new TO_AST(bn);
+    else if (bn->type == "DO")
+        nodeptr = new DO_AST(bn);
+    else if (bn->type == "READ")
+        nodeptr = new READ_AST(bn);
+    else if (bn->type == "WRITE")
+        nodeptr = new WRITE_AST(bn);
+    else if (bn->type == "NOT")
+        nodeptr = new NOT_AST(bn);
+    else if (bn->type == "ELSE")
+        nodeptr = new ELSE_AST(bn);
+    else if (bn->type == "RANGE")
+        nodeptr = new RANGE_AST(bn);
+    else if (bn->type == "UMINUS")
+        nodeptr = new UMINUS_AST(bn);
+    else if (bn->type == "ID")
+        nodeptr = new ID_AST(bn);
+    else if (bn->type == "RELOP")
+        nodeptr = new RELOP_AST(bn);
+    else if (bn->type == "DIGITS")
+        nodeptr = new DIGITS_AST(bn);
+    else if (bn->type == "NUM")
+        nodeptr = new NUM_AST(bn);
+    else if (bn->type == "VARTYPE")
+        nodeptr = new VARTYPE_AST(bn);
+    else if (bn->type == "ADDOP")
+        nodeptr = new ADDOP_AST(bn);
+    else if (bn->type == "MULOP")
+        nodeptr = new MULOP_AST(bn);
+    else if (bn->type == "ASSIGNOP")
+        nodeptr = new ASSIGNOP_AST(bn);
+    else if (bn->type == "SEPARATOR")
+        nodeptr = new SEPARATOR_AST(bn);
+    else if (bn->type == "CHAR")
+        nodeptr = new CHAR_AST(bn);
+    else if (bn->type == "BOOLEAN")
+        nodeptr = new BOOLEAN_AST(bn);
+    else if (bn->type == "WHILE")
+        nodeptr = new WHILE_AST(bn);
+    else if (bn->type == "programstruct")
+        nodeptr = new programstruct_AST(bn);
+    else if (bn->type == "program_head")
+        nodeptr = new program_head_AST(bn);
+    else if (bn->type == "program_body")
+        nodeptr = new program_body_AST(bn);
+    else if (bn->type == "idlist")
+        nodeptr = new idlist_AST(bn);
+    else if (bn->type == "const_declarations")
+        nodeptr = new const_declarations_AST(bn);
+    else if (bn->type == "const_declaration")
+        nodeptr = new const_declaration_AST(bn);
+    else if (bn->type == "const_value")
+        nodeptr = new const_value_AST(bn);
+    else if (bn->type == "var_declarations")
+        nodeptr = new var_declarations_AST(bn);
+    else if (bn->type == "var_declaration")
+        nodeptr = new var_declaration_AST(bn);
+    else if (bn->type == "basic_type")
+        nodeptr = new basic_type_AST(bn);
+    else if (bn->type == "type")
+        nodeptr = new type_AST(bn);
+    else if (bn->type == "period")
+        nodeptr = new period_AST(bn);
+    else if (bn->type == "subprogram_declarations")
+        nodeptr = new subprogram_declarations_AST(bn);
+    else if (bn->type == "subprogram")
+        nodeptr = new subprogram_AST(bn);
+    else if (bn->type == "subprogram_head")
+        nodeptr = new subprogram_head_AST(bn);
+    else if (bn->type == "formal_parameter")
+        nodeptr = new formal_parameter_AST(bn);
+    else if (bn->type == "parameter_list")
+        nodeptr = new parameter_list_AST(bn);
+    else if (bn->type == "parameter")
+        nodeptr = new parameter_AST(bn);
+    else if (bn->type == "var_parameter")
+        nodeptr = new var_parameter_AST(bn);
+    else if (bn->type == "value_parameter")
+        nodeptr = new value_parameter_AST(bn);
+    else if (bn->type == "subprogram_body")
+        nodeptr = new subprogram_body_AST(bn);
+    else if (bn->type == "compound_statement")
+        nodeptr = new compound_statement_AST(bn);
+    else if (bn->type == "statement_list")
+        nodeptr = new statement_list_AST(bn);
+    else if (bn->type == "statement")
+        nodeptr = new statement_AST(bn);
+    else if (bn->type == "variable_list")
+        nodeptr = new variable_list_AST(bn);
+    else if (bn->type == "variable")
+        nodeptr = new variable_AST(bn);
+    else if (bn->type == "id_varpart")
+        nodeptr = new id_varpart_AST(bn);
+    else if (bn->type == "procedure_call")
+        nodeptr = new procedure_call_AST(bn);
+    else if (bn->type == "else_part")
+        nodeptr = new else_part_AST(bn);
+    else if (bn->type == "term")
+        nodeptr = new term_AST(bn);
+    else if (bn->type == "factor")
+        nodeptr = new factor_AST(bn);
+    else if (bn->type == "simple_expression")
+        nodeptr = new simple_expression_AST(bn);
+    else if (bn->type == "expression_list")
+        nodeptr = new expression_list_AST(bn);
+    else if (bn->type == "expression")
+        nodeptr = new expression_AST(bn);
 
-ASTNode * SematicAnalysis::create_ASTNode(BitNode *bn)
+    return nodeptr;
+}
+
+ASTNode *SematicAnalysis::ADT2AST(BitNode *bn)
+{
+    // 父节点动作
+    ASTNode *cur_node = create_ASTNode(bn);
+    int n = bn->children.size();
+    // 子节点遍历
+    for (size_t i = 0; i < n; i++)
     {
-        ASTNode *nodeptr = NULL;
-
-        if (bn->type == "PROGRAM")
-            nodeptr = new PROGRAM_AST(bn);
-        else if (bn->type == "CONST")
-            nodeptr = new CONST_AST(bn);
-        else if (bn->type == "VAR")
-            nodeptr = new VAR_AST(bn);
-        else if (bn->type == "PROCEDURE")
-            nodeptr = new PROCEDURE_AST(bn);
-        else if (bn->type == "FUNCTION")
-            nodeptr = new FUNCTION_AST(bn);
-        else if (bn->type == "BEGIN")
-            nodeptr = new BEGIN_AST(bn);
-        else if (bn->type == "END")
-            nodeptr = new END_AST(bn);
-        else if (bn->type == "ARRAY")
-            nodeptr = new ARRAY_AST(bn);
-        else if (bn->type == "OF")
-            nodeptr = new OF_AST(bn);
-        else if (bn->type == "IF")
-            nodeptr = new IF_AST(bn);
-        else if (bn->type == "THEN")
-            nodeptr = new THEN_AST(bn);
-        else if (bn->type == "FOR")
-            nodeptr = new FOR_AST(bn);
-        else if (bn->type == "TO")
-            nodeptr = new TO_AST(bn);
-        else if (bn->type == "DO")
-            nodeptr = new DO_AST(bn);
-        else if (bn->type == "READ")
-            nodeptr = new READ_AST(bn);
-        else if (bn->type == "WRITE")
-            nodeptr = new WRITE_AST(bn);
-        else if (bn->type == "NOT")
-            nodeptr = new NOT_AST(bn);
-        else if (bn->type == "ELSE")
-            nodeptr = new ELSE_AST(bn);
-        else if (bn->type == "RANGE")
-            nodeptr = new RANGE_AST(bn);
-        else if (bn->type == "UMINUS")
-            nodeptr = new UMINUS_AST(bn);
-        else if (bn->type == "ID")
-            nodeptr = new ID_AST(bn);
-        else if (bn->type == "RELOP")
-            nodeptr = new RELOP_AST(bn);
-        else if (bn->type == "DIGITS")
-            nodeptr = new DIGITS_AST(bn);
-        else if (bn->type == "NUM")
-            nodeptr = new NUM_AST(bn);
-        else if (bn->type == "VARTYPE")
-            nodeptr = new VARTYPE_AST(bn);
-        else if (bn->type == "ADDOP")
-            nodeptr = new ADDOP_AST(bn);
-        else if (bn->type == "MULOP")
-            nodeptr = new MULOP_AST(bn);
-        else if (bn->type == "ASSIGNOP")
-            nodeptr = new ASSIGNOP_AST(bn);
-        else if (bn->type == "SEPARATOR")
-            nodeptr = new SEPARATOR_AST(bn);
-        else if (bn->type == "CHAR")
-            nodeptr = new CHAR_AST(bn);
-        else if (bn->type == "BOOLEAN")
-            nodeptr = new BOOLEAN_AST(bn);
-        else if (bn->type == "WHILE")
-            nodeptr = new WHILE_AST(bn);
-        else if (bn->type == "programstruct")
-            nodeptr = new programstruct_AST(bn);
-        else if (bn->type == "program_head")
-            nodeptr = new program_head_AST(bn);
-        else if (bn->type == "program_body")
-            nodeptr = new program_body_AST(bn);
-        else if (bn->type == "idlist")
-            nodeptr = new idlist_AST(bn);
-        else if (bn->type == "const_declarations")
-            nodeptr = new const_declarations_AST(bn);
-        else if (bn->type == "const_declaration")
-            nodeptr = new const_declaration_AST(bn);
-        else if (bn->type == "const_value")
-            nodeptr = new const_value_AST(bn);
-        else if (bn->type == "var_declarations")
-            nodeptr = new var_declarations_AST(bn);
-        else if (bn->type == "var_declaration")
-            nodeptr = new var_declaration_AST(bn);
-        else if (bn->type == "basic_type")
-            nodeptr = new basic_type_AST(bn);
-        else if (bn->type == "type")
-            nodeptr = new type_AST(bn);
-        else if (bn->type == "period")
-            nodeptr = new period_AST(bn);
-        else if (bn->type == "subprogram_declarations")
-            nodeptr = new subprogram_declarations_AST(bn);
-        else if (bn->type == "subprogram")
-            nodeptr = new subprogram_AST(bn);
-        else if (bn->type == "subprogram_head")
-            nodeptr = new subprogram_head_AST(bn);
-        else if (bn->type == "formal_parameter")
-            nodeptr = new formal_parameter_AST(bn);
-        else if (bn->type == "parameter_list")
-            nodeptr = new parameter_list_AST(bn);
-        else if (bn->type == "parameter")
-            nodeptr = new parameter_AST(bn);
-        else if (bn->type == "var_parameter")
-            nodeptr = new var_parameter_AST(bn);
-        else if (bn->type == "value_parameter")
-            nodeptr = new value_parameter_AST(bn);
-        else if (bn->type == "subprogram_body")
-            nodeptr = new subprogram_body_AST(bn);
-        else if (bn->type == "compound_statement")
-            nodeptr = new compound_statement_AST(bn);
-        else if (bn->type == "statement_list")
-            nodeptr = new statement_list_AST(bn);
-        else if (bn->type == "statement")
-            nodeptr = new statement_AST(bn);
-        else if (bn->type == "variable_list")
-            nodeptr = new variable_list_AST(bn);
-        else if (bn->type == "variable")
-            nodeptr = new variable_AST(bn);
-        else if (bn->type == "id_varpart")
-            nodeptr = new id_varpart_AST(bn);
-        else if (bn->type == "procedure_call")
-            nodeptr = new procedure_call_AST(bn);
-        else if (bn->type == "else_part")
-            nodeptr = new else_part_AST(bn);
-        else if (bn->type == "term")
-            nodeptr = new term_AST(bn);
-        else if (bn->type == "factor")
-            nodeptr = new factor_AST(bn);
-        else if (bn->type == "simple_expression")
-            nodeptr = new simple_expression_AST(bn);
-        else if (bn->type == "expression_list")
-            nodeptr = new expression_list_AST(bn);
-        else if (bn->type == "expression")
-            nodeptr = new expression_AST(bn);
-
-        return nodeptr;
+        ASTNode *child = ADT2AST(bn->children[i]);
+        cur_node->children.push_back(child);
+        child->father = cur_node;
     }
-
-ASTNode * SematicAnalysis::ADT2AST(BitNode *bn)
-    {
-        // 父节点动作
-        ASTNode *cur_node = create_ASTNode(bn);
-        int n = bn->children.size();
-        // 子节点遍历
-        for (size_t i = 0; i < n; i++)
-        {
-            ASTNode *child = ADT2AST(bn->children[i]);
-            cur_node->children.push_back(child);
-            child->father = cur_node;
-        }
-        return cur_node;
-    }
+    return cur_node;
+}
 /**
 class Type_IR{
 public:
@@ -3307,6 +3734,7 @@ llvm::Value *const_value_AST::code_generation()
 {
     cout << "const_value_AST::code_generation" << endl;
     llvm::Value *ret = nullptr;
+    llvm::Value *addr = nullptr;
     if (this->s_type == "integer")
     {
         int value = this->s_int < 0 ? -this->s_int : this->s_int;
@@ -3314,7 +3742,6 @@ llvm::Value *const_value_AST::code_generation()
     }
     else if (this->s_type == "real")
     {
-        cout << "real" << endl;
         double value = this->s_real < 1e-6 ? -this->s_real : this->s_real;
         ret = llvm::ConstantFP::get(context.type_ir.type_real, value);
     }
@@ -3334,6 +3761,41 @@ llvm::Value *const_value_AST::code_generation()
     }
     return ret;
 }
+llvm::Value *const_declarations_AST::code_generation()
+{
+    cout << "const_declarations_AST::code_generation" << endl;
+    SymbolTableItem *symbol_table_item = nullptr;
+    llvm::Type *type = nullptr;
+    llvm::Value *ret = nullptr;
+    for (auto &item : s_pair_list)
+    {
+        if (l_isglobal)
+        {
+            symbol_table_item = symbol_table.get(item.first);
+            type = context.type_ir.getLLVMType(item.second->s_type); // 获取基本变量类型
+            context.module->getOrInsertGlobal(item.first, type);
+            llvm::GlobalVariable *v = context.module->getNamedGlobal(item.first);
+            int num = 0;
+            if (symbol_table_item->type == 1 || symbol_table_item->type == 5)
+                num = 4;
+            else if (symbol_table_item->type == 2 || symbol_table_item->type == 6)
+                num = 8;
+            else
+                num = 1;
+            v->setAlignment(llvm::MaybeAlign(num));
+            ret = context.builder->CreateLoad(v);
+            symbol_table_item->value.array_val->llvmvalue = v;
+        }
+        else
+        {
+            symbol_table_item = symbol_table.get(item.first);
+            type = context.type_ir.getLLVMType(item.second->s_type); // 获取基本变量类型
+            ret = context.builder->CreateAlloca(type, nullptr);
+            context.builder->CreateStore(item.second->s_value, ret);
+            symbol_table_item->value.basic_val->llvmvalue = ret;
+        }
+    }
+}
 // 元素 常量 变量 类型
 
 /**
@@ -3349,7 +3811,7 @@ llvm::Value *var_declarations_AST::code_generation()
         llvm::Type *type = nullptr;
         llvm::Value *ret = nullptr;
         SymbolTableItem *symbol_table_item = nullptr;
-        //l_isglobal = false;
+        // l_isglobal = false;
         if (item.second->l_isarray)
         {
             for (auto &id : item.first->list)
@@ -3359,17 +3821,17 @@ llvm::Value *var_declarations_AST::code_generation()
                     int len = 0;
                     symbol_table_item = symbol_table.get(id);
                     type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type); // 获取基本类型
-                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->end[0]+1);
+                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->end[0] + 1);
                     for (int i = 1; i < symbol_table_item->value.array_val->size.size(); ++i)
-                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->end[i]+1);
+                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->end[i] + 1);
                     context.module->getOrInsertGlobal(id, arrayType);
                     llvm::GlobalVariable *v = context.module->getNamedGlobal(id);
                     int num = 0;
-                    if(symbol_table_item->value.array_val->type==1||symbol_table_item->value.array_val->type==5)
+                    if (symbol_table_item->value.array_val->type == 1 || symbol_table_item->value.array_val->type == 5)
                         num = 4;
-                    else if(symbol_table_item->value.array_val->type==2||symbol_table_item->value.array_val->type==6)
+                    else if (symbol_table_item->value.array_val->type == 2 || symbol_table_item->value.array_val->type == 6)
                         num = 8;
-                    else 
+                    else
                         num = 1;
                     v->setAlignment(llvm::MaybeAlign(num));
                     ret = context.builder->CreateLoad(v);
@@ -3379,29 +3841,15 @@ llvm::Value *var_declarations_AST::code_generation()
                 {
                     int len = 0;
                     symbol_table_item = symbol_table.get(id);
-                    type = context.type_ir.getArrayLLVMType(symbol_table_item);type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type);
-                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->end[0]+1);
+                    type = context.type_ir.getArrayLLVMType(symbol_table_item);
+                    type = context.type_ir.getLLVMType(symbol_table_item->value.array_val->type);
+                    llvm::ArrayType *arrayType = llvm::ArrayType::get(type, symbol_table_item->value.array_val->end[0] + 1);
                     for (int i = 0; i < symbol_table_item->value.array_val->size.size(); ++i)
-                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->end[i]+1);
+                        arrayType = llvm::ArrayType::get(arrayType, symbol_table_item->value.array_val->end[i] + 1);
                     ret = context.builder->CreateAlloca(arrayType);
                     symbol_table_item->value.array_val->llvmvalue = ret;
                 }
-                // ret = context.builder->CreateAlloca(arrayType);
 
-                // llvm::GlobalVariable *v = llvm::cast<llvm::GlobalVariable>(context.module->getOrInsertGlobal(id,type));
-
-                /**
-                symbol_table_item = symbol_table.get(id);
-                type = context.type_ir.getArrayLLVMType(symbol_table_item);
-                if (type == nullptr) // 数组类型未定义
-                {
-                    type = context.type_ir.createArrayType(symbol_table_item); // 新建数组类型
-                }
-                if (type)
-                {
-                    ret = context.builder->CreateAlloca(type, nullptr);
-                }*/
-                // symbol_table_item->value.array_val->llvmvalue = ret;
             }
         }
         else
@@ -3414,12 +3862,12 @@ llvm::Value *var_declarations_AST::code_generation()
                     type = context.type_ir.getLLVMType(item.second->s_type); // 获取基本变量类型
                     context.module->getOrInsertGlobal(id, type);
                     llvm::GlobalVariable *v = context.module->getNamedGlobal(id);
-                     int num = 0;
-                    if(symbol_table_item->value.array_val->type==1||symbol_table_item->value.array_val->type==5)
+                    int num = 0;
+                    if (symbol_table_item->type == 1 || symbol_table_item->type == 5)
                         num = 4;
-                    else if(symbol_table_item->value.array_val->type==2||symbol_table_item->value.array_val->type==6)
+                    else if (symbol_table_item->type == 2 || symbol_table_item->type == 6)
                         num = 8;
-                    else 
+                    else
                         num = 1;
                     v->setAlignment(llvm::MaybeAlign(num));
                     ret = context.builder->CreateLoad(v);
@@ -3432,10 +3880,7 @@ llvm::Value *var_declarations_AST::code_generation()
                     ret = context.builder->CreateAlloca(type, nullptr);
                     symbol_table_item->value.basic_val->llvmvalue = ret;
                 }
-                // llvm::GlobalVariable *v = llvm::cast<llvm::GlobalVariable>(context.module->getOrInsertGlobal(id,type));
-                // ret = context.builder->CreateAlloca(type, nullptr);
 
-                // symbol_table_item->value.basic_val->llvmvalue = ret;
             }
         }
     }
@@ -3508,16 +3953,6 @@ llvm::Function *subprogram_head_AST::function_generation()
         if (argName->second) // 是引用传递
         {
             loc = &arg; // 传入值是地址
-            // cout<<loc->getType()->getTypeID()<<endl;
-            // llvm::Value* DestTy = context.builder->CreateAlloca(*argType,nullptr,argName->first);
-            // cout<<loc->getType()->getPointerElementType()->getTypeID()<<endl;
-            // loc = context.builder->CreateIntToPtr(loc,llvm::PointerType::get(DestTy->getType(), 0));
-            // cout<<loc->getType()->getTypeID()<<endl;
-            // cout<<loc->getType()->getPointerElementType()->getTypeID()<<endl;
-            // llvm::Value* tmp = context.builder->CreateLoad(loc,argName->first);//载入数据
-            // context.builder->CreateStore(tmp,loc,false);//参数存到地址中
-            // loc = context.builder->CreateAlloca(*argType,nullptr,argName->first);
-            // context.builder->CreateStore(&arg,loc,false);//参数存到地址中
         }
         else
         {
@@ -3642,49 +4077,48 @@ llvm::Value *factor_AST::code_generation()
     // 四种常数
     switch (s_state)
     {
-    case 1: // 常数
-    {
-        cout << s_type << endl;
-        if (s_type == "integer")
-            value = llvm::ConstantInt::get(context.type_ir.type_int, s_int, true);
-        else if (s_type == "real")
-            value = llvm::ConstantFP::get(context.type_ir.type_real, (double)s_real);
-        else if (s_type == "char")
-            value = llvm::ConstantInt::get(context.type_ir.type_char, s_char, true);
-        else if (s_type == "boolean")
-            value = llvm::ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
-    }
-    break;
-    case 2:
-    {
-        value = this->s_value; // 变量，拿解析值
-    }
-    break;
-    case 3: // 函数、表达式
-    {
-        value = this->s_value; // 变量，拿解析值
-    }
-    break;
-    case 4: // 单目运算符
-    {
-        if (this->s_op == "!") // 取非
-            value = context.builder->CreateNot(this->s_operand0, "not");
-        else if (this->s_op == "-") // 取负
+        case 1: // 常数
         {
-            // 浮点形
-            if (this->s_operand0_type == "real")
+            if (s_type == "integer")
+                value = llvm::ConstantInt::get(context.type_ir.type_int, s_int, true);
+            else if (s_type == "real")
+                value = llvm::ConstantFP::get(context.type_ir.type_real, (double)s_real);
+            else if (s_type == "char")
+                value = llvm::ConstantInt::get(context.type_ir.type_char, s_char, true);
+            else if (s_type == "boolean")
+                value = llvm::ConstantInt::get(context.type_ir.type_boolean, s_bool, true);
+        }
+            break;
+        case 2:
+        {
+            value = this->s_value; // 变量，拿解析值
+        }
+            break;
+        case 3: // 函数、表达式
+        {
+            value = this->s_value; // 变量，拿解析值
+        }
+            break;
+        case 4: // 单目运算符
+        {
+            if (this->s_op == "!") // 取非
+                value = context.builder->CreateNot(this->s_operand0, "not");
+            else if (this->s_op == "-") // 取负
             {
-                llvm::Value *temp = llvm::ConstantFP::get(context.type_ir.type_real, (double)(0.0));
-                value = context.builder->CreateFNeg(this->s_operand0, "uminus");
-            }
-            else
-            {
-                llvm::Value *temp = llvm::ConstantInt::get(context.type_ir.type_real, 0, true);
-                value = context.builder->CreateNeg(this->s_operand0, "uminus");
+                // 浮点形
+                if (this->s_operand0_type == "real")
+                {
+                    llvm::Value *temp = llvm::ConstantFP::get(context.type_ir.type_real, (double)(0.0));
+                    value = context.builder->CreateFNeg(this->s_operand0, "uminus");
+                }
+                else
+                {
+                    llvm::Value *temp = llvm::ConstantInt::get(context.type_ir.type_real, 0, true);
+                    value = context.builder->CreateNeg(this->s_operand0, "uminus");
+                }
             }
         }
-    }
-    break;
+            break;
     }
     // 可以语法做
     // this->s_value = value;
@@ -3701,7 +4135,6 @@ llvm::Value *term_AST::code_generation()
     llvm::Value *value = nullptr;
     // 类型转换,待浮点全部转浮点 /运算好像不用
     bool judge = true;
-    cout<<s_op<<endl;
     if (operand0_type == "real" || operand1_type == "real")
     {
         operand0 = context.builder->CreateSIToFP(operand0, context.type_ir.type_real);
@@ -3715,7 +4148,7 @@ llvm::Value *term_AST::code_generation()
         else
             value = context.builder->CreateFMul(operand0, operand1, "multmp");
     }
-    // 两种除法有待商榷
+        // 两种除法有待商榷
     else if (s_op == "/")
     {
         if (judge)
@@ -3730,16 +4163,15 @@ llvm::Value *term_AST::code_generation()
         else
             value = context.builder->CreateFDiv(operand0, operand1, "divtmp");
     }
-    // 取模没有浮点
+        // 取模没有浮点
     else if (s_op == "mod")
     {
         value = context.builder->CreateSRem(operand0, operand1, "modtmp");
     }
     else if (s_op == "and")
-    {           
+    {
         value = context.builder->CreateAnd(operand0, operand1, "andtmp");
     }
-    cout<<"and is nullptr"<<endl;
     return value;
 }
 /**
@@ -3765,7 +4197,7 @@ llvm::Value *simple_expression_AST::code_generation()
         else
             value = context.builder->CreateFAdd(operand0, operand1, "addtmp");
     }
-    // 两种除法有待商榷
+        // 两种除法有待商榷
     else if (s_op == "-")
     {
         if (judge)
@@ -3895,7 +4327,6 @@ llvm::Value *statement_AST::if_code_generation_2()
     }
     if (s_has_else)
     {
-        cout << "s_has_else" << endl;
         function->getBasicBlockList().push_back(block2);
         context.builder->SetInsertPoint(block2);
         IP = context.builder->saveIP(); // 保存插入点
@@ -3958,7 +4389,6 @@ llvm::Value *statement_AST::for_code_generation_2()
     llvm::Value *value_old = nullptr;
     if (block4 != nullptr)
     {
-        cout << "bolck:" << endl;
         context.builder->SetInsertPoint(block4); // 设置插入点，这个地方有待考量
         s_for_item = symbol_table.get(s_for_identifier);
         value_old = context.builder->CreateLoad(s_for_item->value.basic_val->llvmvalue);
@@ -3970,7 +4400,6 @@ llvm::Value *statement_AST::for_code_generation_2()
     }
     else
     {
-        cout << "bolck3:" << endl;
         context.builder->SetInsertPoint(block1); // 设置插入点，这个地方有待考量
         s_for_item = symbol_table.get(s_for_identifier);
         value_old = context.builder->CreateLoad(s_for_item->value.basic_val->llvmvalue);
@@ -3983,9 +4412,6 @@ llvm::Value *statement_AST::for_code_generation_2()
     }
     function->getBasicBlockList().push_back(block3);
     context.builder->SetInsertPoint(block3);
-    // condition = (llvm::Value*)(true);
-    // cout<< function->getBasicBlockList().size();
-    // context.builder->CreateCondBr(condition,block2,&function->getBasicBlockList().back());
     return nullptr;
 }
 /**
@@ -4002,8 +4428,6 @@ llvm::Value *statement_AST::while_code_generation_1()
     block3 = llvm::BasicBlock::Create(context.llvmContext, "whilecont", function);
 
     while_temp_value = context.builder->CreateAlloca(context.type_ir.type_boolean);
-    if(s_expression_value == nullptr)
-        cout<<"nullptr"<<endl;
     s_expression_value = expressionToBoolean(s_expression_value); // 条件值
     context.builder->CreateStore(s_expression_value, while_temp_value);
     context.builder->CreateCondBr(s_expression_value, block1, block3);
@@ -4045,25 +4469,11 @@ llvm::Value *statement_AST::assign_code_generation()
     cout << "statement_AST::assign_code_generation" << endl;
     // 获取左值 item
     SymbolTableItem *item = nullptr;
-    /**
-     * 为什么这里会出现段错误
-     *
-    cout<<"123456"<<endl;
-    if (this->s_variable != nullptr)
-    {
-        cout<<"123"<<endl;
-        if(this->s_variable==nullptr)
-            cout<<"s_variable is null"<<endl;
-        item = this->s_variable->item;
-        cout<<"FUCK?"<<endl;
-    }*/
-    if (item == nullptr)
-        cout << "assign_code_generation: item is null" << endl;
+
     // 获取左值,左值可以是变量，也可以是数组元素，
     llvm::Value *value = nullptr; // 左值变量地址    if (is_while_assign == true)
-    if(is_while_assign)
+    if (is_while_assign)
     {
-        cout << "is_while_assign" << endl;
         context.builder->CreateStore(s_expression_value, while_temp_value);
         value = while_temp_value;
     }
@@ -4139,7 +4549,7 @@ llvm::Value *statement_AST::read()
 {
     cout << "procedure_call_AST::read_procedure" << endl;
     vector<llvm::Value *> args;
-    int index;
+    int index = 4;
     int count = 0;
     for (auto &item : s_variable_list)
     {
@@ -4154,11 +4564,14 @@ llvm::Value *statement_AST::read()
         llvm::Value *ret = context.builder->CreateCall(context.funcStack[index], args, "read");
         // todo 变量操作
         llvm::Value *addr = nullptr;
-        addr = item->item->value.basic_val->llvmvalue; // 获取变量地址
+        if (item->item->type == 9)
+            addr = get_item(item); // 获取数组元素地址
+        else
+            addr = item->item->value.basic_val->llvmvalue; // 获取变量地址
         context.builder->CreateStore(ret, addr);
-        cout << "test" << endl;
         ++count;
     }
+    cout<<"read_end"<<endl;
     return nullptr;
 }
 
@@ -4169,7 +4582,7 @@ llvm::Value *variable_AST::code_generation()
     // 获取左值 item
     SymbolTableItem *item = this->item;
     llvm::Value *addr = nullptr; // 左值变量地址
-    if (item->type < 9)          // 普通变量
+    if (item->type < 9) // 普通变量
     {
         addr = item->value.basic_val->llvmvalue;
         this->llvmleftValue = addr;
@@ -4180,7 +4593,6 @@ llvm::Value *variable_AST::code_generation()
         // 获取数组
         addr = get_item(this);
         this->llvmleftValue = addr;
-        cout<<"10"<<endl;
         return context.builder->CreateLoad(addr, false, "");
     }
     return nullptr;
@@ -4197,11 +4609,11 @@ llvm::Value *get_item(variable_AST *var)
     SymbolTableItem *item = var->item;
     vector<int> sum;
     int temp = 1;
-    for(int i = item->value.array_val->size.size();i>=0;--i)
-        temp*= item->value.array_val->size[i];
-    for(int i = 0;i<item->value.array_val->size.size();++i)
+    for (int i = item->value.array_val->size.size(); i >= 0; --i)
+        temp *= item->value.array_val->size[i];
+    for (int i = 0; i < item->value.array_val->size.size(); ++i)
     {
-        temp/=item->value.array_val->size[i];
+        temp /= item->value.array_val->size[i];
         sum.push_back(temp);
     }
     string cur = ""; // 当前维度type
@@ -4214,27 +4626,27 @@ llvm::Value *get_item(variable_AST *var)
     }*/
     for (int i = 0; i < item->value.array_val->size.size(); ++i)
         len += item->value.array_val->size[i];
-    //llvm::Type *arrayType = llvm::ArrayType::get(context.type_ir.getLLVMType(item->value.array_val->type), len);
+    // llvm::Type *arrayType = llvm::ArrayType::get(context.type_ir.getLLVMType(item->value.array_val->type), len);
     llvm::Type *arrayType = llvm::ArrayType::get(context.type_ir.getLLVMType(var->s_type), len);
     llvm::Value *head = nullptr;
-    llvm::Value *i32zero = llvm::ConstantInt::get(context.type_ir.type_int,0);
-    llvm::Value *indices[var->item->value.array_val->size.size()+1];
+    llvm::Value *i32zero = llvm::ConstantInt::get(context.type_ir.type_int, 0);
+    llvm::Value *indices[var->item->value.array_val->size.size() + 1];
     indices[0] = i32zero;
-    for(int i = 0;i<var->item->value.array_val->size.size();++i)
-    {
-        //llvm::Value* offset = nullptr;
-        //offset = context.builder->CreateGEP(context.type_ir.getLLVMType(var->s_type),llvm::ConstantInt::get(context.type_ir.type_int,item->value.array_val->begin[i]),var->s_value_list[i]);
-        indices[i+1] = var->s_value_list[i];
-        //indices[i+1] = offset;
-    }
-    base = context.builder->CreateInBoundsGEP(base, llvm::ArrayRef<llvm::Value *>(indices,var->item->value.array_val->size.size()+1));
-   /*
     for (int i = 0; i < var->item->value.array_val->size.size(); ++i)
     {
-        head = llvm::ConstantInt::get(context.type_ir.type_int, sum[i], true);
-        //base = var->item->value.array_val->llvmvalue;
-        base = context.builder->CreateGEP(arrayType, base,{head,var->s_value_list[i]});
-    }*/
+        // llvm::Value* offset = nullptr;
+        // offset = context.builder->CreateGEP(context.type_ir.getLLVMType(var->s_type),llvm::ConstantInt::get(context.type_ir.type_int,item->value.array_val->begin[i]),var->s_value_list[i]);
+        indices[i + 1] = var->s_value_list[i];
+        // indices[i+1] = offset;
+    }
+    base = context.builder->CreateInBoundsGEP(base, llvm::ArrayRef<llvm::Value *>(indices, var->item->value.array_val->size.size() + 1));
+    /*
+     for (int i = 0; i < var->item->value.array_val->size.size(); ++i)
+     {
+         head = llvm::ConstantInt::get(context.type_ir.type_int, sum[i], true);
+         //base = var->item->value.array_val->llvmvalue;
+         base = context.builder->CreateGEP(arrayType, base,{head,var->s_value_list[i]});
+     }*/
     // base = context.builder->CreateConstGEP2_32(arrayType,base,0,0);
     return base;
 }
@@ -4292,7 +4704,6 @@ void objectGenerate(string &filename)
 
     // 获取目标三元组并设置
     auto targetTriple = llvm::sys::getDefaultTargetTriple();
-    //auto targetTriple = llvm::Triple("x86_64", "pc", "windows-msvc").getTriple();//windows目标机
     context.module->setTargetTriple(targetTriple);
 
     // 获取目标机数据类型并设置
@@ -4338,13 +4749,11 @@ void objectGenerate(string &filename)
         return;
     }
     context.module->print(llvm::outs(), nullptr);
-    
+
     pass.run(*(context.module));
     dest.flush();
 
     // 打印LLVM IR
-
-    
 }
 
 bool isBasicType(const string &type)
@@ -4441,3 +4850,5 @@ string Type_IR::getArrayMemberType(const string &name)
     */
     return name;
 }
+
+

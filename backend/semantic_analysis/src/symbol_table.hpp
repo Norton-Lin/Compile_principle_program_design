@@ -55,7 +55,6 @@ public:
     llvm::Value* llvmvalue;
     //MyArrayType() {};
 
-
     MyArrayType(vector<int> begin, vector<int> end, symbol_type type)
     {
         this->dimension = begin.size();
@@ -197,29 +196,6 @@ private:
         this->value.function_val = NULL;
         this->value.array_val = NULL;
         this->value.basic_val = NULL;
-//        switch (type)
-//        {
-//        case const_int:
-//        case var_int:this->value.int_val = 0;
-//            break;
-//        case const_real:
-//        case var_real:this->value.real_val = 0.0;
-//            break;
-//        case const_bool:
-//        case var_bool:this->value.bool_val = false;
-//            break;
-//        case const_char:
-//        case var_char:this->value.char_val = '\0';
-//            break;
-//        case unknown:
-//            break;
-//
-//        case array_type:this->value.array_val = new MyArrayType();
-//            break;
-//        case function:this->value.function_val = new MyFunctionType();
-//            break;
-//        default:;//todo:调试信息.数组，函数类型在定义时必须赋值
-//        }
     }
 
 };
@@ -241,6 +217,16 @@ public:
         ;
     }
 
+    void set_main_function(string str)
+    {
+        this->main_function = str;
+        this->cur_function = str;
+    }
+
+    void set_cur_function(string str)
+    {
+        this->cur_function = str;
+    }
 
     //增删查改方法
 
@@ -336,4 +322,5 @@ MyFunctionType:: MyFunctionType(SymbolTable* main_table){
     this->main_table = main_table;
     this->child_table = new SymbolTable();
 }
+
 

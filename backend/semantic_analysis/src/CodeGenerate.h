@@ -40,21 +40,20 @@
 #include<iostream>
 #include"TypeSystem.h"
 //验证类型
-#define ISTYPE(value, id) (value->getType()->getTypeID() == id)
 using namespace std;
 /**
  * 在整个编译器程序中使用一个单例的CodeGenContext对象
  * 维护全局的编译信息。在这个对象中主要维护的成员包括
- * 处理CodeGenBlock时所用到的栈blockStack，
- * 全局变量表globalVars以及类型系统单例typeSystem，
- * 以及之后生成中间代码时需要用到的LLVM提供的相关对象。
+ * 初始函数栈funcStack，
+ * LLVMIR 类型维护类 type_ir，
+ * 以及之后生成目标代码时需要用到的LLVM提供的相关对象。
 */
 class CodeGenContext { 
 public:
     llvm::LLVMContext llvmContext;
     unique_ptr<llvm::IRBuilder<>> builder;
     unique_ptr<llvm::Module> module;//中间代码生成对象
-    Type_IR type_ir;//自定义类型系统
+    Type_IR type_ir;//类型维护类
     vector<llvm::Function*> funcStack;//函数栈
     CodeGenContext(): type_ir(llvmContext) {
         module = make_unique<llvm::Module>("main", this->llvmContext);

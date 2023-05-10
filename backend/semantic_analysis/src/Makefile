@@ -2,6 +2,7 @@ all: compiler
 
 OBJS =  y.tab.o \
 		lex.yy.o  \
+		Disposal.o \
 		test.o
 
 LLVMCONFIG = llvm-config-11
@@ -18,6 +19,9 @@ y.tab.hpp: y.tab.cpp
 
 lex.yy.cpp: lex-link.l y.tab.hpp
 	flex -wincompat -o $@ $<
+	
+Disposal.cpp: main.h
+
 test.cpp:ASTNodes.hpp
 
 %.o: %.cpp
